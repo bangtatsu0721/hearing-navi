@@ -1,0 +1,810 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>住まいのヒアリングナビ v15｜無料・適応型</title><style>
+:root{font-family:system-ui,'Yu Gothic',Meiryo,sans-serif;color:#203642;background:#f1f5f6}*{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}button{cursor:pointer}header{background:#163746;color:white;padding:16px 22px;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}header h1{font-size:19px;margin:0}header small{color:#bdd2da}.shell{max-width:1560px;margin:16px auto;padding:0 15px;display:grid;grid-template-columns:245px minmax(360px,1fr) 350px;gap:14px}.panel{background:#fff;border:1px solid #dce5e8;border-radius:13px;padding:17px;box-shadow:0 3px 14px #12334408}h2{font-size:15px;margin:0 0 14px}h3{font-size:14px;margin:12px 0 6px}.muted{color:#6a828d;font-size:12px;line-height:1.7}.field{display:block;font-size:12px;color:#59727c;margin:12px 0 5px}input,textarea,select{width:100%;padding:10px;border:1px solid #cbdbe0;border-radius:8px;background:#fff;color:#243e49}textarea{min-height:125px;resize:vertical;line-height:1.65}.btn{border:1px solid #cbdde0;background:#fff;border-radius:8px;padding:10px 13px;color:#28505e;font-size:13px}.primary{background:#137c70;color:white;border-color:#137c70}.danger{color:#a33d38}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.tag{display:inline-block;background:#e8f3f1;color:#117467;border-radius:16px;padding:5px 10px;font-size:11px;font-weight:700}.question{font-size:23px;line-height:1.55;font-weight:700;margin:16px 0}.choice{display:block;border:1px solid #d6e2e5;border-radius:9px;padding:10px 12px;margin:7px 0;cursor:pointer;font-size:13px}.choice:has(input:checked){border-color:#168678;background:#eff8f6}.choice input{width:auto;margin-right:9px}.axis{margin:13px 0}.axishead{display:flex;justify-content:space-between;font-size:13px}.bar{height:8px;background:#e8eff1;border-radius:10px;overflow:hidden;margin:7px 0}.fill{height:100%;background:#168477}.timeline{max-height:430px;overflow:auto}.event{border-left:3px solid #86c3b7;padding:2px 0 11px 12px;margin:9px 0;font-size:12px}.event p{margin:4px 0;white-space:pre-wrap;line-height:1.6}.card{border:1px solid #dce8ea;border-radius:10px;padding:12px;margin:10px 0;font-size:12px;line-height:1.7}.card strong{font-size:13px}.suggest{background:#f1f7f6;border-radius:10px;padding:12px;margin-top:14px}.smallbtn{border:1px solid #cbdde0;background:#fff;border-radius:7px;padding:6px 9px;font-size:11px;color:#345767}.history{display:flex;gap:5px;flex-wrap:wrap}.report{grid-column:2/4}.hidden{display:none!important}table{border-collapse:collapse;width:100%;font-size:12px}td,th{padding:9px;border-bottom:1px solid #e0e9ec;text-align:left;vertical-align:top}#warning{font-size:12px;color:#a3453b} .divider{border-top:1px solid #e4ecee;margin:15px 0}@media(max-width:1100px){.shell{grid-template-columns:220px 1fr}.right,.report{grid-column:1/3}}@media(max-width:720px){.shell{display:block}.panel{margin-bottom:13px}.question{font-size:19px}}@media print{header,.left,.center,.right,.actions,#printBtn{display:none!important}.shell{display:block}.report{display:none!important}}
+
+.deck{grid-column:1/4}.deckbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}.deckgrid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:18px;margin-top:14px}.slidechoices{max-height:670px;overflow:auto}.slidechoice{padding:11px;border:1px solid #dce5e8;border-radius:9px;margin-bottom:8px}.slidechoice label{display:flex;gap:8px;align-items:start;font-size:13px;font-weight:650}.slidechoice input{width:auto;margin-top:3px}.slidechoice small{display:block;margin:5px 0 0 23px;color:#687e88;font-size:11px;line-height:1.5}.slides{display:flex;flex-direction:column;gap:17px}.slide{background:white;aspect-ratio:16/9;border:1px solid #d8e3e7;border-radius:10px;overflow:hidden;position:relative;box-shadow:0 5px 17px #1a364515;padding:5% 6%;display:flex;flex-direction:column;gap:15px;page-break-after:always}.slide::before{content:'';position:absolute;left:0;top:0;bottom:0;width:10px;background:#168477}.slide .eyebrow{font-size:12px;letter-spacing:.12em;color:#138476;font-weight:800}.slide h2{font-size:clamp(19px,2.1vw,32px);line-height:1.3;margin:0;color:#183f4c}.slide .lead{font-size:clamp(12px,1.15vw,17px);color:#526d77;line-height:1.6}.slide .content{display:grid;grid-template-columns:1fr 1fr;gap:14px;flex:1}.slide .tile{background:#f2f7f7;border:1px solid #e2eded;border-radius:9px;padding:15px;min-width:0;overflow-wrap:anywhere}.slide .tile h3{font-size:13px;color:#1b7d71;margin:0 0 7px}.slide .tile p{font-size:clamp(11px,.95vw,15px);line-height:1.7;margin:0;white-space:pre-wrap}.slide .foot{font-size:11px;color:#6c828a;border-top:1px solid #e0e9eb;padding-top:8px}.deck textarea{min-height:80px}.deck .slide textarea{min-height:0}.editable{outline:1px dashed transparent;border-radius:3px}.editable:focus{outline:2px solid #168477;background:#fffdf3}.note{font-size:12px;color:#506b75;line-height:1.6}.axisnote{padding:8px 10px;border-left:3px solid #168477;background:#f0f7f5;font-size:12px}.check{width:auto}.decktop{display:flex;gap:8px;flex-wrap:wrap}.decktop .btn{font-size:12px}.empty{padding:28px;border:1px dashed #b5ccd2;border-radius:9px;text-align:center;color:#647d86}@media(max-width:1100px){.deck{grid-column:1/3}}@media(max-width:720px){.deck{grid-column:auto}.deckgrid{display:block}.slidechoices{max-height:none;margin-bottom:15px}.slide{padding:18px;gap:8px}.slide .content{gap:6px}.slide .tile{padding:8px}.slide .tile h3{font-size:10px}.slide .tile p{font-size:9px}.slide .foot{font-size:8px}}
+@media print{@page{size:A4 landscape;margin:0}body{background:white!important}header,.left,.center,.right,.report,.deckbar,.slidechoices,.deck .muted,.decktop,#deckIntro{display:none!important}.shell{display:block!important;margin:0!important;padding:0!important;max-width:none!important}.deck{display:block!important;border:0!important;padding:0!important;box-shadow:none!important}.deckgrid{display:block!important;margin:0!important}.slides{display:block!important;gap:0!important}.slide{border:0!important;border-radius:0!important;box-shadow:none!important;width:297mm!important;height:210mm!important;aspect-ratio:auto!important;page-break-after:always!important;break-after:page!important;padding:18mm!important}.slide h2{font-size:27pt!important}.slide .lead{font-size:14pt!important}.slide .tile p{font-size:13pt!important}.slide .tile h3{font-size:13pt!important}.slide .foot{font-size:9pt!important}.slide:last-child{page-break-after:auto!important;break-after:auto!important}}
+
+.contextPanel{margin:12px 0;padding:12px;border:1px solid #b8d8d1;background:#f4faf8;border-radius:10px;font-size:13px;line-height:1.7}.contextPanel:empty{display:none}.contextPanel b{color:#176c61}.contextPanel .chip{display:inline-block;background:#e0f0eb;border-radius:12px;padding:2px 8px;margin:4px 5px 2px 0;font-size:11px}.contextPanel .note{color:#55746c;font-size:11px}.probe{border-left:4px solid #168477;padding:7px 11px;background:#f0f9f6;margin:8px 0}.probe .smallbtn{margin-top:7px}.followupLabel{display:inline-block;font-size:11px;background:#dff1ec;color:#136d5f;border-radius:15px;padding:4px 9px}
+
+.toolpanel{grid-column:1/4}.toolcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.toolcard{border:1px solid #d5e1e3;border-radius:12px;padding:15px;background:#f8fbfb}.toolcard h3{margin:0 0 7px}.toolcard p{font-size:13px;line-height:1.7}.toolcard .btn{margin-top:8px}.routebox{background:#eaf5f2;padding:13px;border-radius:10px;margin:10px 0;line-height:1.8}.routebox b{color:#166e61}.mini{font-size:12px;color:#536b72}.toolcard input{width:100%;margin:5px 0 8px;padding:8px;border:1px solid #c8d6d9;border-radius:7px}.toolcard a{display:inline-block;padding:8px 12px;border-radius:8px;background:#176c61;color:white;text-decoration:none;margin-top:6px}.toolcard a[aria-disabled=true]{pointer-events:none;background:#a4b4b8}.decision{margin-top:12px;border:1px solid #c4ddd5;background:#f4faf8;border-radius:10px;padding:12px;font-size:13px;line-height:1.8}.decision button{margin:4px 5px 0 0}.flowlist{margin:8px 0;padding-left:21px}.flowlist li{margin:5px 0}@media(max-width:850px){.toolcards{grid-template-columns:1fr}}@media print{.toolpanel{display:none!important}}
+.decisiongrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.decisiongrid label{font-size:12px;color:#49636b}.decisiongrid input,.decisiongrid select{display:block;width:100%;margin-top:5px;padding:9px;border:1px solid #cddbdd;border-radius:7px;background:white}@media(max-width:700px){.decisiongrid{grid-template-columns:1fr}#decisionInputs{grid-column:auto}}
+
+/* v9: customer-facing presentation */
+.audience-switch{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin:10px 0}.audience-switch button.active{background:#146e67;color:#fff;border-color:#146e67}.audience-tip{font-size:12px;color:#5c7480;margin:8px 0 14px}.customer-slide{background:#fff;color:#1b3543;padding:5% 6%;gap:12px}.customer-slide:before{width:0}.customer-slide .eyebrow{color:#187e77;font-size:11px;letter-spacing:.15em}.customer-slide h2{font-size:clamp(22px,2.6vw,38px);max-width:90%;line-height:1.4}.customer-slide .lead{font-size:clamp(12px,1.25vw,18px);color:#546d79}.customer-slide .foot{margin-top:auto}.customer-slide .content{display:block;flex:1}.customer-slide .customer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.customer-slide .customer-panel{padding:17px 19px;border-radius:13px;background:#f2f7f6;border:1px solid #e0ebe9}.customer-slide .customer-panel .kicker{font-size:12px;font-weight:700;color:#397f77;margin-bottom:9px}.customer-slide .customer-panel .big{font-size:clamp(20px,2.4vw,35px);font-weight:850;line-height:1.25}.customer-slide .customer-panel .detail{font-size:clamp(11px,.95vw,15px);line-height:1.7;white-space:pre-line}.customer-slide .customer-panel.emphasis{background:#e9f4f1;border-color:#b8dcd3}.customer-slide .customer-hero{font-size:clamp(17px,1.9vw,27px);font-weight:750;line-height:1.5;padding:20px 25px;border-left:5px solid #168477;background:#f2f7f6;border-radius:4px 12px 12px 4px;margin:8px 0 20px}.customer-slide .comparison{display:grid;grid-template-columns:1fr 1fr;gap:16px}.customer-slide .comparebox{border:1px solid #d9e8e6;border-radius:14px;padding:18px}.customer-slide .comparebox h3{font-size:16px;margin:0 0 10px}.customer-slide .comparebox .amount{font-size:clamp(21px,2.5vw,36px);font-weight:850}.customer-slide .comparebox p{font-size:13px;line-height:1.7;white-space:pre-line}.customer-slide .questionbar{background:#e9f3f1;padding:14px 20px;border-radius:12px;font-size:clamp(13px,1.2vw,17px);font-weight:650;line-height:1.6;margin-top:14px}.customer-slide .caution{font-size:11px;color:#617780;margin-top:12px}.customer-slide .smallline{font-size:12px;color:#536d77;margin-top:8px}.customer-slide .data-bar{height:12px;background:#e2ebeb;border-radius:99px;overflow:hidden;margin-top:12px}.customer-slide .data-bar>span{display:block;height:100%;background:#1a867b}.customer-slide .placeholder{border:2px dashed #b8cecb;padding:18px;border-radius:12px;color:#526d77;font-size:14px;line-height:1.7}.customer-slide .steps{display:grid;gap:12px}.customer-slide .step{display:flex;gap:14px;align-items:center;padding:13px 16px;border:1px solid #dce8e7;border-radius:10px;font-size:15px}.customer-slide .step b{background:#177e75;color:#fff;border-radius:50%;height:30px;width:30px;flex:none;display:grid;place-items:center}.customer-slide .status{font-size:12px;font-weight:650;color:#187e77}.customer-slide .data-source{font-size:10px;color:#617780}
+@media print{.audience-switch,.audience-tip{display:none!important}.customer-slide .customer-panel .big{font-size:27pt!important}.customer-slide .customer-panel .detail,.customer-slide .comparebox p{font-size:12pt!important}.customer-slide .questionbar{font-size:15pt!important}.customer-slide .customer-hero{font-size:22pt!important}.customer-slide .caution{font-size:9pt!important}}
+
+/* v10: independent visual language for each customer-facing slide */
+.v10-slide{padding:4.5% 5.5%;gap:10px;--accent:#146e6b}
+.v10-slide .content{min-height:0}
+.v10-slide .foot{font-size:10px;line-height:1.35}
+.v10-slide h2{font-size:clamp(22px,2.4vw,35px)}
+.v10-slide .lead{font-size:clamp(12px,1.12vw,16px)}
+.v10-cover{background:linear-gradient(125deg,#103c4a 0%,#176b68 75%,#2a897e 100%);color:white}
+.v10-cover h2,.v10-cover .lead,.v10-cover .eyebrow,.v10-cover .foot{color:white}
+.v10-cover .foot{border-color:#ffffff50}
+.v10-cover .cover-hero{font-size:clamp(24px,3.2vw,49px);font-weight:850;line-height:1.4;margin:3% 0 4%;max-width:78%}
+.v10-cover .cover-chips{display:flex;gap:12px;flex-wrap:wrap}
+.v10-cover .cover-chip{padding:12px 17px;border:1px solid #ffffff60;border-radius:30px;background:#ffffff16;font-weight:650}
+.v10-money{background:#fbfaf6}
+.v10-money .eyebrow{color:#b27738}
+.v10-money .money-layout{display:grid;grid-template-columns:1.25fr .75fr;gap:22px;align-items:stretch;height:100%}
+.v10-money .money-chart{display:flex;flex-direction:column;justify-content:center;gap:14px}
+.v10-money .money-line{display:grid;grid-template-columns:110px 1fr 94px;align-items:center;gap:12px;font-size:13px}
+.v10-money .money-track{height:45px;background:#e9e8e3;border-radius:5px;overflow:hidden}
+.v10-money .money-bar{height:100%;min-width:0}
+.v10-money .rent-bar{background:#69a9a4}.v10-money .buy-bar{background:#cf9460}
+.v10-money .money-line strong{font-size:clamp(15px,1.7vw,23px);text-align:right}
+.v10-money .money-callout{background:#fff;border-left:5px solid #bd8450;padding:18px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.v10-money .delta{font-size:clamp(26px,3vw,43px);font-weight:850;color:#9a5932}
+.v10-money .money-caption{font-size:12px;line-height:1.7;color:#5c676b}
+.v10-benefits{background:#f8fafb}
+.v10-benefits .eyebrow{color:#526da1}
+.v10-benefits .benefit-flow{display:grid;grid-template-columns:1fr 42px 1fr 42px 1fr;align-items:center;gap:6px;margin:4% 0}
+.v10-benefits .benefit-node{padding:20px 12px;border-radius:12px;min-height:160px;display:flex;flex-direction:column;justify-content:center;text-align:center;gap:11px}
+.v10-benefits .benefit-node:nth-child(1){background:#e7edf3}.v10-benefits .benefit-node:nth-child(3){background:#e1eee9}.v10-benefits .benefit-node:nth-child(5){background:#1d5162;color:white}
+.v10-benefits .benefit-node b{font-size:clamp(13px,1.25vw,19px)}
+.v10-benefits .benefit-node span{font-size:clamp(11px,1vw,15px);line-height:1.65}
+.v10-benefits .flow-arrow{text-align:center;font-size:30px;color:#86a6ad}
+.v10-benefits .benefit-check{background:#fff;border:1px solid #dce5e9;padding:13px 16px;border-radius:9px;font-size:13px}
+.v10-choice{background:#f6f5f0}
+.v10-choice .eyebrow{color:#82734c}
+.v10-choice .choice-lanes{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin-top:12px}
+.v10-choice .choice-lane{background:#fff;border-top:6px solid #829b99;border-radius:9px;padding:18px;min-height:220px}
+.v10-choice .choice-lane:nth-child(2){border-color:#d5a15e}.v10-choice .choice-lane:nth-child(3){border-color:#7b89a8}
+.v10-choice .choice-lane b{font-size:20px}.v10-choice .choice-lane p{font-size:14px;line-height:1.8}
+.v10-choice .choice-bottom{margin-top:15px;padding:12px 15px;border:1px solid #d4d4c9;border-radius:9px}
+.v10-area{background:#f1f6f5}
+.v10-area .eyebrow{color:#318278}
+.v10-area .area-axis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+.v10-area .area-factor{background:#fff;border-radius:10px;padding:22px 10px;text-align:center;border-bottom:5px solid #74ada5;font-weight:800;font-size:17px}
+.v10-area .area-note{background:#dfeeea;padding:18px;border-radius:12px;font-size:15px;line-height:1.7}
+.v10-next{background:#172d3a;color:#fff}
+.v10-next .eyebrow,.v10-next h2,.v10-next .lead,.v10-next .foot{color:#fff}
+.v10-next .foot{border-color:#ffffff40}
+.v10-next .next-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:5% 0}
+.v10-next .next-step{border:1px solid #ffffff55;padding:18px;border-radius:10px;background:#ffffff10}
+.v10-next .next-step .num{font-size:29px;color:#a8d8ce;font-weight:850}
+.v10-next .next-step p{font-size:15px;line-height:1.7}
+.v10-small{font-size:11px;color:#60727a;line-height:1.55}
+.v10-slide [contenteditable=true]:focus{outline:2px solid #4eb2a6}
+@media(max-width:720px){.v10-slide .money-layout{gap:8px}.v10-money .money-line{grid-template-columns:50px 1fr 55px;gap:4px;font-size:9px}.v10-money .money-track{height:24px}.v10-money .money-line strong{font-size:10px}.v10-money .money-callout{padding:8px}.v10-money .money-caption,.v10-benefits .benefit-check{font-size:9px}.v10-benefits .benefit-node{min-height:100px;padding:6px}.v10-benefits .benefit-flow{grid-template-columns:1fr 16px 1fr 16px 1fr}.v10-benefits .flow-arrow{font-size:14px}.v10-choice .choice-lane{min-height:100px;padding:8px}.v10-choice .choice-lane b{font-size:11px}.v10-choice .choice-lane p{font-size:9px}.v10-area .area-factor{padding:8px 3px;font-size:10px}.v10-area .area-note{font-size:10px}.v10-next .next-step{padding:7px}.v10-next .next-step p{font-size:9px}}
+@media print{.v10-slide{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}.v10-slide .money-layout{height:auto}.v10-slide .benefit-node{min-height:140px}.v10-slide .choice-lane{min-height:200px}}
+
+.tempitem{margin:13px 0}.temphead{display:flex;justify-content:space-between;align-items:center;font-size:13px;gap:6px}.temphead strong{font-variant-numeric:tabular-nums}.tempbar{height:9px;background:#edf0f3;border-radius:8px;overflow:hidden;margin:7px 0}.tempfill{height:100%;background:linear-gradient(90deg,#77a6c1,#e2a057);border-radius:8px}.tempnote{font-size:11px;line-height:1.6;color:#607580}.tempflag{font-size:10px;padding:2px 6px;background:#eef3f6;border-radius:5px}
+
+/* v12 sales-first layout */
+#deckBtn,#decisionInputs,#deck{display:none!important}
+.command{max-width:1560px;margin:16px auto 0;background:#fff;border:1px solid #cbdde2;border-radius:17px;padding:20px 22px;box-shadow:0 5px 22px #153b4812}
+.command-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:14px}.command-kicker{font-size:11px;color:#337c87;letter-spacing:.14em;font-weight:800}.command h2{font-size:22px;margin:4px 0}.command-phase{padding:8px 12px;background:#e9f4f3;color:#136c66;border-radius:40px;font-weight:750;font-size:12px}.command-grid{display:grid;grid-template-columns:1fr 1.35fr 1fr;gap:12px}.command-main{background:#f2f6f8;padding:16px 17px;border-radius:12px;min-height:182px}.command-main.action{background:#e8f5f2;border:1px solid #aad5cb}.command-main.finish{background:#f7f2e8}.command-label{font-size:12px;font-weight:800;color:#496775}.command-main h3{font-size:19px;line-height:1.45;margin:9px 0;color:#203b46}.command-main p{font-size:12px;line-height:1.65;color:#567078;white-space:pre-line}.command-button{background:#146d65;color:white;border:0;border-radius:7px;padding:8px 12px;font-weight:800;cursor:pointer}.command-bottom{display:grid;grid-template-columns:1.5fr 1fr;gap:12px;margin-top:11px;font-size:12px;line-height:1.65}.command-bottom>div{padding:11px 14px;background:#f7f9fa;border-radius:9px}.command-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:12px}.command-steps span{font-size:11px;background:#eaf0f2;color:#5b7781;border-radius:5px;text-align:center;padding:8px 3px}.command-steps span.on{background:#1b7771;color:white;font-weight:800}
+@media(max-width:900px){.command{margin:10px;padding:13px}.command-grid,.command-bottom{grid-template-columns:1fr}.command-main{min-height:0}.command-main h3{font-size:17px}.command-steps{grid-template-columns:repeat(2,1fr)}}
+@media print{.command{display:block!important}.deck{display:none!important}}
+
+/* v16 customer record manager */
+.records{max-width:1560px;margin:15px auto 0;padding:17px 20px;background:#fff;border:1px solid #cddce1;border-radius:16px;box-shadow:0 4px 18px #153b4810}
+.records h2{margin:0 0 10px;font-size:19px}.records-grid{display:grid;grid-template-columns:minmax(130px,1fr) minmax(150px,1.2fr) minmax(220px,1.5fr);gap:10px;align-items:end}
+.records label{font-size:12px;color:#51666d;display:flex;flex-direction:column;gap:5px}.records input,.records select{width:100%;box-sizing:border-box;padding:10px;border:1px solid #bacdd2;border-radius:8px;background:#fff;color:#203940;font:inherit}
+.records-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}.records button,.records .records-upload{border:1px solid #b9cdd2;border-radius:8px;background:#f5f9f9;padding:9px 13px;color:#174f56;font-size:13px;cursor:pointer}
+.records button.primary{background:#176f68;color:white;border-color:#176f68}.records button.danger{color:#9e3636;border-color:#e6baba;background:#fffafa}.records-note{font-size:11px;color:#657980;line-height:1.6;margin-top:9px}.records-status{font-size:12px;color:#28685c;font-weight:600;margin-left:auto}
+@media(max-width:750px){.records{margin:10px;padding:12px}.records-grid{grid-template-columns:1fr}.records-status{width:100%;margin-left:0}}
+
+/* After the initial hearing: dedicated, stateful sales-coaching workflow. */
+.coach-workspace{margin:16px 0 0;padding:18px;border:1px solid #b6d9d2;border-radius:15px;background:#fff;display:none}
+.coach-workspace.active{display:block}
+.coach-topline{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.coach-progress{font-size:12px;font-weight:750;color:#197469}
+.coach-workspace h3{font-size:20px;line-height:1.5;margin:10px 0}
+.coach-workspace p{line-height:1.7;margin:6px 0}
+.coach-talk{background:#eaf6f2;border-left:5px solid #208576;border-radius:7px;padding:15px;font-size:17px;font-weight:700;line-height:1.8;margin:14px 0}
+.coach-workspace textarea{display:block;width:100%;min-height:85px;resize:vertical;border:1px solid #bdd1d3;border-radius:9px;padding:12px;font:inherit;line-height:1.65;margin:9px 0}
+.coach-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.coach-actions button{border-radius:8px;border:1px solid #b5d1ce;background:white;padding:11px 16px;cursor:pointer;font-weight:700;color:#175b57}
+.coach-actions .coach-primary{background:#146e64;color:white;border-color:#146e64}
+.coach-history{margin-top:13px;font-size:12px;color:#4d6869;line-height:1.8}
+.coach-finished{background:#eef4f8;padding:14px;border-radius:8px}
+
+/* v20 repeat-visit navigation */
+.visit-switch{margin:12px auto;max-width:1440px;background:#fff;border:1px solid #cddedc;border-radius:16px;padding:18px 22px;display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.visit-switch button{padding:12px 22px;border-radius:9px;border:1px solid #abc9c5;background:#fff;color:#175b57;font-weight:750;cursor:pointer}
+.visit-switch button.selected{background:#146e64;color:#fff}
+.visit-switch .visit-hint{flex-basis:100%;font-size:12px;color:#536d72}
+#returnPanel{display:none;max-width:1440px;margin:14px auto;background:white;border:1px solid #d5e1e5;border-radius:16px;padding:24px}
+#returnPanel.active{display:block}
+#returnPanel .visit-title{font-size:25px;font-weight:800;color:#163d50}
+#returnPanel .visit-question{font-size:24px;font-weight:800;line-height:1.55;margin:12px 0}
+#returnPanel .visit-card{background:#eaf5f2;border:1px solid #c2ded8;padding:18px;border-radius:12px;margin:15px 0}
+#returnPanel textarea{display:block;width:100%;min-height:110px;padding:12px;border:1px solid #aebfc7;border-radius:10px;font:inherit;box-sizing:border-box}
+#returnPanel button{padding:11px 18px;border-radius:9px;border:1px solid #a9c9c3;background:white;color:#146e64;font-weight:700;cursor:pointer;margin:5px 7px 5px 0}
+#returnPanel button.main-action{background:#146e64;color:white}
+.visit-bars{display:grid;grid-template-columns:80px 1fr 70px;gap:8px;align-items:center;margin:9px 0}
+.visit-track{height:12px;background:#edf1f4;border-radius:9px;overflow:hidden}.visit-track>div{height:100%;border-radius:9px}
+.visit-legend{display:flex;gap:15px;flex-wrap:wrap;font-size:12px;color:#53636b;margin:10px 0}
+.visit-legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px}
+.visit-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.visit-metric{padding:15px;border:1px solid #dce5e8;border-radius:12px}
+.visit-metric h4{margin:0 0 8px;font-size:17px}
+.visit-comment{font-size:13px;line-height:1.75;color:#3d5c64}
+.visit-actions{margin-top:20px;background:#f2f6f6;padding:18px;border-radius:10px}
+@media(max-width:800px){.visit-compare{grid-template-columns:1fr}#returnPanel .visit-question{font-size:19px}}
+@media print{.visit-switch,#returnPanel button,#returnPanel textarea{display:none!important}#returnPanel{display:block!important;border:none}.visit-compare{grid-template-columns:repeat(2,1fr)}}
+</style></head><body><div style="margin:10px auto;max-width:1450px;padding:10px 18px;border:1px solid #c4dcd7;border-radius:10px;background:#f3faf7;color:#24534b;font-size:13px">【チーム利用版】アンケート番号のみで管理します。氏名・連絡先・住所・勤務先など、個人を特定できる情報は自由記述欄にも入力しないでください。記録は各ブラウザ内に保存され、メンバー間では共有されません。</div><header><div><h1>住まいのヒアリングナビ <span style="font-weight:400">v20</span></h1><small>対話を深める適応型ナビゲーション｜無料・オフライン・API不要</small></div><span class="tag">ローカル動作</span></header>
+<section class="records" aria-label="アンケート番号別の商談記録管理"><h2>アンケート番号別の商談記録</h2><div class="records-grid"><label>アンケートナンバー<input id="recordNumber" autocomplete="off" placeholder="例：A-1025"></label><input id="recordName" type="hidden" value=""><label>保存済みの記録<select id="recordList"><option value="">保存したお客様を選択</option></select></label></div><div class="records-actions"><button id="recordSave" class="primary" type="button">この番号で保存</button><button id="recordOpen" type="button">選択した記録を呼び出す</button><button id="recordNew" type="button">新しい記録</button><button id="recordDelete" class="danger" type="button">選択した記録を削除</button><button id="recordBackup" type="button">全件バックアップ（JSON）</button><label class="records-upload" style="display:inline-block">バックアップを復元<input type="file" id="recordRestore" accept=".json,application/json" style="display:none"></label><span id="recordStatus" class="records-status" role="status">準備中…</span></div><div class="records-note">保存先はこのブラウザ内です。保存後はアンケート番号ごとに回答・メモ・質問の進行状況・住居費の入力を呼び出せます。ブラウザのデータ消去や端末変更に備え、定期的に全件バックアップしてください。氏名・連絡先・勤務先・住所などの個人情報は入力しないでください。自由記述にも注意してください。</div></section>
+<section style="margin:12px 20px;padding:16px;border:2px dashed #b2c9c5;border-radius:14px;background:#f4faf8"><strong>動作確認用・完成済みサンプル</strong><p style="margin:8px 0">初回・再来のヒアリングを完了した架空のお客様を、ワンクリックで呼び出せます。実際のお客様データは変更しません。</p><button type="button" id="demoLoad" class="primary">サンプル商談を開く（比較グラフ表示）</button><span id="demoStatus" style="margin-left:12px;font-size:13px"></span></section><div id="appError" role="alert" style="display:none;margin:12px 18px;padding:12px;background:#fff0ee;border:1px solid #c77;border-radius:8px;color:#a22"></div><section class="visit-switch" aria-label="来場回数切り替え"><strong>商談モード</strong><button id="modeFirst" class="selected" type="button">初回来場</button><button id="modeReturn" type="button">再来場・3回目以降</button><span id="visitCurrent" class="tag">初回来場</span><div class="visit-hint">同じお客様のアンケート番号で記録を保存・呼び出しできます。初回の結果を確定してから再来場へ進みます。</div></section>
+<section id="returnPanel" aria-label="再来場ヒアリング"><div class="visit-title" id="returnHeading">再来場ヒアリング</div><p class="muted" id="returnSub">前回からの変化を中心に確認します。</p><div id="returnQuestionArea"><div class="visit-card"><div id="returnProgress" class="muted"></div><div id="returnQuestion" class="visit-question"></div><div id="returnAim" class="muted"></div><label class="field" for="returnAnswer">お客様の発言（Enterで記録／Shift＋Enterで改行）</label><textarea id="returnAnswer" placeholder="お客様の言葉をそのまま記録"></textarea></div><div><button id="returnNext" class="main-action" type="button">回答を記録して次へ →</button><button id="returnSkip" type="button">スキップ</button><button id="returnBack" type="button">一つ戻す</button></div></div><div id="returnReport" style="display:none"><h3>初回・再来の4軸比較レポート</h3><p class="muted">整理度と温度感は独立した参考指標です。購入意欲や成約確率を示しません。未回答の軸は判定保留です。</p><div class="visit-compare" id="returnCharts"></div><div class="visit-actions" id="returnGuidance"></div><h3>再来場後の次の一手</h3><div class="visit-card" id="returnCoaching"></div><label class="field" for="returnCoachAnswer">このテーマで話した内容（Enterで完了／Shift＋Enterで改行）</label><textarea id="returnCoachAnswer"></textarea><div><button class="main-action" id="returnCoachDone" type="button">この話題を完了 → 次の一手</button><button id="returnCoachSkip" type="button">今回は見送る</button></div><div id="returnCoachHistory"></div><div style="margin-top:12px"><button id="returnPrint" type="button">比較レポートを印刷</button><button id="returnRestart" type="button">次回来場のヒアリングを開始</button></div></div></section><section class="command" aria-label="商談進行ガイド"><div class="command-top"><div><div class="command-kicker">LIVE SALES NAVIGATOR</div><h2>今、この商談をどう進めるか</h2></div><span id="commandPhase" class="command-phase">ヒアリング開始</span></div><div class="command-grid"><div class="command-main"><span class="command-label">① いま確認すべき論点</span><h3 id="commandIssue">お客様の来場目的を確認</h3><p id="commandEvidence">回答を記録すると、根拠となる発言がここに表示されます。</p></div><div class="command-main action"><span class="command-label">② 次の一手・質問</span><h3 id="commandQuestion">何をきっかけに住まい探しを始められましたか？</h3><p id="commandReason">質問の狙い：購入を考えた本人の動機を把握する</p><button type="button" id="commandAsk" class="command-button">この質問を使う ↓</button></div><div class="command-main finish"><span class="command-label">③ 目指す着地点</span><h3 id="commandGoal">購入の必要性を整理</h3><p id="commandNext">今日決めるべきことを一緒に確認します。</p></div></div><div id="coachWorkspace" class="coach-workspace" aria-live="polite">
+ <div class="coach-topline"><strong>ヒアリング後の商談進行</strong><span id="coachProgress" class="coach-progress">STEP 1</span></div>
+ <h3 id="coachTitle">次に話すテーマ</h3><p id="coachWhy"></p><div class="coach-talk" id="coachTalk"></div>
+ <label for="coachAnswer" class="field">お客様の返答・商談結果（Enterで記録、Shift＋Enterで改行）</label>
+ <textarea id="coachAnswer" placeholder="お客様の言葉や、実際に話した内容を記録"></textarea>
+ <div class="coach-actions"><button type="button" id="coachComplete" class="coach-primary">話した内容を記録して完了 → 次の一手</button><button type="button" id="coachSkip">今回は見送って次へ</button><button type="button" id="coachPrevious">一つ前の一手に戻る</button></div>
+ <div id="coachHistory" class="coach-history"></div>
+ </div><div class="command-bottom"><div id="commandCaution"></div><div id="commandTools"></div></div><div class="command-steps"><span>来場目的を確認</span><span>購入の理由を深掘り</span><span>4軸の優先順位を整理</span><span>比較・次回行動を合意</span></div></section><div class="shell"><aside class="panel left"><h2>商談情報</h2><input id="client" type="hidden" value=""><label class="field">商談メモ</label><input id="memo" placeholder="例：初回来場"><div class="divider"></div><h2>4軸の整理度</h2><div id="axes"></div><p class="muted">％は購入意欲や成約確率ではなく、判断材料がどこまで整理されたかを示す暫定値です。</p><div class="divider"></div><h2>4軸の検討温度感（推定）</h2><div id="temperatures"></div><p class="muted">各軸に関する関心・具体性・行動の強さを暫定評価。購入意欲や成約確率ではありません。発言が少ない場合は「判定保留」と表示します。希望条件が柔軟でも低評価にはしません。</p><div class="divider"></div><h2>優先して深掘りする軸</h2><div id="priority" class="card"></div><p class="muted" id="count"></p><div class="actions"><button class="btn" id="save">保存</button><button class="btn" id="load">読込</button><button class="btn danger" id="reset">新規商談</button></div><p class="muted">この端末のブラウザ内にのみ保存します。氏名・連絡先・住所・勤務先等は自由記述にも入力しないでください。</p></aside>
+<main class="panel center"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="tag" id="axisTag">時期</span><span class="muted" id="stepLabel"></span></div><div class="question" id="question"></div><p class="muted" id="why"></p><label class="field" for="answer">お客様の発言・具体的な事情（Enterで送信／Shift+Enterで改行）</label><textarea id="answer" placeholder="できるだけお客様の言葉をそのまま記録"></textarea><div id="choices"></div><div id="contextPanel" class="contextPanel"></div><div id="decisionPanel" class="decision"></div><div class="actions"><button class="btn primary" id="next">回答を記録して次へ →</button><button class="btn" id="skip">スキップ</button><button class="btn" id="back">一つ戻す</button><button class="btn" id="reportBtn">分析レポート</button></div><p id="warning"></p><div class="suggest"><strong>次の質問候補</strong><div id="candidates" class="history" style="margin-top:9px"></div><p class="muted">営業担当が別の質問を選ぶこともできます。回答に合わせた自動分岐は選択肢とキーワードによるもので、無料の文脈判定エンジンです。自由記述から数値・理由・条件を抽出し、深掘り質問を優先します。万能な文章理解ではありません。</p></div></main>
+<aside class="panel right"><h2>お客様の発言・時系列メモ</h2><div class="timeline" id="timeline"></div><div class="divider"></div><h2>現在の分析</h2><div id="insight" class="card"></div></aside>
+<section class="panel report hidden" id="report"><div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><h2>商談分析レポート</h2><button class="btn" id="printBtn">印刷 / PDF保存</button></div><div id="reportBody"></div><div class="actions"><button class="btn" id="export">JSON書き出し</button><button class="btn" id="closeReport">閉じる</button></div></section>
+<section class="panel toolpanel" id="toolpanel"><h2>商談の補助ツール</h2><p class="muted">ヒアリング内容から、使うツールと目的を提案します。外部ツールのURLは初回のみ登録してください。リンク連携は可能ですが、別アプリ内の計算結果を自動取得するには各アプリ側の改修が必要です。</p><div id="route" class="routebox"></div><div class="toolcards"><div class="toolcard"><h3>新築マンションMAP</h3><p id="mapReason"></p><label class="mini">既存MAPのURL（初回のみ）</label><input id="mapUrl" placeholder="https://..." type="url"><a id="mapOpen" target="_blank" rel="noopener" aria-disabled="true">MAPを開く ↗</a></div><div class="toolcard"><h3>購入安心度シミュレーター</h3><p id="simReason"></p><label class="mini">既存シミュレーターのURL（初回のみ）</label><input id="simUrl" placeholder="https://..." type="url"><a id="simOpen" target="_blank" rel="noopener" aria-disabled="true">シミュレーターを開く ↗</a></div><div class="toolcard"><h3>商談引き継ぎデータ</h3><p>確認した事実・未確認事項・4軸・次の質問をJSONで出力。既存ツールへの自動入力は未接続のため、まずは連携データとして使えます。</p><button class="btn" id="handoff">連携データを書き出す</button></div></div></section><section class="panel" id="decisionInputs" style="grid-column:1/4"><h2>購入する意味の検証｜お客様別の比較条件</h2><p class="muted">ここで入力した金額とヒアリング内容を使い、購入を推奨しない可能性も含めて資料を作成します。未入力項目は推定しません。家賃補助は手取りベースの実質額を入力してください。</p><div class="decisiongrid"><label>現家賃（円/月）<input id="finRent" type="number" min="0" placeholder="例 100000"></label><label>家賃補助（円/月）<input id="finSubsidy" type="number" min="0" placeholder="例 45000"></label><label>購入後のローン返済（円/月）<input id="finLoan" type="number" min="0" placeholder="未確定なら空欄"></label><label>管理費・修繕積立金等（円/月）<input id="finMaint" type="number" min="0" placeholder="未確定なら空欄"></label><label>購入後のその他維持費見込（円/月）<input id="finOther" type="number" min="0" placeholder="固定資産税等の月換算"></label><label>家賃補助の購入後継続<select id="finKeep"><option value="unknown">未確認</option><option value="no">終了する</option><option value="yes">継続する</option></select></label></div><div class="actions"><button class="btn primary" id="decisionBuild">購入判断資料を生成</button></div><div class="note" id="decisionStatus"></div></section><section class="panel deck hidden" id="deck"><div class="deckbar"><div><h2 style="font-size:19px;margin-bottom:5px">お客様別・提案資料ビルダー</h2><p class="muted" id="deckIntro">4軸とヒアリング記録から資料候補を選定。数値や未確認事項は自動で補完せず、編集・確認してから印刷してください。</p></div><div class="decktop"><button class="btn primary" id="buildSlides">選択した資料を生成</button><button class="btn" id="printSlides">PDF保存 / 印刷</button><button class="btn" id="closeDeck">閉じる</button></div></div><div class="audience-switch"><b>資料の対象：</b><button class="btn active" id="audCustomer" type="button">お客様向け｜ご提案書</button><button class="btn" id="audStaff" type="button">営業担当向け｜分析シート</button></div><p class="audience-tip" id="audienceTip">お客様にそのままお見せするための資料。営業上の仮説・スコア・内部メモは表示しません。印刷前に数値と内容を確認してください。</p><div class="deckgrid"><div class="slidechoices" id="slideChoices"></div><div class="slides" id="slidePreview"><div class="empty">左で資料を選び「選択した資料を生成」を押してください。</div></div></div></section>
+</div>
+<script>
+window.addEventListener('error',e=>{const el=document.getElementById('appError');if(el){el.style.display='block';el.textContent='画面処理エラー：'+e.message+'（このメッセージを教えてください）'}});
+'use strict';
+const BANK=[
+{id:'origin',a:'時期',q:'今のお住まいは、どのような経緯で決められたのですか？',why:'過去の意思決定の基準を知る',c:['通勤・立地','広さ・間取り','家賃・費用','家族・生活事情','その他'],next:'now'},
+{id:'now',a:'時期',q:'今のお住まいで、気に入っている点と変えたい点は何ですか？',why:'現居への満足度と引っ越す必要性を切り分ける',c:['特に不満はない','広さ・間取り','通勤・立地','費用','将来の暮らし'],next:'trigger'},
+{id:'trigger',a:'時期',q:'今回、住まい探しを始めたきっかけは何でしたか？',why:'ご本人の動機と周囲からの勧めを区別する',c:['現居の不満','結婚・出産など','周囲から勧められた','資産形成・家賃がもったいない','なんとなく'],next:'path'},
+{id:'selfmot',a:'時期',q:'周りの方のお話とは別に、ご自身では購入をどう感じていますか？',why:'借り物の動機と本人の希望を分ける',c:['ぜひ買いたい','条件が合えば買いたい','まだ迷っている','必要性を感じない'],next:'path'},
+{id:'rentvalue',a:'予算',q:'今の住居費と、会社の家賃補助・手当はどの程度ありますか？',why:'現在の実質負担と購入後の負担差を把握する',c:['家賃補助あり','家賃補助なし','よく分からない'],next:'trigger'},
+{id:'path',a:'商品',q:'これまでどのような住まいを見て、何が合わないと感じましたか？',why:'検討履歴と比較の判断基準を確認する',c:['価格が合わない','広さ・間取りが合わない','エリアが合わない','まだ見ていない','決め手がない'],next:'visit'},
+{id:'visit',a:'商品',q:'今回この物件に来られたのは、何を期待されていたからですか？',why:'来場目的と期待する解決を明確にする',c:['価格','広さ・間取り','駅距離・立地','新築・設備','比較のため'],next:'area'},
+{id:'area',a:'エリア',q:'どのエリアを希望されていますか？',why:'希望地域をまず本人の言葉で確認する',c:['北摂','大阪市内','通勤先周辺','複数エリアで比較','まだ決まっていない'],next:'areawhy'},
+{id:'areawhy',a:'エリア',q:'そのエリアを希望する理由は何でしょうか？',why:'地域名ではなく重視する価値を知る',c:['通勤利便性','実家・家族との距離','学校・子育て','街の雰囲気・安心感','周囲から勧められた','特に理由はない'],next:'areatrade'},
+{id:'areatrade',a:'エリア',q:'希望の広さや支払い条件が良くなるなら、少し範囲を広げて比較することはできますか？',why:'エリアの必須条件と柔軟性を確認する',c:['広げられる','条件次第で広げられる','希望エリア以外は難しい','まだ判断できない'],next:'areacore'},
+{id:'areacore',a:'エリア',q:'エリアを選ぶ際、絶対に外せない条件を一つ挙げるなら何ですか？',why:'他条件と交換できない核心を特定する',c:['通勤時間','家族との距離','生活利便','街の環境','予算','まだ決められない'],next:'budget'},
+{id:'budget',a:'予算',q:'住居費は月々いくらまでが安心できる金額ですか？',why:'希望額と実際の負担可能額を区別する',c:['金額が決まっている','今の家賃程度','資金計算を見て決めたい','まだ分からない'],next:'budgetwhy'},
+{id:'budgetwhy',a:'予算',q:'その予算にされた理由は何ですか？',why:'希望額の根拠と生活上の優先事項を確認する',c:['今の住居費を基準','家計・貯蓄を基準','FP相談で決めた','なんとなく','将来支出が不安'],next:'budgettrade'},
+{id:'budgettrade',a:'予算',q:'希望にぴったり合う住まいなら、予算の上乗せは検討できますか？',why:'価格の上限と価値判断を切り分ける',c:['上乗せできる','条件次第','上乗せできない','判断できない'],next:'budgetrisk'},
+{id:'budgetrisk',a:'予算',q:'購入後のお金について、特に心配なことは何ですか？',why:'価格への抵抗の具体的な原因を知る',c:['毎月の支払い','教育費・将来支出','手元資金が減る','金利・ローン','特に不安はない'],next:'product'},
+{id:'product',a:'商品',q:'新築と中古について、今はどのように考えていますか？',why:'商品種別の比較状況を確認する',c:['新築がいい','中古がいい','どちらも検討','まだ考えていない'],next:'productwhy'},
+{id:'productwhy',a:'商品',q:'新築と中古で迷うとしたら、どんな点が気になりますか？',why:'商品選択の評価軸を明確にする',c:['価格','築年数・設備','管理・修繕','立地・広さ','資産性','まだ分からない'],next:'layout'},
+{id:'layout',a:'商品',q:'今の暮らしと今後の暮らしを考えると、どんな間取り・広さが必要ですか？',why:'必要な空間を生活行動に結びつける',c:['仕事部屋が必要','子ども部屋が必要','収納を増やしたい','広いLDKがほしい','まだ具体化していない'],next:'producttrade'},
+{id:'producttrade',a:'商品',q:'広さ・階数・駅距離・価格のうち、何を優先し、何なら調整できそうですか？',why:'物件選択の優先順位と譲歩可能性を確認する',c:['広さ優先','階数優先','駅距離優先','価格優先','決められない'],next:'timing'},
+{id:'timing',a:'時期',q:'いつまでに引っ越せると理想的ですか？',why:'希望時期と期限の理由を確認する',c:['半年以内','1年以内','2年以上先','期限はない'],next:'timingwhy'},
+{id:'timingwhy',a:'時期',q:'その時期が理想なのは、どんな理由からですか？',why:'期限が必須か希望かを区別する',c:['出産・進学','賃貸の更新','仕事・転勤','資金準備','特に理由はない'],next:'early'},
+{id:'early',a:'時期',q:'その時期より前に理想に近い物件が見つかったら、購入は考えられますか？',why:'購入時期の柔軟性と意思決定の準備を知る',c:['買える','条件次第で買える','まだ買えない','分からない'],next:'barrier'},
+{id:'barrier',a:'時期',q:'もし今は買えないとしたら、何が解決すれば前に進めそうですか？',why:'購入判断を止めている不安を具体化する',c:['資金・ローン','家族の合意','エリア・商品条件','買う必要性が曖昧','比較検討が不足','特に障壁はない'],next:'decision'},
+{id:'decision',a:'商品',q:'今後の住まい探しでは、何を確認できれば次の判断ができそうですか？',why:'次回行動の意味をお客様自身の言葉で明確にする',c:['FP・資金計算','他物件との比較','家族で相談','現地をもう一度確認','賃貸継続も含め検討'],next:null},
+{id:'fp',a:'予算',q:'FP相談や資金計算で、何を明らかにしたいですか？',why:'数値の提示より先に、解消したい不安を把握する',c:['月々の支払い','将来の生活費','ローン審査','購入可能額','まだ分からない'],next:'budgetrisk'},
+{id:'family',a:'時期',q:'購入の判断は、どなたとどのように相談して決めたいですか？',why:'意思決定者と合意形成の状況を確認する',c:['夫婦・パートナー','親族','自分で決める','まだ相談できていない'],next:'decision'},
+{id:'floor',a:'商品',q:'階数や眺望の希望は、どの程度譲れない条件でしょうか？',why:'商品条件の必須度を確認する',c:['絶対条件','できれば希望','他条件次第','特にこだわらない'],next:'producttrade'},
+{id:'comparison',a:'商品',q:'比較中の物件と比べて、最も迷っている違いは何でしょうか？',why:'比較検討の決定要因を明確にする',c:['価格','立地','広さ・間取り','築年数・仕様','判断できない'],next:'decision'}
+];
+const byId=Object.fromEntries(BANK.map(x=>[x.id,x]));const axes=['時期','エリア','予算','商品'];const STORAGE='housing_interview_public_anonymous_v1_state';let s={client:'',memo:'',entries:[],current:'origin',skipped:[],manual:[],visited:[],pendingProbes:[],probeHistory:[],returnTo:null};
+const $=id=>document.getElementById(id);const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function entry(id){return s.entries.find(e=>e.id===id)}function answered(id){return !!entry(id)}function has(t){return s.entries.some(e=>(e.text+' '+e.choice).includes(t))}function chosen(id,v){return (entry(id)?.choice||'').includes(v)}
+function branch(qid){if(qid==='trigger'&&(chosen('trigger','周囲')||chosen('trigger','なんとなく')))return 'selfmot';if(qid==='now'&&chosen('now','特に不満はない'))return 'rentvalue';if(qid==='areawhy'&&(chosen('areawhy','周囲')||chosen('areawhy','特に理由はない')))return 'areatrade';if(qid==='budgetwhy'&&(chosen('budgetwhy','FP')||chosen('budgetwhy','将来')))return 'fp';if(qid==='producttrade'&&(has('階数')||has('眺望'))&&!answered('floor'))return 'floor';if(qid==='early'&&(chosen('early','まだ買えない')||chosen('early','分からない')))return 'barrier';if(qid==='barrier'&&chosen('barrier','家族'))return 'family';if(qid==='decision'&&has('比較')&&!answered('comparison'))return 'comparison';return byId[qid]?.next||null}
+function nextQuestion(from){let id=branch(from),guard=0;while(id&&guard++<40&&(answered(id)||s.skipped.includes(id)))id=branch(id);if(!id){const remaining=BANK.filter(q=>!answered(q.id)&&!s.skipped.includes(q.id));if(!remaining.length)return null;remaining.sort((a,b)=>score(a.a)-score(b.a));return remaining[0].id}return id}
+
+// v6: オフライン文脈エンジン。発言の事実と推測を区別し、数値/対比/動機から深掘りを作る。
+const probes={
+ subsidy:{a:'予算',q:'会社の家賃補助は、購入後も継続しますか？ また、補助がなくなった場合の実質負担の増加は、どの程度なら納得できそうですか？',why:'家賃総額ではなく補助控除後の実負担を基準に購入判断を整理する',c:['購入後は補助なし','購入後も補助あり','制度を確認したい','負担増は避けたい','負担増も条件次第']},
+ rentcompare:{a:'予算',q:'今の住居費は、家賃と補助を差し引くと月々いくらですか？ 購入後の管理費などを含めた総負担と比べるとどう感じますか？',why:'実負担と購入後の総住居費を同じ基準で比較する',c:['実質負担が小さい','差額は許容できる','差額が不安','まだ計算していない']},
+ currentok:{a:'時期',q:'今のお住まいに大きな不満がない中で、住み替えをするとしたら、どんな暮らしが実現できると嬉しいですか？',why:'現居を維持する合理性を認めた上で本人の購入動機を探る',c:['広さ・間取り','家族の将来','通勤・立地','資産形成','まだ思いつかない']},
+ outsider:{a:'時期',q:'周りの方の意見とは別に、ご自身としては「今、買いたい」という気持ちはどのくらいありますか？',why:'周囲の勧めと本人の意思を切り分ける',c:['自分も買いたい','良いものがあれば','まだ必要性を感じない','迷っている']},
+ areaflex:{a:'エリア',q:'希望エリアを少し広げることで、同じ予算で広さや駅距離が改善するなら、比較してみたいですか？',why:'エリア名へのこだわりと、本人が得たい価値を分ける',c:['比較したい','条件次第','希望エリアに限る','分からない']},
+ areareason:{a:'エリア',q:'そのエリアのどんな点が、ご自身の暮らしに合っていると感じますか？',why:'地名ではなく具体的な判断基準を確認する',c:['通勤','実家・家族','街の環境','子育て','価格','特に理由なし']},
+ pricebasis:{a:'予算',q:'その月額の上限は、今の支払いを基準にしていますか？ それとも家計全体から考えた安心できる金額ですか？',why:'希望予算の根拠を明らかにする',c:['現在の家賃','家計・貯蓄','FP相談','なんとなく']},
+ pricetrade:{a:'予算',q:'ご希望エリアで探すと予算内では広さを調整する必要があり、エリアを広げれば希望の広さを確保できるとしたら、どちらが近いですか？',why:'希望条件が両立しない場合に、調整できる条件と譲れない条件を確認する',c:['希望エリアを優先して広さを調整','広さを優先してエリアを広げる','エリアと広さを優先して予算を見直す','条件に合う物件を待つ','まだ判断できない']},
+ newused:{a:'商品',q:'新築と中古で迷われるとしたら、価格差・設備・管理状態・将来の売却のうち、何が一番判断しにくいですか？',why:'商品選択を止めている具体的な比較軸を確認する',c:['価格差','設備・築年数','管理・修繕','資産性','まだ分からない']},
+ workroom:{a:'商品',q:'在宅勤務のスペースは、個室が必須でしょうか？ デスクの大きさや週何日の利用かも含めて教えていただけますか？',why:'必要な部屋数を生活行動と家具寸法で具体化する',c:['独立した個室が必要','LDKの一角でも可','広さ次第','まだ未定']},
+ floor:{a:'商品',q:'3階以上という希望は、眺望・採光・防犯・周囲の視線など、どの理由が一番大きいですか？',why:'階数そのものが必須か、代替できる価値かを確認する',c:['眺望','日当たり','防犯・視線','なんとなく','絶対条件']},
+ office:{a:'商品',q:'販売事務所として使われていた点は、使用感・傷や汚れ・新築らしさのどこが気になりますか？',why:'事務所使用への抵抗の具体的な中身を確認する',c:['傷や使用感','新築らしさ','心理的に抵抗','条件確認で判断','気にならない']},
+ hospital:{a:'エリア',q:'病院が近い点は、救急車の音・人の出入り・跡地の経緯など、どの点が気になっていますか？',why:'立地懸念の内容を決めつけず特定する',c:['救急車の音','人の出入り','跡地の経緯','なんとなく不安','特に気にならない']},
+ timing:{a:'時期',q:'希望時期より前に条件に合う住まいが見つかったら、今決めることに何か不安は残りますか？',why:'希望引越時期と購入判断の障壁を切り分ける',c:['資金の準備','家族の合意','比較が足りない','特に不安はない','まだ決められない']},
+ unknown:{a:'時期',q:'今の住まいを続ける場合と購入する場合、何が分かれば納得して選べそうですか？',why:'購入を急がず意思決定の条件を確認する',c:['費用差','生活の変化','将来の見通し','物件比較','まだ分からない']}
+};
+function words(e){return ((e?.choice||'')+' '+(e?.text||'')).normalize('NFKC').toLowerCase()}
+function any(w,rx){return rx.test(w)}
+function parseYen(w){const m=[...w.matchAll(/(\d+(?:\.\d+)?)\s*(万円|万|円)/g)];return m.map(x=>({v:Math.round(Number(x[1])*(x[2]==='円'?1:10000)),raw:x[0]}))}
+function detectProbes(e){if(!e)return[];const w=words(e),p=[];const add=(id,why)=>{if(!p.some(x=>x.id===id))p.push({id,why})};
+ if(any(w,/家賃補助|住宅手当|社宅|会社.*補助|補助.*(万円|万|円)/))add('subsidy','家賃補助の有無は購入後の実負担を大きく変える');
+ if(any(w,/家賃|賃料|月々|月額/) && parseYen(w).length)add('rentcompare','数字が出たため、総額と実負担の差を確認');
+ if(any(w,/不満(は|が)?ない|満足|困って(いない|ない)|今の(家|住まい).*いい/))add('currentok','現居に満足している場合、住み替える意味の確認が先');
+ if(any(w,/周り|周囲|親(に|から)|友達|知人|言われた|勧められた|すすめられた/))add('outsider','周囲の意見と本人の希望を区別');
+ if(any(w,/北摂|茨木|高槻|吹田|豊中|箕面|エリア|地域/))add('areareason','希望地名の背景を確認');
+ if(any(w,/北摂|エリア|地域|別の場所|他エリア/) && any(w,/言われた|周り|周囲|なんとなく|こだわらない|どこでも/))add('areaflex','地域への優先度が未確定の可能性');
+ if(any(w,/予算|上限|月々|月額|支払い/) && parseYen(w).length)add('pricebasis','金額の根拠が未確認');
+ if(any(w,/高い|価格|値段|予算オーバー|予算を超/))add('pricetrade','価格と他条件の交換可能性を確認');
+ if(any(w,/中古|新築|築年数/))add('newused','新築と中古の比較軸を確認');
+ if(any(w,/在宅|リモート|テレワーク|仕事部屋|デスク|パソコン/))add('workroom','実際の働き方と空間要件を具体化');
+ if(any(w,/3階|三階|高層|階数|眺望|日当たり/))add('floor','階数希望の背景を確認');
+ if(any(w,/事務所|モデルルーム|モデル使用|使用済/))add('office','使用歴への抵抗を具体化');
+ if(any(w,/病院|救急車|跡地/))add('hospital','病院周辺への懸念を具体化');
+ if(any(w,/時期|引っ越し|引越し|来年|半年|1年|いつまで/))add('timing','期限と購入判断の準備を分ける');
+ return p;
+}
+function activeProbe(){return s.pendingProbes?.[0]||null}
+function enqueueProbes(e){s.pendingProbes=s.pendingProbes||[];for(const p of detectProbes(e)){if(!s.probeHistory?.includes(p.id)&&!s.pendingProbes.some(x=>x.id===p.id))s.pendingProbes.push(p)}s.pendingProbes=s.pendingProbes.slice(0,12)}
+function nextAdaptive(from){const pending=activeProbe();if(pending)return 'probe:'+pending.id;return nextQuestion(from)}
+function questionNow(){if(s.current?.startsWith('probe:')){const id=s.current.slice(6);return {...probes[id],id:s.current}}return byId[s.current]}
+function probeInsight(){const e=s.entries.at(-1);if(!e)return '';const d=detectProbes(e);const amounts=parseYen(words(e));return `<b>直前の回答から検知</b><div>${d.slice(0,4).map(x=>`<span class="chip">${esc(x.why)}</span>`).join('')||'<span class="note">明確な追加論点は検知されませんでした。別の質問へ進めます。</span>'}</div>${amounts.length?`<div class="note">検知した金額：${amounts.map(x=>esc(x.raw)).join('、')}（家賃・補助などの意味は未確定です）</div>`:''}<div class="note">自動判定は仮説です。お客様の発言と照らして確認してください。</div>`}
+
+const checks={時期:['origin','now','trigger','timing','timingwhy','early','barrier'],エリア:['area','areawhy','areatrade','areacore'],予算:['rentvalue','budget','budgetwhy','budgettrade','budgetrisk'],商品:['path','visit','product','productwhy','layout','producttrade','decision']};
+function score(a){const ids=checks[a];return Math.round(ids.filter(answered).length/ids.length*100/20)*20}function lowest(){return [...axes].sort((a,b)=>score(a)-score(b))[0]}
+function suggest(){let out=[];if(chosen('trigger','周囲')&&!answered('selfmot'))out.push('購入したい理由が本人のものか、まだ未確認');if(chosen('now','特に不満はない'))out.push('現居への満足度が高い。購入する理由の確認を優先');if(chosen('areawhy','周囲'))out.push('エリア希望は周囲の意見が起点。本人の優先順位は要確認');if(chosen('areatrade','広げられる')||chosen('areatrade','条件次第'))out.push('希望エリアには柔軟性がある可能性');if(chosen('budgetwhy','なんとなく'))out.push('予算額の根拠はまだ不明確');if(chosen('early','まだ買えない'))out.push('理想物件があっても購入を決められない理由を確認');if(chosen('product','どちらも'))out.push('新築・中古の判断基準を整理する余地あり');return out}
+function saveLocal(){try{localStorage.setItem(STORAGE,JSON.stringify(s))}catch(e){console.warn('保存領域を利用できません:',e)}}function render(){const q=questionNow();$('client').value=s.client;$('memo').value=s.memo;$('axes').innerHTML=axes.map(a=>`<div class="axis"><div class="axishead"><span>${a}</span><strong>${score(a)}%</strong></div><div class="bar"><div class="fill" style="width:${score(a)}%"></div></div></div>`).join('');$('priority').innerHTML=`<strong>${lowest()}</strong><div class="muted">確認済み ${checks[lowest()].filter(answered).length} / ${checks[lowest()].length} 項目</div>`;$('count').textContent=`記録 ${s.entries.length} 件 / 全 ${BANK.length} 質問`;$('axisTag').textContent=q?q.a:'完了';$('stepLabel').textContent=`回答済み ${s.entries.length} 問`;$('question').textContent=q?q.q:'基本質問は完了しました。レポートを確認できます。';$('why').textContent=q?'質問の狙い：'+q.why:'';$('choices').innerHTML=q?q.c.map((v,i)=>`<label class="choice"><input type="radio" name="choice" value="${esc(v)}">${esc(v)}</label>`).join(''):'';$('answer').value='';$('contextPanel').innerHTML=probeInsight();$('next').disabled=!q;$('skip').disabled=!q;$('timeline').innerHTML=s.entries.length?s.entries.map((e,i)=>`<div class="event"><span class="muted">${i+1}｜${esc((byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id))?.a||'')}</span><strong>${esc((byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id))?.q||'')}</strong><p>${esc(e.choice)}${e.text?'\n'+esc(e.text):''}</p><button class="smallbtn" data-edit="${esc(e.id)}">修正</button></div>`).join(''):'<p class="muted">回答を記録すると、ここに時系列で蓄積されます。</p>';$('insight').innerHTML=(suggest().length?suggest():['現時点では、各軸の判断基準を順に確認中です。']).map(x=>`<p>・${esc(x)}</p>`).join('');let candidates=BANK.filter(x=>!answered(x.id)&&!s.skipped.includes(x.id)&&x.id!==s.current).sort((a,b)=>score(a.a)-score(b.a)).slice(0,5);$('candidates').innerHTML=candidates.map(x=>`<button class="smallbtn" data-jump="${x.id}">${esc(x.a)}｜${esc(x.q.slice(0,22))}…</button>`).join('');saveLocal()}
+function goNext(skip=false){let q=questionNow();if(!q)return;const choice=document.querySelector('input[name="choice"]:checked')?.value||'';const text=$('answer').value.trim();if(!skip&&!choice&&!text){$('warning').textContent='選択肢か自由入力のいずれかを記録してください。';return}$('warning').textContent='';if(skip){if(!s.skipped.includes(q.id))s.skipped.push(q.id)}else{s.entries=s.entries.filter(e=>e.id!==q.id);s.entries.push({id:q.id,choice,text,at:new Date().toISOString()})}s.visited.push(q.id);if(q.id.startsWith('probe:')){s.probeHistory=s.probeHistory||[];s.probeHistory.push(q.id.slice(6));s.pendingProbes=(s.pendingProbes||[]).filter(x=>x.id!==q.id.slice(6));s.current=s.returnTo||nextQuestion('origin');s.returnTo=null;}else{if(!skip)enqueueProbes({choice,text});const candidate=nextQuestion(q.id);if(activeProbe()){s.returnTo=candidate;s.current='probe:'+activeProbe().id}else{s.current=candidate}}render()}
+$('next').onclick=()=>goNext(false);$('skip').onclick=()=>goNext(true);$('back').onclick=()=>{let id=s.visited.pop();if(!id)return;s.entries=s.entries.filter(e=>e.id!==id);s.skipped=s.skipped.filter(x=>x!==id);s.current=id;render()};$('client').oninput=e=>{s.client=e.target.value;saveLocal()};$('memo').oninput=e=>{s.memo=e.target.value;saveLocal()};$('timeline').onclick=e=>{const id=e.target.dataset.edit;if(id){s.current=id;render();const old=entry(id);if(old){$('answer').value=old.text;const radio=[...document.querySelectorAll('input[name="choice"]')].find(x=>x.value===old.choice);if(radio)radio.checked=true}}};$('candidates').onclick=e=>{const id=e.target.dataset.jump;if(id){s.returnTo=null;s.current=id;render()}};
+$('save').onclick=()=>{saveLocal();alert('このブラウザに保存しました。')};$('load').onclick=()=>{try{const v=JSON.parse(localStorage.getItem(STORAGE));if(v){s=v;render();alert('保存内容を読み込みました。')}else alert('保存データがありません。')}catch(e){alert('保存データを読み込めませんでした。')}};$('reset').onclick=()=>{if(confirm('新しい商談を開始しますか？ 現在の記録は消去されます。必要なら先にJSONで保存してください。')){s={client:'',memo:'',entries:[],current:'origin',skipped:[],manual:[],visited:[],pendingProbes:[],probeHistory:[],returnTo:null};render()}};
+function makeReport(){const missing=axes.map(a=>({a,ids:checks[a].filter(x=>!answered(x))}));let rows=axes.map(a=>`<tr><th>${a}</th><td>${score(a)}%</td><td>${checks[a].filter(answered).map(id=>esc(byId[id].q)).join(' / ')||'未確認'}</td><td>${checks[a].filter(id=>!answered(id)).slice(0,3).map(id=>esc(byId[id].q)).join(' / ')||'基本項目確認済み'}</td></tr>`).join('');$('reportBody').innerHTML=`<p><strong>${esc('アンケート番号管理')}</strong>　${esc(s.memo)}　｜回答 ${s.entries.length}件</p><p class="muted">スコアは質問の回答充足度を20%刻みで表示。購入意思や成約確率を示しません。</p><table><thead><tr><th>軸</th><th>整理度</th><th>確認した質問</th><th>次に確認したい質問</th></tr></thead><tbody>${rows}</tbody></table><h3>会話から考えられる仮説（要検証）</h3>${(suggest().length?suggest():['未確認の軸を優先して深掘りする']).map(x=>`<p>・${esc(x)}</p>`).join('')}<h3>次回の進め方</h3><p>まず「${lowest()}」について判断基準を確認し、本人の言葉で条件が整理できた段階で提案につなげる。提案や次回約束を急がない。</p><h3>発言記録</h3>${s.entries.map(e=>`<p><strong>[${esc((byId[e.id]||probes[e.id.slice(6)]||currentCustomById(e.id)).a)}] ${esc((byId[e.id]||probes[e.id.slice(6)]||currentCustomById(e.id)).q)}</strong><br>${esc(e.choice)} ${esc(e.text)}</p>`).join('')}`;$('report').classList.remove('hidden');$('report').scrollIntoView({behavior:'smooth'})}
+$('reportBtn').onclick=makeReport;$('closeReport').onclick=()=>$('report').classList.add('hidden');$('printBtn').onclick=()=>window.print();$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
+
+// v5: Free, offline, deterministic proposal-slide builder. All data remains on device.
+const SLIDE_CATALOG=[
+ {id:'decision',title:'今、購入する意味はあるか',desc:'賃貸継続・購入・判断保留を公平に整理',axes:['時期','予算']},
+ {id:'realcost',title:'実質住居費の比較',desc:'家賃補助と購入後維持費を含めた月額比較',axes:['予算']},
+ {id:'benefits',title:'このご家族にとっての購入メリット',desc:'暮らし・将来・資産性のうち実際に重要な点を確認',axes:['商品','時期']},
+ {id:'summary',title:'住まい探しの現在地',desc:'時期・エリア・予算・商品を一枚で整理',axes:['時期','エリア','予算','商品']},
+ {id:'rent',title:'賃貸継続と購入の比較',desc:'現居の良さと住居費の差を公平に比較',axes:['時期','予算']},
+ {id:'area',title:'エリア選びの優先順位',desc:'希望エリアの理由と、他エリアへの柔軟性',axes:['エリア']},
+ {id:'budget',title:'住居費と予算の整理',desc:'予算の根拠・上乗せ可否・不安の見える化',axes:['予算']},
+ {id:'product',title:'新築・中古の比較',desc:'新築と中古の判断材料を並べる',axes:['商品']},
+ {id:'layout',title:'暮らしと間取りの適合',desc:'仕事部屋・将来の家族・広さを整理',axes:['商品']},
+ {id:'timing',title:'購入時期の判断シート',desc:'希望時期と、今決められる条件を整理',axes:['時期']},
+ {id:'mapguide',title:'候補エリア比較｜MAP活用',desc:'MAPで何を比較し、何を決めるかを明確にする',axes:['エリア','商品']},
+ {id:'simguide',title:'住居費の安心ライン｜シミュレーター活用',desc:'家賃補助・購入後負担・将来収支の比較方針',axes:['予算','時期']},
+ {id:'next',title:'次の一歩・確認事項',desc:'決まったことと未確認事項を共有',axes:['時期','エリア','予算','商品']}
+];
+function answerOf(id){const e=entry(id);return e? [e.choice,e.text].filter(Boolean).join('／'):'未確認'}
+function txt(id){const v=answerOf(id);return v.length>135?v.slice(0,132)+'…':v}
+function recommendSlides(){const pick=new Set(['decision','realcost','benefits','next']);const low=axes.filter(a=>score(a)<60);if(low.includes('時期')||chosen('now','特に不満はない'))pick.add('rent'),pick.add('timing');if(low.includes('エリア')||answered('areatrade'))pick.add('area');if(low.includes('予算')||has('価格')||has('支払い'))pick.add('budget');if(low.includes('商品')||answered('product'))pick.add('product');if(answered('layout')||has('仕事部屋'))pick.add('layout');if(routePlan().map)pick.add('mapguide');if(routePlan().sim)pick.add('simguide');return SLIDE_CATALOG.filter(x=>pick.has(x.id)).map(x=>x.id)}
+function selectSlides(){const rec=recommendSlides();$('slideChoices').innerHTML='<p class="axisnote">自動選定した資料にチェックを入れています。必要に応じて変更できます。</p>'+SLIDE_CATALOG.map(x=>`<div class="slidechoice"><label><input class="check" type="checkbox" value="${x.id}" ${rec.includes(x.id)?'checked':''}>${esc(x.title)}</label><small>${esc(x.desc)}</small></div>`).join('')+'<p class="muted">各スライドの文字は直接クリックして修正できます。印刷時は「背景のグラフィック」を有効にすると見た目を維持できます。</p>'}
+function financialData(){const v=id=>{const x=document.getElementById(id)?.value;return x===''||x==null?null:Number(x)};const rent=v('finRent'),sub=v('finSubsidy'),loan=v('finLoan'),maint=v('finMaint'),other=v('finOther'),keep=document.getElementById('finKeep')?.value||'unknown';const current=rent!==null&&sub!==null?rent-sub:null;const buy=loan!==null&&maint!==null&&other!==null?loan+maint+other:null;const diff=current!==null&&buy!==null&&keep!=='unknown'?buy-current-(keep==='yes'?sub:0):null;return {rent,sub,loan,maint,other,keep,current,buy,diff}}
+function yen(n){return n===null?'未確認':Math.round(n).toLocaleString('ja-JP')+'円'}
+function customerContext(){const w=allSpeech();return {satisfied:/不満.{0,5}ない|満足|困っていない|特に問題ない/.test(w),subsidy:/家賃補助|住宅手当|社宅|補助/.test(w),remote:/在宅|テレワーク|仕事部屋|書斎/.test(w),family:/子ども|出産|育児|家族|学区/.test(w),external:/親|友人|周囲|勧められ/.test(w),price:/高い|予算|価格|支払い|負担/.test(w)}}
+function specialSlide(id){const f=financialData(),c=customerContext(),a=txt('trigger');if(id==='realcost'){const delta=f.diff===null?'未算出（補助の継続条件と購入後の全費用が必要）':(f.diff>=0?'+':'')+yen(f.diff);return {lead:'住宅購入の前に、家賃補助を含めた実質負担の変化を確かめます。',tiles:[['現在の実質住居費','家賃：'+yen(f.rent)+'\n補助：'+yen(f.sub)+'\n実質負担：'+yen(f.current)],['購入後の住居費','ローン：'+yen(f.loan)+'\n管理費・修繕積立金等：'+yen(f.maint)+'\nその他維持費：'+yen(f.other)+'\n合計：'+yen(f.buy)],['毎月の負担差',delta+'\n購入後の家賃補助：'+({yes:'継続',no:'終了',unknown:'未確認'}[f.keep])+'\n※初期費用・将来の修繕費変動・税制・売却価値等は含みません。'],['お客様への問い','この負担差があるとして、今の住まいでは得られない何が実現すれば、購入に意味を感じられますか？']],foot:'入力値による単純な月額比較。購入と賃貸の総費用比較ではありません。'}}if(id==='benefits'){const reasons=[];if(c.remote)reasons.push('在宅勤務のための独立した空間');if(c.family)reasons.push('家族構成の変化に備えた住まい');if(!reasons.length)reasons.push('今の住まいで解決できない課題（未確認）');const caution=[];if(c.satisfied)caution.push('現居に大きな不満がないため、購入の生活改善効果は未確認');if(c.subsidy)caution.push('家賃補助の喪失による負担増を検証');if(c.external)caution.push('購入動機が周囲の助言に偏っていないか確認');if(!caution.length)caution.push('購入によって失う柔軟性・諸費用を確認');return {lead:'一般論の「持ち家のメリット」ではなく、このご家族が得られる変化を検証します。',tiles:[['生活面で得られる可能性',reasons.join('\n')+'\n※必要性と間取り適合は要確認'],['資産形成の可能性','返済により住宅ローン残高は減少しますが、住宅の価値が維持される保証はありません。\n売却費用・残債・価格変動も比較が必要です。'],['購入による制約',caution.join('\n')+'\n転居の自由度や維持費負担も比較'],['この資料で確認する質問','もし今の賃貸を続けた場合、5年後・10年後に困ることは何でしょうか？\n購入でしか解決できないことはありますか？']],foot:'効果は仮説。購入の優位性や資産価値を保証しません。'}}if(id==='decision'){let status='判断保留：購入の便益と費用を確認する必要があります。';if(c.satisfied&&(f.diff===null||f.diff>0))status='賃貸継続も有力：現居に満足しており、購入の追加便益がまだ明確ではありません。';return {lead:'購入を前提とせず、賃貸継続・購入・検討保留の3案を同じ基準で比較します。',tiles:[['現時点の暫定判断',status+'\n購入のきっかけ：'+a],['賃貸を続ける理由',(c.satisfied?'現居に満足している。\n':'')+(c.subsidy?'家賃補助がある。\n':'')+'資金や住み替え時期の自由度を保てる。'],['購入を検討する理由',(c.remote?'仕事部屋など住空間の改善。\n':'')+(c.family?'将来の家族構成への対応。\n':'')+'長期的な居住安定や住宅資産の形成（条件次第）。'],['判断のための次の一手','① 家賃補助の終了条件を確認\n② 必要な部屋数・暮らしの変化を確認\n③ 購入安心度シミュレーターで将来収支を検証\n④ 新築マンションMAPで条件を満たす選択肢を比較']],foot:'暫定整理であり購入・賃貸の推奨を確定するものではありません。'}}return null}
+function slideData(id){const special=specialSlide(id);if(special)return special;switch(id){
+case 'summary':return {lead:'今までのお話を、購入判断の4つの観点で整理しました。',tiles:[['時期｜'+score('時期')+'%','探し始めたきっかけ：'+txt('trigger')+'\n希望時期：'+txt('timing')],['エリア｜'+score('エリア')+'%','希望：'+txt('area')+'\n希望理由：'+txt('areawhy')],['予算｜'+score('予算')+'%','安心できる月額：'+txt('budget')+'\n予算の根拠：'+txt('budgetwhy')],['商品｜'+score('商品')+'%','新築・中古：'+txt('product')+'\n優先条件：'+txt('producttrade')]],foot:'％は質問回答の充足度です。購入意欲・成約可能性を示すものではありません。'};
+case 'rent':return {lead:'購入を前提にせず、今の暮らしを続ける選択肢も含めて考えます。',tiles:[['今の住まいで得ているもの','住まいを選んだ経緯：'+txt('origin')+'\n満足・不満：'+txt('now')],['今の負担と購入後の負担','家賃・補助の確認：'+txt('rentvalue')+'\n希望住居費：'+txt('budget')+'\n購入後の管理費・修繕積立金・税金等：要確認'],['賃貸継続のメリット','現居の満足度や家賃補助を維持できる可能性。住み替え費用が不要。'],['購入のメリット・注意点','希望する住空間を得られる可能性。所有に伴う維持費、価格変動、売却時のリスクも検討。']],foot:'比較は現在の実質負担、購入後の総住居費、将来の変化を同じ条件で計算してください。'};
+case 'area':return {lead:'「希望する地名」よりも、そこで実現したい暮らしを明確にします。',tiles:[['希望エリア','希望：'+txt('area')+'\n選ぶ理由：'+txt('areawhy')],['エリアの柔軟性','条件を広げられるか：'+txt('areatrade')+'\n外せない条件：'+txt('areacore')],['比較の際に確認したい項目','通勤時間・乗換回数／生活利便／実家との距離／住居費／街の環境'],['次に比較する候補','候補A：未設定\n候補B：未設定\n交通・価格・治安等は客観的な根拠を確認して記入']],foot:'地域の安全性や価格水準は印象で断定せず、統計・実際の募集情報等で確認します。'};
+case 'budget':return {lead:'「買える金額」と「安心して暮らせる金額」は分けて確認します。',tiles:[['希望する支払い','月額：'+txt('budget')+'\nその根拠：'+txt('budgetwhy')],['柔軟性と不安','上乗せ可能性：'+txt('budgettrade')+'\n心配なこと：'+txt('budgetrisk')],['現在の住居費','家賃・家賃補助：'+txt('rentvalue')+'\n現在の実質負担：要確認'],['資金計画で追加確認','頭金／諸費用／金利・返済期間／管理費・修繕積立金／固定資産税／教育費・生活費']],foot:'返済額や借入可能額は、確認済みの金利・条件で別途試算。未入力の数値は推定しません。'};
+case 'product':return {lead:'新築か中古かではなく、希望する暮らしに何が必要かを比較します。',tiles:[['現在の考え','新築・中古：'+txt('product')+'\n迷っている点：'+txt('productwhy')],['新築を比較する視点','設備・仕様／保証／価格／管理費・修繕積立金／立地・広さ'],['中古を比較する視点','物件価格／築年数／管理状況・修繕履歴／改修費／立地・広さ'],['選ぶための優先順位','希望する広さ：'+txt('layout')+'\n調整できる条件：'+txt('producttrade')]],foot:'新築・中古いずれにもメリットとリスクがあります。個別物件の資料で確認します。'};
+case 'layout':return {lead:'平米数だけでなく、毎日の過ごし方から必要な空間を考えます。',tiles:[['現在の暮らし','現居で変えたい点：'+txt('now')+'\nこれまで合わなかった点：'+txt('path')],['必要な住空間','希望する広さ・間取り：'+txt('layout')],['優先順位','優先する条件：'+txt('producttrade')+'\n階数の希望：'+txt('floor')],['具体的な確認方法','家具寸法・仕事机の配置／動線／収納量／将来の部屋の使い方を図面で確認']],foot:'実際の住戸の寸法・配置可否は、図面や現地で確認する必要があります。'};
+case 'timing':return {lead:'「いつ住みたいか」と「いつ決められるか」は必ずしも同じではありません。',tiles:[['探し始めた理由','きっかけ：'+txt('trigger')+'\nご本人の考え：'+txt('selfmot')],['希望する時期','希望時期：'+txt('timing')+'\nその理由：'+txt('timingwhy')],['早めに見つかった場合','購入できるか：'+txt('early')],['意思決定を妨げるもの','残る不安：'+txt('barrier')+'\n次の判断材料：'+txt('decision')]],foot:'購入を急ぐ必要がない場合は、賃貸継続も含めて比較します。'};
+case 'mapguide':return {lead:'候補エリアを広げるかどうかを、実際の物件条件を見ながら判断します。',tiles:[['比較の目的','エリアの希望：'+txt('area')+'\nその理由：'+txt('areawhy')],['比較する候補','希望エリア内／隣接エリア（候補はMAPで選択）'],['揃えて比較する条件','価格帯・広さ・駅距離・通勤・生活環境・新築／中古'],['比較後に確かめたいこと','希望エリアに追加費用を払う価値を感じるか。条件の優先順位は変わるか。']],foot:'実際の掲載物件・価格・所在地はMAP側で確認。エリアの安全性について根拠のない断定をしない。'};
+case 'simguide':return {lead:'買える金額ではなく、安心して選べる住居費の範囲を確かめます。',tiles:[['現在の住居費','現居の状況：'+txt('rentvalue')+'\n家賃補助の継続条件：要確認'],['購入後の比較','住宅ローン返済／管理費・修繕積立金／税金／保険／補助消滅の有無'],['シミュレーター入力','収入・自己資金・家族計画・教育費・生活費・希望月額'],['比較後に確かめたいこと','安心ラインと希望住戸の差はどれくらいか。何を調整すれば納得できるか。']],foot:'金額はこの資料で自動計算していません。実数値は購入安心度シミュレーターの結果を確認して反映。'};
+case 'next':return {lead:'今日決める必要のないことも含め、次に確かめたい点を共有します。',tiles:[['確認できたこと','購入のきっかけ：'+txt('trigger')+'\n来場の目的：'+txt('visit')],['未確認の観点',axes.map(a=>a+'：'+checks[a].filter(x=>!answered(x)).slice(0,2).map(x=>byId[x].q).join('／')).join('\n')],['お客様の次の判断','次に確認したいこと：'+txt('decision')],['ご提案の方向性','最も未整理な軸：'+lowest()+'\nまず本人の希望・判断基準を確認し、必要な比較資料を用意する。']],foot:'次の行動はお客様の希望を確認して決めます。資料の記述は商談担当者が最終確認してください。'};
+}}
+function buildDeck(){const ids=[...document.querySelectorAll('#slideChoices input:checked')].map(x=>x.value);if(!ids.length){alert('資料を1枚以上選んでください。');return}const name='アンケート番号管理';$('slidePreview').innerHTML=ids.map((id,i)=>{const d=slideData(id),c=SLIDE_CATALOG.find(x=>x.id===id);return `<article class="slide"><div class="eyebrow">HOME CONSULTATION　/　${String(i+1).padStart(2,'0')}</div><h2 class="editable" contenteditable="true" spellcheck="false">${esc(c.title)}</h2><div class="lead editable" contenteditable="true" spellcheck="false">${esc(d.lead)}</div><div class="content">${d.tiles.map(([title,body])=>`<div class="tile"><h3 class="editable" contenteditable="true" spellcheck="false">${esc(title)}</h3><p class="editable" contenteditable="true" spellcheck="false">${esc(body.replace(/\\n/g,'\n'))}</p></div>`).join('')}</div><div class="foot editable" contenteditable="true" spellcheck="false">${esc(name)}｜${esc(d.foot)}</div></article>`}).join('');$('slidePreview').scrollIntoView({behavior:'smooth',block:'start'})}
+$('deckBtn')?.addEventListener('click',()=>{$('report').classList.add('hidden');$('deck').classList.remove('hidden');selectSlides();$('deck').scrollIntoView({behavior:'smooth'})});
+$('buildSlides').onclick=buildDeck;
+const FINKEY='housing_interview_v18_fin';try{const f=JSON.parse(localStorage.getItem(FINKEY)||'{}');for(const id of ['finRent','finSubsidy','finLoan','finMaint','finOther','finKeep'])if(f[id]!==undefined)$(id).value=f[id]}catch(e){}
+for(const id of ['finRent','finSubsidy','finLoan','finMaint','finOther','finKeep'])$(id).addEventListener('change',()=>localStorage.setItem(FINKEY,JSON.stringify(Object.fromEntries(['finRent','finSubsidy','finLoan','finMaint','finOther','finKeep'].map(k=>[k,$(k).value])))));
+$('decisionBuild').onclick=()=>{$('deck').classList.remove('hidden');selectSlides();document.querySelectorAll('#slideChoices input').forEach(x=>x.checked=['decision','realcost','benefits','next'].includes(x.value));buildDeck();$('decisionStatus').textContent='比較資料を生成しました。未確認の金額は補完していません。'};
+$('printSlides').onclick=()=>{if(!$('slidePreview').querySelector('.slide')){alert('先に資料を生成してください。');return}window.print()};
+$('closeDeck').onclick=()=>$('deck').classList.add('hidden');
+
+try{const saved=JSON.parse(localStorage.getItem(STORAGE));if(saved&&Array.isArray(saved.entries)&&saved.current!==undefined)s=saved}catch(e){}/* initial render deferred until all rules are initialized */
+
+function currentCustomById(id){const r=INSIGHT_RULES.find(x=>'custom:'+x.id===id);return r?{a:r.axis,q:r.question}:{a:'その他',q:'追加質問'}}
+// v7: 事実・仮説・未確認事項を分けた、商談文脈に基づく分岐と外部ツール誘導
+const INSIGHT_RULES=[
+ {id:'subsidy',axis:'予算',rx:/家賃補助|住宅手当|社宅|補助.*(?:万|円)/,question:'その補助は、購入後や転職後にも続く制度ですか？ 続かない場合、今の実質負担との差をどこまで許容できそうですか？',reason:'購入前後の実質負担差を確認',tool:'sim'},
+ {id:'rent_satisfied',axis:'時期',rx:/不満.*(?:ない|特にない)|満足.*(?:している|です)|困って.*ない/,question:'今の暮らしを続ける選択肢もある中で、どんな条件がそろったら「引っ越したい」と感じそうですか？',reason:'購入動機と現居満足を分ける',tool:'sim'},
+ {id:'area_external',axis:'エリア',rx:/親.*(?:勧め|言)|周り.*(?:勧め|言)|友人.*(?:勧め|言)|なんとなく.*北摂/,question:'北摂が良いという周囲の意見はいったん置いて、同じ予算で広さや駅距離が良くなるなら、ほかのエリアも見てみたいですか？',reason:'本人のエリア優先度を検証',tool:'map'},
+ {id:'area_strict',axis:'エリア',rx:/北摂.*(?:絶対|限定|以外.*(?:嫌|考えない))|(?:絶対|限定).*北摂/,question:'北摂を優先するためなら、価格・広さ・駅距離のどれを調整できそうですか？',reason:'絶対条件とトレードオフを確認',tool:'map'},
+ {id:'area_flexible',axis:'エリア',rx:/北摂.*(?:以外でも|じゃなくても)|他(?:の)?エリア.*(?:いい|検討)|上新庄.*(?:いい|検討)|淡路.*(?:いい|検討)/,question:'エリアを広げるなら、通勤時間・治安の印象・生活利便性のうち、どれを比較して納得したいですか？',reason:'エリアの比較基準を具体化',tool:'map'},
+ {id:'new_used',axis:'商品',rx:/新築.*中古|中古.*新築|中古.*迷|新築.*迷/,question:'新築と中古で、今は価格差・管理状態・住戸の広さ・設備のどれが決め手になりそうですか？',reason:'商品比較の決め手を確認',tool:'map'},
+ {id:'payment',axis:'予算',rx:/月.*(?:15万|万円|支払|予算)|予算.*(?:万|円)|高い|支払い.*不安/,question:'その月額の上限は、現在の生活費から決めた金額ですか？ それとも将来の教育費や貯蓄も考慮した金額ですか？',reason:'予算の根拠と安心水準を確認',tool:'sim'},
+ {id:'timing',axis:'時期',rx:/いつか|急いで.*ない|まだ.*決め|時期.*未定|良い.*あれば/,question:'理想に近い住まいが今見つかった場合、購入を進められますか？ それとも解消しておきたい不安がありますか？',reason:'希望時期と購入可能時期を分ける',tool:'sim'},
+ {id:'remote',axis:'商品',rx:/在宅|リモート|仕事部屋|書斎|デスク/,question:'仕事部屋を独立させることと、リビングや子ども部屋の広さでは、どちらを優先したいですか？',reason:'実生活に基づく間取りの優先順位',tool:'map'}
+];
+function allSpeech(){return s.entries.map(e=>[e.choice,e.text].filter(Boolean).join(' ')).join('。')}
+function detectDecisions(){const speech=allSpeech();const current=(s.entries.at(-1)?.text||'')+' '+(s.entries.at(-1)?.choice||'');return INSIGHT_RULES.filter(r=>r.rx.test(speech)).map(r=>({...r,recent:r.rx.test(current)})).sort((a,b)=>Number(b.recent)-Number(a.recent))}
+function meaningfulQuestionCandidates(){const found=detectDecisions();const done=s.probeHistory||[];return found.filter(r=>!done.includes('context_'+r.id)).slice(0,3)}
+function renderDecisions(){const p=document.getElementById('decisionPanel');if(!p)return;const matches=meaningfulQuestionCandidates();p.innerHTML='<b>会話内容から選んだ深掘り候補</b><div class="mini">以下は事前設計したルールに基づく質問候補。お客様の本心を断定しません。</div>'+(matches.length?matches.map(r=>`<div style="margin-top:9px"><span class="tag">${esc(r.axis)}</span> <b>${esc(r.question)}</b><div class="mini">狙い：${esc(r.reason)}</div><button class="smallbtn" data-context="${r.id}">この質問に切り替える</button><button class="smallbtn" data-contextdone="${r.id}">確認済みにする</button></div>`).join(''):'<p class="mini">現時点では新しい深掘り候補はありません。通常の質問を続けてください。</p>');p.querySelectorAll('[data-context]').forEach(b=>b.onclick=()=>{const r=INSIGHT_RULES.find(x=>x.id===b.dataset.context);s.returnTo=s.current;s.current='custom:'+r.id;render()});p.querySelectorAll('[data-contextdone]').forEach(b=>b.onclick=()=>{s.probeHistory=s.probeHistory||[];s.probeHistory.push('context_'+b.dataset.contextdone);render()})}
+function currentCustom(){if(!s.current?.startsWith('custom:'))return null;const r=INSIGHT_RULES.find(x=>x.id===s.current.slice(7));return r?{id:s.current,a:r.axis,q:r.question,why:r.reason,c:['はい・可能','いいえ・難しい','条件による','まだ分からない']}:null}
+const oldQuestionNow=questionNow;questionNow=function(){return currentCustom()||oldQuestionNow()};
+const oldGoNext=goNext;goNext=function(skip=false){if(!s.current?.startsWith('custom:'))return oldGoNext(skip);const q=questionNow(),choice=document.querySelector('input[name="choice"]:checked')?.value||'',answer=$('answer').value.trim();if(!skip&&!choice&&!answer){$('warning').textContent='選択肢か自由入力を記録してください。';return}if(!skip)s.entries.push({id:q.id,choice,text:answer,at:new Date().toISOString()});s.probeHistory=s.probeHistory||[];s.probeHistory.push('context_'+s.current.slice(7));s.current=s.returnTo||nextQuestion('origin');s.returnTo=null;render()};
+function routePlan(){const m=detectDecisions();const ids=new Set(m.map(x=>x.id));const map=ids.has('area_external')||ids.has('area_flexible')||ids.has('area_strict')||ids.has('new_used');const sim=ids.has('subsidy')||ids.has('rent_satisfied')||ids.has('payment')||ids.has('timing');const ordered=[];if(ids.has('rent_satisfied'))ordered.push('まず現居に残る選択肢と、購入する理由を本人の言葉で確認');if(ids.has('subsidy'))ordered.push('家賃補助の適用条件と、購入後の実質負担差を確認');if(map)ordered.push('新築マンションMAPで候補エリア・価格帯・広さを比較（データ更新日を確認）');if(sim)ordered.push('購入安心度シミュレーターに収入・自己資金・生活費等を入力し、安心ラインを比較');ordered.push('比較した結果を踏まえ、どの条件なら次に進めるかを確認');return {map,sim,ordered}}
+function renderToolRoute(){const p=routePlan();$('route').innerHTML='<b>推奨商談フロー</b><ol class="flowlist">'+p.ordered.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ol>';$('mapReason').textContent=p.map?'エリアや新築・中古の選択が論点です。希望条件と実際の候補を照らし合わせます。':'今の回答では優先度は低め。エリア比較が必要になれば利用します。';$('simReason').textContent=p.sim?'家賃補助・月額予算・購入時期の迷いが論点です。家計に無理のない価格を確認します。':'今の回答では優先度は低め。購入負担の比較が必要になれば利用します。'}
+function validUrl(u){try{const x=new URL(u);return ['https:','http:'].includes(x.protocol)}catch{return false}}
+function updateToolLinks(){for(const name of ['map','sim']){const v=$(name+'Url').value.trim();const a=$(name+'Open');a.setAttribute('aria-disabled',String(!validUrl(v)));if(validUrl(v))a.href=v;else a.removeAttribute('href');try{localStorage.setItem('nav7_url_'+name,v)}catch(e){}}}
+function exportHandoff(){const payload={format:'interview-navigator-v7',exportedAt:new Date().toISOString(),client:'アンケート番号管理',axes:Object.fromEntries(axes.map(a=>[a,{coverage:score(a),note:'質問の回答充足度であり購入意欲ではない'}])),answers:s.entries,identifiedTopics:detectDecisions().map(x=>({axis:x.axis,reason:x.reason,question:x.question})),proposedFlow:routePlan().ordered};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='hearing_handoff.json';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+const oldRender=render;render=function(){oldRender();renderDecisions();renderToolRoute()};
+$('handoff').onclick=exportHandoff;for(const name of ['map','sim']){$(name+'Url').value=(function(){try{return localStorage.getItem('nav7_url_'+name)}catch(e){return null}})()||({map:'https://mansion-choice-map.banghirayama.chatgpt.site/',sim:'https://bangtatsu0721.github.io/home-purchase-simulator/'}[name]||'');$(name+'Url').addEventListener('change',updateToolLinks)}updateToolLinks();
+
+// v9: separate the internal sales analysis from the customer presentation.
+let audienceMode='customer';
+const previousBuildDeck=buildDeck;
+function v9Panel(kicker,body,extra=''){return `<div class="customer-panel ${extra}"><div class="kicker">${esc(kicker)}</div>${body}</div>`}
+function v9Detail(text){return `<div class="detail editable" contenteditable="true">${esc(text)}</div>`}
+function v9Big(text){return `<div class="big editable" contenteditable="true">${esc(text)}</div>`}
+function v9Question(q){return `<div class="questionbar editable" contenteditable="true">${esc(q)}</div>`}
+function v9CustomerSlide(title,lead,body,foot,i){return `<article class="slide customer-slide"><div class="eyebrow">YOUR HOME, YOUR CHOICE　 /　${String(i+1).padStart(2,'0')}</div><h2 class="editable" contenteditable="true">${esc(title)}</h2><div class="lead editable" contenteditable="true">${esc(lead)}</div><div class="content">${body}</div><div class="foot editable" contenteditable="true">${esc('アンケート番号管理')} 様　｜　${esc(foot)}</div></article>`}
+function v9CustomerDeck(){
+ const f=financialData(),c=customerContext(),name='アンケート番号管理';
+ const topics=detectDecisions().map(x=>x.id);
+ const monthly=f.current, bought=f.buy, delta=f.diff;
+ const money=n=>n===null?'確認中':(n/10000).toLocaleString('ja-JP',{maximumFractionDigits:2})+'万円';
+ const lines=[];
+ const housing=[];
+ if(c.remote)housing.push('在宅勤務のための仕事スペース');
+ if(c.family)housing.push('将来の家族構成に対応できる間取り');
+ if(c.price)housing.push('無理なく続けられる住居費');
+ if(!housing.length)housing.push('今の住まいと比べて、改善したいこと');
+ const currentGood=[];
+ if(c.satisfied)currentGood.push('今の住まいに大きな不満がない');
+ if(c.subsidy||f.sub!==null&&f.sub>0)currentGood.push('家賃補助を利用できている');
+ if(!currentGood.length)currentGood.push('現在の暮らしで大切にしていることを確認');
+ const comparison=monthly!==null&&bought!==null&&f.keep!=='unknown';
+ const rentPanel=v9Panel('今のお住まい',v9Big(money(monthly))+'<div class="smallline">実質家賃／月</div>'+v9Detail(f.rent!==null&&f.sub!==null?`家賃 ${money(f.rent)} − 家賃補助 ${money(f.sub)}`:'家賃と補助額の確認が必要です。'));
+ const buyPanel=v9Panel('購入した場合',v9Big(money(bought))+'<div class="smallline">想定住居費／月</div>'+v9Detail(bought!==null?'ローン返済＋管理費・修繕積立金等＋その他維持費':'購入候補の資金計画を確認して反映します。'));
+ const slides=[];
+ slides.push(['これからの住まいを、一緒に考える',`${name}様の今の暮らしと、これからの希望から考えます。`,
+ `<div class="customer-hero editable" contenteditable="true">今のお住まいを続けることも、新しい住まいを選ぶことも。どちらがご家族に合うかを比較しましょう。</div><div class="customer-grid">${v9Panel('今の暮らしの良さ',v9Detail(currentGood.join('。')+'。'))}${v9Panel('これから大切にしたいこと',v9Detail(housing.join('。')+'。'))}</div>`, 'ご希望をもとにした整理。内容はご本人と確認しながら更新します。']);
+ slides.push(['今の家賃と、購入後の住居費を比べる','家賃補助を含めて、毎月の負担を比較します。',
+ `<div class="comparison">${rentPanel}${buyPanel}</div>${comparison?`<div class="customer-hero editable" contenteditable="true">購入後の月額負担差：${delta>=0?'+':''}${money(delta)}／月</div>`:`<div class="placeholder">月額負担差はまだ算出していません。購入後の補助の扱いと、ローン・管理費・修繕積立金・その他維持費を確認したうえで比較します。</div>`}${v9Question('増える住居費に見合う、暮らしの変化があるでしょうか？')}<div class="caution">月額比較です。頭金・購入諸費用・税制・金利変動・売却価値・将来の賃料変化などは含みません。補助が購入後も続く場合はその扱いを反映します。</div>`, '金額は入力値に基づきます。購入と賃貸の生涯損得を示すものではありません。']);
+ slides.push(['家を買うことで、何が変わる？','一般的な持ち家のメリットより、ご家族にとっての変化を考えます。',
+ `<div class="customer-grid">${v9Panel('購入によって実現したいこと',v9Detail(housing.map(x=>'・'+x).join('\n')+'\n※候補物件で実現できるかは別途確認します。'),'emphasis')}${v9Panel('購入前に確かめたいこと',v9Detail(['・今の住まいで実現できないことは何か','・住居費が増えても納得できるか','・住み替えの自由度や維持費をどう考えるか'].join('\n')))}</div>${v9Question('今の住まいのままでは、5年後に困りそうなことはありますか？')}`, '住み心地・資産価値・将来の状況には不確実性があります。']);
+ const areaRelevant=topics.some(x=>x.startsWith('area'))||/北摂|茨木|吹田|エリア|沿線|駅/.test(allSpeech());
+ if(areaRelevant){slides.push(['エリアを変えると、選択肢はどう変わる？','価格・広さ・駅距離など、条件の優先順位を比べます。',
+ `<div class="customer-grid">${v9Panel('まず比べたい条件',v9Detail('希望エリア／価格帯／専有面積／駅距離／通勤・生活動線'))}${v9Panel('新築マンションMAPで確認',v9Detail('候補物件の最新価格・面積・立地を比較します。\n物件データの取り込みは未接続のため、現段階では数値を自動掲載しません。'))}</div>${v9Question('エリアを少し広げて、広さや価格が改善するなら比較したいですか？')}`, '比較物件・価格はMAPのデータ更新日と販売状況を確認して反映します。']);}
+ slides.push(['将来の家計も踏まえて、選ぶ','月々の支払いだけでなく、将来の安心感まで確認します。',
+ `<div class="customer-grid">${v9Panel('シミュレーターで確認すること',v9Detail('・今後の収入と生活費\n・教育費や大きな支出\n・住宅購入後の維持費\n・将来の金融資産残高'))}${v9Panel('比較したい3つの選択肢',v9Detail('① 今の賃貸を続ける\n② 希望の住まいを購入する\n③ 時期や条件を調整して検討する'))}</div><div class="placeholder">購入安心度シミュレーターの計算結果は、現時点では自動取得していません。結果を確認して、ここにグラフや数値を反映してください。</div>`, '将来の収支は前提条件によって変わる試算です。']);
+ slides.push(['これからの住まい選びの進め方','今日、購入を決める必要はありません。',
+ `<div class="steps"><div class="step"><b>1</b>今の暮らしで大切なことを整理する</div><div class="step"><b>2</b>購入で実現できる変化と住居費を比べる</div><div class="step"><b>3</b>エリア・間取り・将来の家計を具体的に確認する</div><div class="step"><b>4</b>賃貸継続も含め、ご家族に合う選択を考える</div></div>${v9Question('次に、どの条件から一緒に確認しましょうか？')}`, 'ご判断のための比較資料です。購入を推奨・保証するものではありません。']);
+ $('slidePreview').innerHTML=slides.map((x,i)=>v9CustomerSlide(...x,i)).join('');
+ $('slidePreview').scrollIntoView({behavior:'smooth',block:'start'});
+}
+buildDeck=function(){if(audienceMode==='customer'){v9CustomerDeck()}else{previousBuildDeck()}};
+function v9Audience(mode){audienceMode=mode;$('audCustomer').classList.toggle('active',mode==='customer');$('audStaff').classList.toggle('active',mode==='staff');$('slideChoices').style.display=mode==='staff'?'':'none';document.querySelector('.deckgrid').style.gridTemplateColumns=mode==='staff'?'240px minmax(0,1fr)':'minmax(0,1fr)';$('audienceTip').textContent=mode==='customer'?'お客様にそのままお見せするための資料。営業上の仮説・スコア・内部メモは表示しません。印刷前に数値と内容を確認してください。':'営業担当者だけが見る分析シート。仮説や未確認事項を含みます。お客様への直接提示には使用しないでください。';buildDeck()}
+$('audCustomer').onclick=()=>v9Audience('customer');$('audStaff').onclick=()=>v9Audience('staff');
+$('deckBtn')?.addEventListener('click',()=>{v9Audience('customer')});
+$('decisionBuild').addEventListener('click',()=>{v9Audience('customer')});
+$('deckIntro').textContent='お客様に見せる提案書と営業分析を切り替えられます。お客様向けは編集可能なスライドで、根拠のない数値は自動生成しません。';
+
+// v10: customer slides use different visual structures, not repeated tile templates.
+function v10Deck(){
+ const f=financialData(),c=customerContext(),name='アンケート番号管理';
+ const money=n=>n===null||!Number.isFinite(n)?'未入力':(n/10000).toLocaleString('ja-JP',{maximumFractionDigits:2})+'万円';
+ const fmt=n=>n===null||!Number.isFinite(n)?'未入力':(n>=0?'+':'−')+money(Math.abs(n));
+ const topic=allSpeech();
+ const needs=[];
+ if(c.remote)needs.push('仕事に集中できる空間');
+ if(c.family)needs.push('家族の変化に対応できる間取り');
+ if(c.price)needs.push('安心して続けられる支払い');
+ if(!needs.length)needs.push('今より実現したい暮らし');
+ const hasCost=f.current!==null&&f.buy!==null&&f.keep!=='unknown';
+ const diff=hasCost?f.diff:null;
+ const buyEffective=hasCost?f.current+diff:null;
+ const max=hasCost?Math.max(f.current,buyEffective,1):1;
+ const pct=n=>Math.max(0,Math.min(100,(n/max)*100)).toFixed(1)+'%';
+ const foot='ご入力いただいた条件をもとに作成。実際の購入判断には詳細な資金計画・物件確認が必要です。';
+ const slide=(cls,tag,title,lead,body,small=foot)=>`<article class="slide customer-slide v10-slide ${cls}"><div class="eyebrow">${tag}</div><h2 class="editable" contenteditable="true">${esc(title)}</h2><div class="lead editable" contenteditable="true">${esc(lead)}</div><div class="content">${body}</div><div class="foot editable" contenteditable="true">${esc(name)} 様｜${esc(small)}</div></article>`;
+ const editable=(t,cls='')=>`<div class="editable ${cls}" contenteditable="true">${esc(t)}</div>`;
+ const slides=[];
+ slides.push(slide('v10-cover','01 / PERSONAL HOUSING PLAN','これからの住まい選び',`${name}様の今と未来を、同じ目線で考える`,
+ `<div class="cover-hero editable" contenteditable="true">買うことが目的ではなく、<br>暮らしがよくなる選択を。</div><div class="cover-chips">${(c.satisfied?['今の暮らしを大切に']:['今の暮らしから考える']).concat(needs.slice(0,2)).map(x=>`<span class="cover-chip">${esc(x)}</span>`).join('')}</div>`,
+ '賃貸継続と購入、どちらも選択肢に入れた比較資料'));
+ const moneyBody=hasCost?`<div class="money-layout"><div class="money-chart">
+ <div class="money-line"><b>今の家賃</b><div class="money-track"><div class="money-bar rent-bar" style="width:${pct(f.current)}"></div></div><strong>${money(f.current)}</strong></div>
+ <div class="money-line"><b>購入後</b><div class="money-track"><div class="money-bar buy-bar" style="width:${pct(buyEffective)}"></div></div><strong>${money(buyEffective)}</strong></div>
+ <div class="v10-small">今の家賃 ${money(f.rent)} − 家賃補助 ${money(f.sub)}。購入後はローン・管理費・修繕積立金等・その他維持費を合計し、購入後も継続する補助があれば控除。</div></div>
+ <div class="money-callout"><span>月々の負担差</span>${editable(fmt(diff),'delta')}<div class="money-caption">年間の差：${fmt(diff*12)}<br>この差額に見合う暮らしの変化があるかを考えます。</div></div></div>`:
+ `<div class="money-layout"><div class="money-chart"><div class="money-line"><b>今の家賃</b><div class="money-track"><div class="money-bar rent-bar" style="width:${f.current===null?'0':'55%'}"></div></div><strong>${money(f.current)}</strong></div><div class="money-line"><b>購入後</b><div class="money-track"><div class="money-bar buy-bar" style="width:0"></div></div><strong>確認中</strong></div><p class="v10-small">数値が揃うまで購入後の棒グラフと差額は表示しません。</p></div><div class="money-callout"><b>比較に必要な情報</b><div class="money-caption">家賃・補助額、ローン返済、管理費・修繕積立金等、その他維持費、購入後の補助の扱い</div></div></div>`;
+ slides.push(slide('v10-money','02 / MONTHLY COST','毎月の住居費は、どう変わる？','家賃補助も含めて、実際の負担を横並びで比較します。',moneyBody,'月額の単純比較。頭金・購入諸費用・税金の一時費用・金利変動・売却価値等は含みません。'));
+ const now=c.satisfied?'今の住まいに満足している':'現在の暮らしを続ける';
+ const benefit=needs[0];
+ slides.push(slide('v10-benefits','03 / QUALITY OF LIFE','購入によって得られるものは？','メリットは「持ち家だから」ではなく、暮らしの変化から考えます。',
+ `<div class="benefit-flow"><div class="benefit-node"><b>現在</b><span>${esc(now)}</span></div><div class="flow-arrow">→</div><div class="benefit-node"><b>叶えたいこと</b><span>${esc(benefit)}</span></div><div class="flow-arrow">→</div><div class="benefit-node"><b>購入で実現？</b><span>候補物件の間取り・費用で検証</span></div></div><div class="benefit-check editable" contenteditable="true">住宅購入には、住空間の改善や長期的な居住の安定、資産形成の可能性があります。一方、維持費・価格変動・住み替えにくさも伴います。${c.satisfied?'今のお住まいに満足している場合、購入で何が改善するかが特に大切です。':''}</div>`,
+ '候補物件で実現できることを確認するまでは、購入メリットを断定しません。'));
+ slides.push(slide('v10-choice','04 / THREE PATHS','今、選べる3つの道','買う・買わないの二択にしない、住まい選び。',
+ `<div class="choice-lanes"><div class="choice-lane"><b>賃貸を続ける</b><p>${c.satisfied?'今の暮らしへの満足を保ちながら、':'住み替えを急がず、'}家賃補助や生活の柔軟性を活かす。</p></div><div class="choice-lane"><b>購入を検討する</b><p>${esc(benefit)}など、負担増に見合う価値が得られる住まいを探す。</p></div><div class="choice-lane"><b>時期を見直す</b><p>資金計画・家族の変化・希望条件を整理して、改めて判断する。</p></div></div><div class="choice-bottom editable" contenteditable="true">どの道がよいかは、購入後の生活と将来の家計を比較して決めていきましょう。</div>`,
+ '3つの選択肢は優劣や推奨順位を示しません。'));
+ if(/北摂|茨木|吹田|エリア|沿線|駅|上新庄|淡路/.test(topic)){
+ slides.push(slide('v10-area','05 / LOCATION PRIORITIES','場所を変えると、何が変わる？','希望エリアだけでなく、暮らしの条件を比べます。',
+ `<div class="area-axis"><div class="area-factor">エリア</div><div class="area-factor">広さ</div><div class="area-factor">価格</div><div class="area-factor">通勤</div></div><div class="area-note editable" contenteditable="true">新築マンションMAPの候補物件を、この4条件で比較します。実際の価格・広さ・立地のデータは未接続のため、ここでは差を断定しません。</div>`,
+ 'MAPの物件情報を反映する際は販売状況・情報更新日を確認してください。'));
+ }
+ slides.push(slide('v10-next',`${String(slides.length+1).padStart(2,'0')} / NEXT STEPS`,'これから確認したいこと','納得できる判断のために、順番に確かめます。',
+ `<div class="next-steps"><div class="next-step"><div class="num">01</div><p>今の暮らしから変えたいことを整理</p></div><div class="next-step"><div class="num">02</div><p>購入後の住居費と将来の家計を比較</p></div><div class="next-step"><div class="num">03</div><p>希望に合う物件があるかを確認</p></div></div><div class="editable" contenteditable="true">今日、購入を決める必要はありません。まずは、何が分かれば納得して選べるかを一緒に考えましょう。</div>`,
+ '購入安心度シミュレーターの将来収支とMAPの物件データは、現在自動連携していません。'));
+ $('slidePreview').innerHTML=slides.join('');
+ $('slidePreview').scrollIntoView({behavior:'smooth',block:'start'});
+}
+buildDeck=function(){if(audienceMode==='customer'){v10Deck()}else{previousBuildDeck()}};
+$('deckIntro').textContent='お客様向けは、表紙・住居費グラフ・購入メリット図解・選択肢比較など、1枚ずつ異なるデザインで出力します。営業向け分析とは分離しています。';
+
+// v11: independent interest/engagement estimates; NOT conversion probability.
+const TEMP_RULES={
+ '時期':{strong:/今すぐ|すぐに買|早く買|半年以内|年内に|購入したい|ぜひ買いたい|契約したい|具体的に進め|条件が合えば買いたい/g,
+ weak:/急いでいない|急いでない|買う必要性.*(?:ない|感じない)|必要性を感じない|まだ買えない|まだ考えていない|特に不満はない/g,
+ concrete:/出産|進学|更新|転勤|退去|引っ越し|引越し|来年|半年|年内|家族の合意|資金準備/g},
+ 'エリア':{strong:/このエリアがいい|絶対.*エリア|北摂.*(?:限定|絶対)|通勤時間|家族との距離|生活利便|街の環境|学校|子育て/g,
+ weak:/特に理由はない|まだ決まっていない|なんとなく/g,
+ concrete:/徒歩|分以内|沿線|駅|職場|実家|北摂|茨木|吹田|上新庄|淡路|大阪市内/g},
+ '予算':{strong:/家計|貯蓄|FP相談|将来支出|教育費|ローン|月々の支払い|資金計算|支払い.*不安/g,
+ weak:/なんとなく|まだ分からない|よく分からない/g,
+ concrete:/\d+(?:\.\d+)?\s*(?:万|円)|補助|手当|金利|返済|頭金|諸費用/g},
+ '商品':{strong:/仕事部屋|子ども部屋|収納|広いLDK|広さ優先|階数優先|駅距離優先|価格優先|新築がいい|中古がいい|絶対条件/g,
+ weak:/まだ考えていない|まだ具体化していない|決められない|判断できない/g,
+ concrete:/\d+\s*(?:階|㎡|平米|LDK)|在宅|リモート|間取り|眺望|日当たり|管理|修繕|モデルルーム/g}
+};
+function temperature(axis){
+ const relevant=(s.entries||[]).filter(e=>((byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id))?.a===axis));
+ if(!relevant.length)return {value:null,confidence:0,reason:'この軸についての回答がありません'};
+ const text=relevant.map(e=>(e.choice||'')+' '+(e.text||'')).join('。');
+ const r=TEMP_RULES[axis];
+ const hits=(rx)=>[...text.matchAll(rx)].length;
+ const strong=hits(r.strong),weak=hits(r.weak),concrete=hits(r.concrete);
+ const specific=relevant.filter(e=>e.text?.trim().length>=12).length;
+ const value=Math.max(5,Math.min(95,Math.round((42+strong*12+concrete*6+specific*5-weak*10)/5)*5));
+ const confidence=Math.min(100,Math.round((relevant.length/Math.max(3,checks[axis].length))*75+Math.min(25,(strong+concrete+weak)*5)));
+ const reason=strong>0?'重視する条件・具体的な関心が表れています':concrete>0?'具体的な条件や事情が確認されています':weak>0?'まだ検討の具体化が必要です':'回答はありますが関心の強さは未確認です';
+ return {value,confidence,reason};
+}
+function renderTemperatures(){
+ const el=document.getElementById('temperatures');if(!el)return;
+ el.innerHTML=axes.map(a=>{const t=temperature(a);return `<div class="tempitem"><div class="temphead"><span>${a}</span><strong>${t.value===null?'判定保留':t.value+'%'}</strong></div><div class="tempbar"><div class="tempfill" style="width:${t.value??0}%"></div></div><div class="tempnote">${esc(t.reason)} <span class="tempflag">判定材料 ${t.confidence}%</span></div></div>`}).join('');
+}
+const v11Render=render;render=function(){v11Render();renderTemperatures()};
+
+// v12: sales-facing, evidence-aware command center. Never interpret scores as purchase probability.
+function salesCommand(){
+ const rows=s.entries||[], text=rows.map(e=>(e.choice||'')+' '+(e.text||'')).join('。');
+ const hits=detectDecisions(), ids=new Set(hits.map(x=>x.id));
+ const f=financialData(), c=customerContext();
+ const low=axes.slice().sort((a,b)=>score(a)-score(b))[0];
+ const last=rows.at(-1),lastQ=last?(byId[last.id]||probes[last.id?.slice(6)]||currentCustomById(last.id)):null;
+ const lastQuote=last?((last.text||last.choice||'').trim().slice(0,110)):'まだ回答がありません';
+ let phase='ヒアリング開始',issue='住まい探しのきっかけを確認',ask='何をきっかけに住まい探しを始められましたか？',reason='本人が感じている課題と、周囲から勧められた理由を分ける',goal='購入の必要性を整理',next='まずは来場目的と現居への満足度を確認',caution='購入を前提に話を進めず、お客様自身の言葉を引き出します。',tools='ツール：まだ不要',priority=0;
+ const pick=(id,words)=>ids.has(id)||words.test(text);
+ if(rows.length){phase='理由・条件の整理';issue='今の発言を深掘り';ask=questionNow()?.q||'ここまでの条件で、特に譲れないことは何でしょうか？';reason=questionNow()?.why||'次の判断条件を確認';goal='4軸の判断基準を具体化';next=`未整理の軸：${low}。希望の理由と優先順位を確認`;priority=1}
+ if(pick('rent_satisfied',/不満(?:は|が)?ない|満足して|今のままでも|家賃補助|住宅手当/)){
+ phase='購入理由の確認';issue='現居を続ける選択肢が強い';ask='今のお住まいを続ける場合と比べて、購入すると何が良くなると感じますか？';reason='購入を勧める前に、お客様本人が期待する変化を確認';goal='買う理由があるかを合意';next='理由が見つからなければ賃貸継続・時期見直しも提示';caution='現居に満足していることは購入意欲の低さと同義ではありません。';tools='ツール：比較の目的が定まってから使用';priority=2}
+ if(pick('subsidy',/家賃補助|住宅手当|会社.*補助/)){
+ phase='住居費の条件整理';issue='家賃補助が購入判断に影響';ask='その補助は購入後も続きますか？ 終了する場合、今の実質負担との差をどのようにお考えですか？';reason='現在の実質住居費と購入後の負担を同じ条件で比較';goal='負担増に見合う購入メリットを確認';next='補助条件を確認→住居費比較→購入安心度シミュレーター';caution='補助の継続可否は会社規程で確認。家賃とローン返済だけの比較は避ける。';tools='推奨：購入安心度シミュレーター';priority=3}
+ if(pick('area_external',/友人.*北摂|親.*北摂|勧められ.*エリア|なんとなく北摂/)){
+ phase='希望の根拠を確認';issue='エリア希望が本人の優先条件か未確認';ask='北摂がよいと感じるのは、具体的にどんな暮らしを期待されているからでしょうか？';reason='周囲の勧めと本人の希望を分けて整理';goal='エリアの選択理由を言語化';next='理由を確認→比較する条件を合意→MAPで実物件を比較';caution='エリアを変えるよう誘導せず、希望の背景を確認します。';tools='推奨：新築マンションMAP';priority=4}
+ if(pick('area_flexible',/上新庄|淡路|エリア.*広げ|他のエリア|場所.*こだわら/)){
+ phase='優先順位の比較';issue='エリアと価格・広さの優先順位が変化';ask='エリアを少し広げることで広さや価格が改善するなら、どの条件を優先したいですか？';reason='条件の柔軟性を評価せず、トレードオフを整理';goal='比較するエリアと条件を合意';next='比較軸を確定→MAPで候補物件を比較';caution='発言の変化は矛盾ではなく、判断基準が整理された可能性があります。';tools='推奨：新築マンションMAP';priority=4}
+ if(pick('payment',/月々.*(?:万|円)|予算.*(?:万|円)|高すぎ|支払.*厳し/)){
+ phase='資金計画の検証';issue='購入価格より月々の安心感が重要';ask='毎月の支払いを決める際、教育費や貯蓄など、特に守りたい支出はありますか？';reason='上限予算だけでなく、安心して継続できる水準を確認';goal='安心ラインと検討上限を分ける';next='購入安心度シミュレーターで将来家計を確認';caution='月々のローン返済額だけで購入可能額を断定しない。';tools='推奨：購入安心度シミュレーター';priority=3}
+ if(pick('new_used',/新築.*中古|中古.*新築/)){
+ phase='商品選択の比較';issue='新築・中古の判断基準が未整理';ask='新築と中古で迷われているのは、価格・広さ・建物の状態のどの点でしょうか？';reason='比較条件をそろえ、物件種別の優劣を決めつけない';goal='比較すべき候補の条件を合意';next='物件MAPで実際の選択肢を比較';caution='築年数だけで維持費や資産価値を断定しない。';tools='推奨：新築マンションMAP';priority=3}
+ if(rows.length&&hits.length===0){phase='判断条件の確認';issue=`${low}の判断基準を整理`;ask=questionNow()?.q||ask;reason=questionNow()?.why||reason;goal='条件を選んだ理由まで確認';next='条件の背景→優先順位→次に必要な比較';tools='ツール：回答に応じて選定'}
+ const matched=hits.find(x=>x.question===ask);if(matched)reason=matched.reason;
+ const quote=lastQuote.length>90?lastQuote.slice(0,90)+'…':lastQuote;
+ document.getElementById('commandPhase').textContent=phase;
+ document.getElementById('commandIssue').textContent=issue;
+ document.getElementById('commandQuestion').textContent=ask;
+ document.getElementById('commandReason').textContent='狙い：'+reason;
+ document.getElementById('commandGoal').textContent=goal;
+ document.getElementById('commandNext').textContent=next;
+ document.getElementById('commandEvidence').textContent=rows.length?'直近の発言：「'+quote+'」':'回答を記録すると、直近の発言を表示します。';
+ document.getElementById('commandCaution').textContent='注意点：'+caution;
+ document.getElementById('commandTools').textContent=tools;
+ document.querySelectorAll('.command-steps span').forEach((e,i)=>e.classList.toggle('on',i===Math.min(3,rows.length===0?0:priority<=2?1:priority<=3?2:3)));
+ const btn=document.getElementById('commandAsk');btn.onclick=()=>{const candidates=[...document.querySelectorAll('[data-context]')];const found=candidates.find(b=>{const r=INSIGHT_RULES.find(x=>x.id===b.dataset.context);return r?.question===ask});if(found){found.click()}else{const q=questionNow();if(q?.q!==ask){$('answer').focus();$('answer').placeholder='提案質問：'+ask+'\n回答を記録してください';}else{$('answer').focus()}}document.querySelector('.center')?.scrollIntoView({behavior:'smooth',block:'start'})};
+}
+const salesOldRender=render;render=function(){salesOldRender();salesCommand()};
+render();
+
+// v14: correct previously saved mistaken simulator URL without overriding a custom URL.
+(function(){const old='https://lifestyle-time-simulator.banghirayama.chatgpt.site/';const correct='https://bangtatsu0721.github.io/home-purchase-simulator/';const key='nav7_url_sim';let saved=null;try{saved=localStorage.getItem(key)}catch(e){}if(!saved||saved===old){const input=document.getElementById('simUrl');if(input){input.value=correct;updateToolLinks()}}})();
+
+// v15: Enter sends the answer; Shift+Enter inserts a newline.
+// Avoid sending during Japanese IME conversion and ignore key-repeat.
+(function(){
+  const field=document.getElementById('answer');
+  const submit=document.getElementById('next');
+  if(!field||!submit)return;
+  let composing=false;
+  field.addEventListener('compositionstart',()=>{composing=true});
+  field.addEventListener('compositionend',()=>{composing=false});
+  field.addEventListener('keydown',(event)=>{
+    if(event.key!=='Enter'||event.shiftKey||event.ctrlKey||event.altKey||event.metaKey)return;
+    if(composing||event.isComposing||event.keyCode===229||event.repeat)return;
+    event.preventDefault();
+    submit.click();
+  });
+  field.setAttribute('aria-label','お客様の発言。Enterで回答を記録、Shift+Enterで改行');
+  field.placeholder='お客様の発言を入力（Enterで送信／Shift+Enterで改行）';
+})();
+
+// v16: Multiple locally stored customer cases with explicit survey numbers.
+(function(){
+const KEY='housing_interview_public_anonymous_v1_records';
+const FINIDS=['finRent','finSubsidy','finLoan','finMaint','finOther','finKeep'];
+const by=id=>document.getElementById(id);
+const empty=()=>({client:'',memo:'',entries:[],current:'origin',skipped:[],manual:[],visited:[],pendingProbes:[],probeHistory:[],returnTo:null});
+const safeRead=()=>{try{const data=JSON.parse(localStorage.getItem(KEY)||'{}');return data&&typeof data==='object'&&!Array.isArray(data)?data:{}}catch(e){return {}}};
+let records=safeRead(),active=null,loading=false;
+const fin=()=>Object.fromEntries(FINIDS.map(id=>[id,by(id)?.value??'']));
+const setFin=v=>{for(const id of FINIDS){if(by(id))by(id).value=v&&v[id]!==undefined?v[id]:''}};
+const status=msg=>by('recordStatus').textContent=msg;
+const clean=x=>String(x??'').trim();
+const clone=x=>JSON.parse(JSON.stringify(x));
+const validNumber=n=>n.length>0&&n.length<=100;
+function refreshList(){const select=by('recordList'),old=select.value;select.innerHTML='<option value="">保存したお客様を選択</option>';Object.entries(records).sort((a,b)=>(b[1].updated||'').localeCompare(a[1].updated||'')).forEach(([key,r])=>{const option=document.createElement('option');option.value=key;option.textContent=`${r.number||key}（${(r.state?.entries||[]).length}件）`;select.appendChild(option)});select.value=records[active]?active:(records[old]?old:'')}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(records));return true}catch(e){status('保存できません。ファイルをChromeで開き、保存許可を確認してください');return false}}
+function snapshot(){return {number:clean(by('recordNumber').value),name:'',state:clone(s),finance:fin(),updated:new Date().toISOString()}}
+function saveCase(quiet=false){const r=snapshot();if(!validNumber(r.number)){if(!quiet)alert('アンケートナンバーを入力してください。');return false}
+ const existing=records[r.number];if(existing&&active!==r.number&&!quiet&&!confirm(`アンケートナンバー「${r.number}」は保存済みです。上書きしますか？`))return false;
+ const previous=records[r.number];r.state.client='';records[r.number]=r;if(!persist()){if(previous)records[r.number]=previous;else delete records[r.number];return false}if(active&&active!==r.number&&records[active]){delete records[active];persist()}active=r.number;refreshList();status(`保存済み：${r.number}`);return true}
+function autoSave(){if(loading||!active||!records[active])return;const n=clean(by('recordNumber').value);if(n!==active){status('番号の変更を保存してください');return}saveCase(true)}
+function openCase(key){if(!records[key])return;const r=records[key];loading=true;active=key;s=Object.assign(empty(),clone(r.state||{}));s.client='';by('recordNumber').value=r.number||key;by('recordName').value=r.name||'';setFin(r.finance);render();loading=false;refreshList();status(`呼び出し済み：${r.number||key}`)}
+function newCase(){if(!confirm('新しい記録の記録を開始しますか？ 現在の記録は、アンケートナンバーが入力済みなら保存します。'))return;
+ if(active)saveCase(true);loading=true;active=null;s=empty();by('recordNumber').value='';by('recordName').value='';setFin({});render();loading=false;refreshList();status('新規入力（未保存）');by('recordNumber').focus()}
+by('recordSave').addEventListener('click',()=>{try{saveCase()}catch(e){status('保存エラー：'+e.message);alert('保存できませんでした：'+e.message)}});
+by('recordOpen').addEventListener('click',()=>{const key=by('recordList').value;if(!key){alert('呼び出すお客様を選択してください。');return}if(active)saveCase(true);openCase(key)});
+by('recordList').addEventListener('change',()=>{if(by('recordList').value)status('「選択した記録を呼び出す」を押してください')});
+by('recordNew').addEventListener('click',newCase);
+by('recordDelete').addEventListener('click',()=>{const key=by('recordList').value;if(!key)return alert('削除するお客様を選択してください。');if(!confirm(`アンケート番号「${key}」を削除しますか？ この操作は元に戻せません。`))return;delete records[key];persist();if(active===key){active=null;loading=true;s=empty();by('recordNumber').value='';by('recordName').value='';setFin({});render();loading=false}refreshList();status('選択した記録を削除しました')});
+by('recordBackup').addEventListener('click',()=>{if(active)saveCase(true);const data={format:'housing-interview-records-v16',exported:new Date().toISOString(),records};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='商談記録_全件バックアップ_'+new Date().toISOString().slice(0,10)+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000)});
+by('recordRestore').addEventListener('change',async e=>{const file=e.target.files?.[0];if(!file)return;try{const data=JSON.parse(await file.text());if(data.format!=='housing-interview-records-v16'||!data.records||typeof data.records!=='object'||Array.isArray(data.records))throw Error('形式が違います');if(!confirm('復元ファイルの自由記述に氏名・連絡先などが含まれていないことを確認しましたか？ 同じアンケート番号の記録は上書きされます。'))return;for(const [k,r] of Object.entries(data.records)){if(!r||typeof r!=='object'||!r.state||!Array.isArray(r.state.entries)||!validNumber(k))continue;records[k]={number:k,name:'',state:{...r.state,client:''},finance:r.finance||{},updated:r.updated||''}}persist();refreshList();status('バックアップを復元しました')}catch(err){alert('バックアップを読み込めませんでした：'+err.message)}finally{e.target.value=''}});
+by('recordNumber').addEventListener('input',()=>status('番号の変更は「保存」で確定します'));
+by('recordName').addEventListener('input',()=>{s.client=by('recordName').value;by('client').value=s.client;autoSave()});
+by('client').addEventListener('input',()=>{by('recordName').value=by('client').value;autoSave()});
+by('memo').addEventListener('input',autoSave);
+for(const id of FINIDS)by(id)?.addEventListener('change',autoSave);
+const oldRender=render;render=function(){oldRender();autoSave()};
+// Override legacy single-slot buttons so they do not replace another customer's case.
+by('save').onclick=()=>saveCase();
+by('load').onclick=()=>{const key=by('recordList').value||active;if(key)openCase(key);else alert('上の保存済みの記録から選択してください。')};
+by('reset').onclick=newCase;
+refreshList();
+// Migration: show the existing v15 single-case state without silently overwriting records.
+if(false){
+ by('recordName').value=s.client||'';status('以前の商談記録を表示中。アンケートナンバーを入力して保存してください。');
+}else{loading=true;s=empty();by('client').value='';by('memo').value='';setFin({});render();loading=false;status(Object.keys(records).length?'保存済みの記録を選択して呼び出せます':'新規入力（未保存）')}
+})();
+
+// v19: Initial hearing completion starts a separate, answerable coaching sequence.
+// The original question form is intentionally not reused after basic questions finish.
+(function(){
+ const el=id=>document.getElementById(id);
+ const completed=()=>!questionNow();
+ const clean=t=>String(t||'').trim();
+ function makeSteps(){
+  const text=allSpeech();const f=financialData(),c=customerContext();
+  const steps=[];
+  if(c.satisfied||/不満.*ない|満足|家賃補助|住宅手当/.test(text))steps.push({id:'reason',title:'購入する理由を、お客様自身の言葉で整理',why:'今の住まいを続ける選択肢と、購入で実現したい変化を切り分ける。',talk:'今のお住まいにも良いところがあると思います。あえて住み替えるとしたら、どんな暮らしが今より良くなってほしいですか？',goal:'購入の必要性がまだない場合は、急いで勧めない。'});
+  if(/予算|価格|広さ|エリア|階数|希望条件/.test(text))steps.push({id:'tradeoff',title:'条件が両立しない場合の優先順位を確認',why:'広さ・エリア・予算のどれを調整でき、どれが譲れないかを明確にする。',talk:'例えば希望エリアでは予算内の広さに限界があり、エリアを少し広げると希望の広さを確保できる場合、どちらがご希望に近いでしょうか？',goal:'エリア優先／広さ優先／予算見直し／条件が合うまで待つ、のどれかを確認。'});
+  if(/新築|中古/.test(text))steps.push({id:'newused',title:'新築・中古を同じ基準で比較',why:'新築と中古という分類より、判断を妨げている具体的な条件を確認する。',talk:'新築と中古を比べるとき、価格・広さ・建物の状態・管理や修繕のうち、どの点が一番気になりますか？',goal:'比較条件を絞り、具体的な候補の比較へ進む。'});
+  if(/家賃|補助|ローン|支払い|予算|金利/.test(text))steps.push({id:'finance',title:'現在と購入後の実質住居費を比較',why:'家賃補助・維持費を含めて、家計への影響を同じ条件で検討する。',talk:'今の家賃補助も含めた実際の負担と、購入後の管理費・修繕積立金などを含む負担を比べてみませんか？',goal:'購入安心度シミュレーターで、将来収支を確認する。'});
+  if(/エリア|駅|茨木|吹田|北摂|通勤/.test(text))steps.push({id:'map',title:'比較するエリア・物件の条件をそろえる',why:'希望条件をもとに候補物件を比べ、地名だけで良し悪しを決めない。',talk:'今のお話から、エリア・広さ・予算・通勤のどれを同じ条件で比較すると判断しやすそうでしょうか？',goal:'新築マンションMAPで候補を確認する。'});
+  if(!steps.length)steps.push({id:'purpose',title:'住まい選びの判断材料を整理',why:'今の住まいを続ける選択も含めて、比較すべき材料を特定する。',talk:'今日のお話の中で、まだ判断できていないことは何でしょうか？ 何が分かれば次の判断ができそうですか？',goal:'未確認の条件を1つ決める。'});
+  steps.push({id:'closing',title:'次回の進め方をお客様と合意',why:'来場や購入を急がせず、必要な確認事項と次回の接点を明確にする。',talk:'今日整理できたことを踏まえて、次は何を確認するのが一番役に立ちそうでしょうか？ 必要なら比較資料や資金計画をご用意します。',goal:'資料確認／資金計画／物件比較／一旦検討、のいずれかを合意。'});
+  return steps;
+ }
+ function paint(){
+  const work=el('coachWorkspace'),btn=el('commandAsk');
+  if(!completed()){
+   work.classList.remove('active');btn.style.display='';btn.textContent='この質問を使う ↓';return;
+  }
+  const steps=makeSteps();s.coachLog=Array.isArray(s.coachLog)?s.coachLog:[];
+  const done=new Set(s.coachLog.map(x=>x.id));
+  const next=steps.find(x=>!done.has(x.id));
+  work.classList.add('active');
+  el('commandPhase').textContent=next?'ヒアリング完了 → 商談進行':'商談進行 完了';
+  el('commandIssue').textContent=next?'ヒアリング結果をもとに、次の話題を選定':'必要なテーマの確認が完了';
+  el('commandQuestion').textContent=next?next.title:'本日の商談を振り返り、次回の接点を確認';
+  el('commandReason').textContent=next?'狙い：'+next.why:'各テーマの返答はアンケート番号別の商談記録に保存されます。';
+  el('commandGoal').textContent=next?next.goal:'商談内容を保存';
+  el('commandNext').textContent=next?'このテーマを話したら「完了」を押すと次の一手が出ます。':'次回商談時は保存済み記録を呼び出してください。';
+  btn.style.display='none';
+  el('coachProgress').textContent=`${Math.min(done.size+1,steps.length)} / ${steps.length} テーマ`;
+  el('coachTitle').textContent=next?next.title:'すべてのテーマが完了しました';
+  el('coachWhy').textContent=next?'狙い：'+next.why:'必要に応じて前のテーマへ戻って記録を修正できます。';
+  el('coachTalk').textContent=next?'話し方の例：「'+next.talk+'」':'今回の商談内容をお客様別記録に保存してください。';
+  el('coachAnswer').style.display=next?'':'none';
+  el('coachComplete').style.display=next?'':'none';
+  el('coachSkip').style.display=next?'':'none';
+  el('coachHistory').innerHTML=s.coachLog.length?'<strong>確認済みのテーマ</strong><ol>'+s.coachLog.map(x=>`<li>${esc(x.title)}：${esc(x.text||'見送り')}</li>`).join('')+'</ol>':'';
+  // Completion means the main form should no longer look actionable.
+  el('answer').disabled=true;el('next').disabled=true;el('skip').disabled=true;
+ }
+ const oldRender=render;
+ render=function(){oldRender();if(!completed()){el('answer').disabled=false;}paint()};
+ el('coachComplete').addEventListener('click',()=>{
+  const steps=makeSteps();const done=new Set((s.coachLog||[]).map(x=>x.id));const step=steps.find(x=>!done.has(x.id));if(!step)return;
+  const text=clean(el('coachAnswer').value);if(!text){el('coachAnswer').focus();el('coachAnswer').placeholder='返答や実施した内容を入力してください（未実施なら「今回は見送る」）';return}
+  s.coachLog.push({id:step.id,title:step.title,text,at:new Date().toISOString()});el('coachAnswer').value='';render();saveLocal();
+ });
+ el('coachSkip').addEventListener('click',()=>{const steps=makeSteps();const done=new Set((s.coachLog||[]).map(x=>x.id));const step=steps.find(x=>!done.has(x.id));if(!step)return;s.coachLog.push({id:step.id,title:step.title,text:'',skipped:true,at:new Date().toISOString()});el('coachAnswer').value='';render();saveLocal()});
+ el('coachPrevious').addEventListener('click',()=>{if(!s.coachLog?.length)return;const previous=s.coachLog.pop();el('coachAnswer').value=previous.text||'';render();saveLocal()});
+ el('coachAnswer').addEventListener('keydown',e=>{if(e.key!=='Enter'||e.shiftKey||e.isComposing||e.keyCode===229||e.repeat)return;e.preventDefault();el('coachComplete').click()});
+ render();
+})();
+
+// v20: Per-customer visit snapshots, repeat-visit questionnaire and comparative coaching.
+(function(){
+const $v=id=>document.getElementById(id);
+const AX=['時期','エリア','予算','商品'];
+const RETURN_Q=[
+ {axis:'時期',q:'前回のご来場後、ご家族でどんなお話をされましたか？ また、お考えが変わったことはありますか？',aim:'初回からの変化と、その理由を確認する'},
+ {axis:'時期',q:'今日は、何を確認できれば来てよかったと思えそうですか？',aim:'再来場の目的をお客様の言葉で把握する'},
+ {axis:'商品',q:'前回の見学で印象に残ったところや、もう一度確かめたいところはありますか？',aim:'関心のある具体的な生活場面を確認する'},
+ {axis:'エリア',q:'前回からほかの物件やエリアも比較されましたか？ 比べてみてどう感じましたか？',aim:'比較対象と判断基準の変化を確認する'},
+ {axis:'時期',q:'今の住まいから変えたい理由や、住み替える時期についてのお考えに変化はありますか？',aim:'購入の必要性と時期の具体性を分けて確認する'},
+ {axis:'予算',q:'前回から、物件価格や毎月のお支払いについて、ご家族で確認されたことはありますか？',aim:'負担の捉え方や家計面の判断材料を確認する'},
+ {axis:'商品',q:'広さ・間取り・階数・設備・管理状態などで、譲れない条件と調整できそうな条件は変わりましたか？',aim:'商品選択の判断基準を更新する'},
+ {axis:'エリア',q:'希望する場所について、前回より優先したくなった条件や、検討範囲を広げられそうな点はありますか？',aim:'エリアの優先順位と柔軟性を確認する'},
+ {axis:'予算',q:'予算・エリア・広さの条件が両立しない場合、どの条件を調整するのがご家族にとって現実的でしょうか？',aim:'実際に条件が競合する場合だけ深掘りし、妥協を前提にしない'},
+ {axis:'時期',q:'今の時点で判断を止めている点は何でしょうか？ 何が分かれば次の判断ができそうですか？',aim:'購入の約束ではなく意思決定に必要な情報を特定する'},
+ {axis:'商品',q:'今日は、どの部分を一緒に確認するところから進めるのがよさそうでしょうか？',aim:'見学・比較・資金計画などの進め方を合意する'}
+];
+const safe=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const copy=x=>JSON.parse(JSON.stringify(x));
+const state=()=>{s.visits=s.visits||[];s.visitMode=s.visitMode||'first';s.returnDraft=s.returnDraft||[];s.returnCoach=s.returnCoach||[];return s};
+// Use the same four evaluation dimensions for both visits; evidence remains visible.
+const RUBRIC={
+ '時期':[/購入|住み替え|引越|引っ越し|更新|転勤|出産|進学|時期/,/半年|来年|年内|\d+月|期限|までに/,/家族|話し合|合意|相談|理由|きっかけ/],
+ '予算':[/予算|価格|支払|家賃|ローン|金利|補助/,/\d+\s*(万|円)|月々|総額|頭金/,/家計|資金|維持費|管理費|修繕|教育費|収入/],
+ 'エリア':[/駅|エリア|地域|沿線|場所|立地|通勤/,/徒歩|分|範囲|近く|距離|路線/,/実家|職場|学校|環境|生活|比較/],
+ '商品':[/間取り|広さ|新築|中古|物件|階数|設備/,/\d+\s*(㎡|平米|LDK|階)|部屋|収納/,/管理|修繕|仕事部屋|子ども部屋|比較|条件/]
+};
+function normalizeAnswers(entries){return (entries||[]).map(e=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);return {axis:q?.a||'',text:[q?.q,e.choice,e.text].filter(Boolean).join(' '),raw:[e.choice,e.text].filter(Boolean).join(' ')};});}
+function evaluate(rows){const result={};for(const axis of AX){const selected=rows.filter(x=>x.axis===axis&&x.raw?.trim());const all=selected.map(x=>x.raw).join('。');if(!selected.length){result[axis]={clarity:null,warmth:null,evidence:'この軸の回答がありません'};continue}const patterns=RUBRIC[axis];const found=patterns.filter(re=>re.test(all)).length;const detailed=selected.filter(x=>x.raw.length>=15).length;const clarity=Math.min(95,Math.round((25+found*15+Math.min(3,detailed)*8)/5)*5);const warmth=Math.min(95,Math.max(10,Math.round((25+found*12+Math.min(3,detailed)*10)/5)*5));result[axis]={clarity,warmth,evidence:selected.slice(-2).map(x=>x.raw.slice(0,85)).join(' / ')};}return result}
+function firstSnapshot(){const st=state();if(st.visits.some(v=>v.kind==='first'))return;const answers=normalizeAnswers(st.entries);st.visits.push({kind:'first',date:new Date().toISOString(),answers,scores:evaluate(answers),entryCount:st.entries.length});}
+function activeVisit(){const st=state();return st.visits.filter(v=>v.kind==='return').length+2;}
+function returnRows(){return state().returnDraft.map(x=>({axis:RETURN_Q[x.i]?.axis||'',raw:x.text||'',text:RETURN_Q[x.i]?.q||''}));}
+function scoreChart(label,key,initial,current){return `<div class="visit-metric"><h4>${label}</h4><div class="visit-legend"><span><i style="background:#83a9bb"></i>初回</span><span><i style="background:#167c71"></i>今回</span></div>${AX.map(axis=>{const a=initial[axis]?.[key],b=current[axis]?.[key];return `<div style="margin:12px 0"><strong>${axis}</strong><div class="visit-bars"><span>初回</span><div class="visit-track"><div style="width:${a??0}%;background:#83a9bb"></div></div><span>${a==null?'未判定':a+'%'}</span></div><div class="visit-bars"><span>今回</span><div class="visit-track"><div style="width:${b??0}%;background:#167c71"></div></div><span>${b==null?'未判定':b+'%'}</span></div><div class="visit-comment">${a==null||b==null?'比較保留':`変化 ${b-a>0?'+':''}${b-a}pt`}</div></div>`}).join('')}</div>`}
+function coachingSteps(){const st=state(),rows=returnRows(),t=rows.map(r=>r.raw).join('。');const steps=[];const add=(id,title,talk,goal)=>steps.push({id,title,talk,goal});if(/家賃|補助|価格|ローン|支払|予算|金利/.test(t))add('cost','現在と購入後の負担を同じ条件で比較','今の家賃補助も含めた実質負担と、購入後の管理費・修繕積立金等を含めた負担を比較してみませんか？','購入安心度シミュレーターで家計への影響を確認');if(/エリア|駅|立地|通勤|場所|地域|沿線/.test(t))add('area','希望エリアの判断材料を整理','エリアを比較する際、通勤・生活環境・価格のどれを同じ条件で見たいですか？','新築マンションMAPで候補を比較');if(/広さ|間取り|収納|部屋|階数|設備|新築|中古/.test(t))add('property','間取りや商品の優先順位を確認','前回から間取りについて気になった点を、実際の生活に置き換えて一緒に確かめましょうか？','図面・現地・競合の条件をそろえて検証');if(/迷|不安|必要|まだ|決め|満足/.test(t))add('purpose','住み替える意味を改めて整理','今の住まいを続ける選択と、住み替える選択では、何が一番変わるとよさそうでしょうか？','購入を急がず必要性を確認');add('agree','本日の結論と次回の確認事項を合意','今日確認できたことと、まだ分からないことを整理すると、次は何を確認するのがよさそうでしょうか？','次の行動または賃貸継続を含む検討方針を合意');return steps}
+function renderCoach(){const steps=coachingSteps(),done=new Set(state().returnCoach.map(x=>x.id)),step=steps.find(x=>!done.has(x.id));$v('returnCoaching').innerHTML=step?`<strong>${safe(step.title)}</strong><p>話し方の例：「${safe(step.talk)}」</p><small>狙い：${safe(step.goal)}</small>`:'<strong>今回の商談進行は完了しました。</strong><p>お客様別の記録を保存してください。</p>';$v('returnCoachAnswer').style.display=step?'':'none';$v('returnCoachDone').style.display=step?'':'none';$v('returnCoachSkip').style.display=step?'':'none';$v('returnCoachHistory').innerHTML=state().returnCoach.map(x=>`<p class="visit-comment">✓ ${safe(x.title)}：${safe(x.text||'見送り')}</p>`).join('');}
+function report(){const st=state(),first=st.visits.find(x=>x.kind==='first'),initial=first?.scores||evaluate(normalizeAnswers(st.entries)),current=evaluate(returnRows());$v('returnCharts').innerHTML=scoreChart('4軸の整理度','clarity',initial,current)+scoreChart('4軸の検討温度感（参考推定）','warmth',initial,current);const diffs=AX.filter(a=>initial[a]?.clarity!=null&&current[a]?.clarity!=null).map(a=>({a,d:current[a].clarity-initial[a].clarity})).sort((a,b)=>Math.abs(b.d)-Math.abs(a.d));$v('returnGuidance').innerHTML=`<b>今回の変化から見る次の論点</b><p>${diffs.length?`${safe(diffs[0].a)}の整理度が${diffs[0].d>=0?'+':''}${diffs[0].d}pt変化。数値の理由を、実際の発言で確認してください。`:'比較に必要な回答が不足している軸があります。数値の比較は保留してください。'}</p><p>初回の発言：${safe(initial[diffs[0]?.a]?.evidence||'未記録')}</p><p>今回の発言：${safe(current[diffs[0]?.a]?.evidence||'未記録')}</p><small>同一の簡易ルーブリックで算出した参考値。自由記述の量や表現にも左右されるため、変化を断定しないでください。</small>`;renderCoach();}
+function paint(){const st=state(),isReturn=st.visitMode==='return';$v('modeFirst').classList.toggle('selected',!isReturn);$v('modeReturn').classList.toggle('selected',isReturn);$v('visitCurrent').textContent=isReturn?`${activeVisit()}回目の来場`:'初回来場';$v('returnPanel').classList.toggle('active',isReturn);document.querySelector('.shell').style.display=isReturn?'none':'';document.querySelector('.command').style.display=isReturn?'none':'';if(!isReturn)return;const n=st.returnDraft.length,done=n>=RETURN_Q.length;$v('returnHeading').textContent=`${activeVisit()}回目の来場｜再来場ヒアリング`;$v('returnQuestionArea').style.display=done?'none':'';$v('returnReport').style.display=done?'':'none';if(done){report();return}const q=RETURN_Q[n];$v('returnProgress').textContent=`質問 ${n+1} / ${RETURN_Q.length}｜${q.axis}`;$v('returnQuestion').textContent=q.q;$v('returnAim').textContent='質問の狙い：'+q.aim;$v('returnAnswer').value='';}
+const oldRender=render;render=function(){try{oldRender()}catch(err){console.error('初回表示エラー',err)}try{paint()}catch(err){console.error('モード表示エラー',err);const x=$v('visitCurrent');if(x)x.textContent='表示エラー：'+err.message}};
+function saveAndPaint(){render();try{saveLocal()}catch(err){console.warn(err)}}
+$v('modeReturn').onclick=()=>{const st=state();if(st.visitMode==='return')return;if(st.entries.length)firstSnapshot();st.visitMode='return';saveAndPaint();$v('returnPanel').scrollIntoView({behavior:'smooth',block:'start'})};
+$v('modeFirst').onclick=()=>{state().visitMode='first';saveAndPaint()};
+$v('returnNext').onclick=()=>{const val=$v('returnAnswer').value.trim();if(!val){$v('returnAnswer').focus();return}const st=state();st.returnDraft.push({i:st.returnDraft.length,text:val,at:new Date().toISOString()});saveAndPaint()};
+$v('returnSkip').onclick=()=>{const st=state();st.returnDraft.push({i:st.returnDraft.length,text:'',skipped:true,at:new Date().toISOString()});saveAndPaint()};
+$v('returnBack').onclick=()=>{const st=state();const old=st.returnDraft.pop();saveAndPaint();if(old)$v('returnAnswer').value=old.text||''};
+$v('returnAnswer').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229&&!e.repeat){e.preventDefault();$v('returnNext').click()}});
+function completeCoach(skip){const st=state(),done=new Set(st.returnCoach.map(x=>x.id)),step=coachingSteps().find(x=>!done.has(x.id));if(!step)return;const text=skip?'':$v('returnCoachAnswer').value.trim();if(!skip&&!text){$v('returnCoachAnswer').focus();return}st.returnCoach.push({id:step.id,title:step.title,text,at:new Date().toISOString()});$v('returnCoachAnswer').value='';saveAndPaint()}
+$v('returnCoachDone').onclick=()=>completeCoach(false);$v('returnCoachSkip').onclick=()=>completeCoach(true);$v('returnCoachAnswer').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing&&e.keyCode!==229&&!e.repeat){e.preventDefault();completeCoach(false)}});
+$v('returnRestart').onclick=()=>{if(!confirm('今回の再来場記録を確定して、次回来場のヒアリングを開始しますか？'))return;const st=state();st.visits.push({kind:'return',date:new Date().toISOString(),answers:returnRows(),scores:evaluate(returnRows()),coach:copy(st.returnCoach)});st.returnDraft=[];st.returnCoach=[];saveAndPaint()};
+$v('returnPrint').onclick=()=>window.print();
+// Customer load/new already call render; this wrapper reflects each loaded customer's visit mode.
+render();
+})();
+</script><script>
+// v24: Opt-in fictitious completed case; never overwrite a saved customer.
+(function(){
+const btn=document.getElementById('demoLoad'),status=document.getElementById('demoStatus');
+const KEY='housing_interview_public_anonymous_v1_records';
+const first=[
+['origin','友人が家を購入したことがきっかけ。まだ買う必要性は分からない',''],
+['now','吹田の賃貸に満足している。家賃10万円で会社補助4万5千円、実質5万5千円',''],
+['trigger','友人や親から購入の話を聞くようになった',''],
+['timing','具体的な購入時期は決まっていない',''],
+['area','阪急沿線、吹田・茨木あたりを検討',''],
+['areawhy','通勤しやすく、日常の買い物に便利な場所',''],
+['budget','価格は5500万円程度までが安心。月々の負担増が不安',''],
+['budgetwhy','家賃補助がなくなるので無理のない支払いにしたい',''],
+['product','70㎡前後で在宅勤務用の個室がほしい',''],
+['layout','将来子どもが増えた場合も使いやすい間取り',''],
+['decision','価格と広さを比較し、今買う必要があるか家族で相談したい','']
+];
+const axes={'origin':'時期','now':'時期','trigger':'時期','timing':'時期','area':'エリア','areawhy':'エリア','budget':'予算','budgetwhy':'予算','product':'商品','layout':'商品','decision':'商品'};
+const initialScores={
+'時期':{clarity:40,warmth:45,evidence:'具体的な購入時期は決まっていない'},
+'エリア':{clarity:65,warmth:60,evidence:'阪急沿線、吹田・茨木あたりを検討'},
+'予算':{clarity:55,warmth:65,evidence:'5500万円程度まで。実質家賃5万5千円'},
+'商品':{clarity:55,warmth:60,evidence:'70㎡前後、在宅勤務用の個室を希望'}
+};
+const answers=[
+'夫婦で話し合い、今すぐ購入する必要はないが条件の合う物件なら検討しようとなった。',
+'家賃補助がなくなった場合の負担と、70㎡の暮らしやすさを確認したい。',
+'前回の70㎡の間取りはよかった。収納と仕事部屋をもう一度確認したい。',
+'伊丹の新築69㎡、6290万円も比較した。広さはよいが価格が高い。',
+'購入時期は来年春までが候補。ただし無理に急がず、今の賃貸継続も選択肢。',
+'月々の支払いは管理費と修繕積立金込みで15万円以内が安心。家賃補助終了が不安。',
+'在宅勤務の個室と収納は譲れない。階数は3階以上が希望。',
+'吹田と茨木を優先。駅徒歩10分以内が理想だが、通勤時間が同程度なら広げられる。',
+'希望エリアで狭くなるより、通勤を維持できる範囲でエリアを広げて70㎡を優先したい。',
+'資金計画と間取りを確認してから家族で判断したい。価格が合わなければ賃貸継続。',
+'今日は資金計画と収納・仕事部屋の確認をして、持ち帰って夫婦で相談する。'
+];
+function build(){const entries=first.map(([id,text,choice])=>({id,text,choice}));return {client:'',memo:'【架空データ】機能確認用。実在するお客様ではありません。',entries,current:null,skipped:[],manual:[],visited:[],pendingProbes:[],probeHistory:[],returnTo:null,coachLog:[],visitMode:'return',visits:[{kind:'first',date:'2026-09-15T10:00:00.000Z',answers:first.map(([id,text])=>({axis:axes[id],raw:text,text})),scores:initialScores,entryCount:entries.length}],returnDraft:answers.map((text,i)=>({i,text,at:'2026-10-15T10:00:00.000Z'})),returnCoach:[{id:'cost',title:'現在と購入後の負担を同じ条件で比較',text:'実質家賃5.5万円と購入後の月額総負担を比較。15万円以内が希望。',at:'2026-10-15T10:30:00.000Z'},{id:'area',title:'希望エリアの判断材料を整理',text:'通勤時間を優先しつつ吹田・茨木以外も検討。',at:'2026-10-15T10:32:00.000Z'},{id:'property',title:'間取りや商品の優先順位を確認',text:'70㎡前後、独立した仕事部屋と収納を重視。',at:'2026-10-15T10:34:00.000Z'},{id:'purpose',title:'住み替える意味を改めて整理',text:'現住居の継続も合理的と確認。無理に購入しない。',at:'2026-10-15T10:36:00.000Z'},{id:'agree',title:'本日の結論と次回の確認事項を合意',text:'資金計画を持ち帰り夫婦で相談する。',at:'2026-10-15T10:38:00.000Z'}]};}
+btn.addEventListener('click',()=>{
+try{
+if(!confirm('架空のお客様の完成済み商談を開きます。現在編集中の未保存内容がある場合は先に保存してください。よろしいですか？'))return;
+const records=JSON.parse(localStorage.getItem(KEY)||'{}');
+let number='DEMO-2026-001',i=2;
+while(Object.prototype.hasOwnProperty.call(records,number)&&records[number]?.sample!==true)number='DEMO-2026-'+String(i++).padStart(3,'0');
+records[number]={number,name:'',state:build(),finance:{},updated:new Date().toISOString(),sample:true};
+localStorage.setItem(KEY,JSON.stringify(records));
+localStorage.setItem('housing_interview_v24_demo_open',number);
+location.reload();
+}catch(err){status.textContent='サンプル読み込み失敗：'+err.message;console.error(err)}
+});
+const pending=localStorage.getItem('housing_interview_v24_demo_open');
+if(pending){localStorage.removeItem('housing_interview_v24_demo_open');setTimeout(()=>{const sel=document.getElementById('recordList');sel.value=pending;if(sel.value===pending){document.getElementById('recordOpen').click();document.getElementById('returnPanel').scrollIntoView({block:'start'});status.textContent='架空サンプルを表示中（初回・再来完了）';}else status.textContent='サンプルを開けませんでした';},50)}
+})();
+</script>
+<style id="onePagePrintStyle">
+#onePagePrintSheet{display:none}
+.print-report-launch{background:#146f66!important;color:white!important;border-radius:9px!important;padding:12px 18px!important;font-weight:700!important}
+@media print{
+ @page{size:A4 portrait;margin:10mm}
+ html,body{margin:0!important;padding:0!important;background:#fff!important;color:#172b33!important}
+ body>*:not(#onePagePrintSheet){display:none!important}
+ #onePagePrintSheet{display:block!important;position:static!important;width:100%!important;margin:0!important;padding:0!important;box-shadow:none!important;background:#fff!important;color:#172b33!important;font-family:"Yu Gothic","Meiryo",sans-serif!important;font-size:9.5px!important;line-height:1.48!important}
+ #onePagePrintSheet *{box-sizing:border-box!important}
+ #onePagePrintSheet .pr-header{display:flex;justify-content:space-between;align-items:end;border-bottom:3px solid #167c71;padding-bottom:8px;margin-bottom:10px}
+ #onePagePrintSheet h1{font-size:19px;margin:0;color:#173f43}
+ #onePagePrintSheet h2{font-size:11px;margin:11px 0 5px;padding:4px 8px;background:#edf5f3;border-left:3px solid #167c71}
+ #onePagePrintSheet .pr-sub{color:#50636a;font-size:9px}
+ #onePagePrintSheet .pr-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+ #onePagePrintSheet .pr-card{border:1px solid #cbdcda;border-radius:6px;padding:8px;break-inside:avoid;min-height:124px}
+ #onePagePrintSheet .pr-card h3{font-size:12px;color:#146f66;margin:0 0 5px}
+ #onePagePrintSheet .pr-row{margin:5px 0;overflow-wrap:anywhere}
+ #onePagePrintSheet .pr-label{font-weight:700;color:#304b52}
+ #onePagePrintSheet .pr-action{background:#f0f7f4;padding:5px 6px;margin-top:6px;border-radius:3px}
+ #onePagePrintSheet .pr-bottom{border:1px solid #cbdcda;border-radius:5px;padding:7px 9px;overflow-wrap:anywhere}
+ #onePagePrintSheet .pr-note{margin-top:9px;color:#63757b;font-size:8px}
+ #onePagePrintSheet .pr-footer{margin-top:7px;text-align:right;font-size:8px;color:#65757b}
+}
+</style>
+<div id="onePagePrintSheet" aria-hidden="true"></div>
+<script>
+// v25: Print-only one-page customer interview summary, no external service.
+(function(){
+ const btn=document.createElement('button');btn.id='onePageReportButton';btn.type='button';btn.className='print-report-launch';btn.textContent='初回・再来の要約と対策をA4・1枚でPDF出力';
+ const top=document.querySelector('.records-actions');if(top)top.appendChild(btn);
+ const second=document.createElement('button');second.type='button';second.textContent='初回・再来の要約をA4・1枚でPDF出力';second.className='print-report-launch';
+ const old=document.getElementById('returnPrint');if(old)old.replaceWith(second);
+ const clean=x=>String(x||'').replace(/\s+/g,' ').trim();
+ const escape=x=>clean(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const short=(t,max=116)=>{t=clean(t);return t.length>max?t.slice(0,max-1)+'…':t};
+ const firstRows=()=>{const v=(s.visits||[]).find(v=>v.kind==='first');if(v?.answers?.length)return v.answers;return (s.entries||[]).map(e=>({axis:(byId[e.id]||probes[e.id?.slice(6)]||{})?.a||'',raw:[e.choice,e.text].filter(Boolean).join(' ')}))};
+ const lastRows=()=>{if((s.returnDraft||[]).length)return s.returnDraft.map(x=>({axis:['時期','時期','商品','エリア','時期','予算','商品','エリア','予算','時期','商品'][x.i]||'',raw:x.text||''}));const v=(s.visits||[]).filter(v=>v.kind==='return').at(-1);return v?.answers||[]};
+ const summarize=(rows,axis)=>{
+   const texts=rows.filter(r=>r.axis===axis&&clean(r.raw)).map(r=>clean(r.raw));
+   if(!texts.length)return '回答記録なし';
+   const combined=texts.join('。');
+   const rules={
+    '時期':[[/来年|年内|半年|春|秋|冬|夏|\d+月/, '購入・住み替えの時期について具体的な候補を検討'],[/未定|決まっていない|急が|今すぐ.{0,5}必要.{0,5}ない/, '購入時期を固定せず、必要性も含めて検討'],[/家族|夫婦|相談|話し合/, '家族内で購入方針を相談']],
+    '予算':[[/家賃補助|会社補助|住宅手当/, '現住居の家賃補助を考慮した負担比較が必要'],[/月々|支払|管理費|修繕/, '毎月の総支出を重視'],[/価格|予算|\d+万円/, '購入価格の上限・負担感を確認中']],
+    'エリア':[[/通勤|職場|沿線/, '通勤利便性を重視'],[/駅徒歩|徒歩|駅近/, '駅からの距離を重視'],[/広げ|柔軟|範囲/, '検討エリアの拡大余地を確認'],[/吹田|茨木|伊丹|豊中|高槻|大阪/, '具体的な候補地域を比較']],
+    '商品':[[/在宅|仕事部屋|書斎/, '在宅勤務用の独立した空間を重視'],[/収納/, '収納の使い勝手を重視'],[/広さ|㎡|平米|LDK/, '居住面積と間取りの適合性を重視'],[/階数|\d+階/, '階数の希望あり'],[/新築|中古/, '新築・中古を含む商品比較を検討']]
+   };
+   const found=rules[axis].filter(([rx])=>rx.test(combined)).map(x=>x[1]);
+   const details=[];
+   const numbers=combined.match(/(?:\d{1,4}(?:,\d{3})?\s*万円|\d{1,3}\s*㎡|\d+\s*LDK|徒歩\d+分|\d+階以上)/g)||[];
+   if(numbers.length)details.push('具体条件：'+[...new Set(numbers)].slice(0,3).join('・'));
+   if(found.length)return short(found.slice(0,2).join('。')+(details.length?'。'+details.join('。'):''),116);
+   // No matching rule: label as condensed answer rather than fabricating an interpretation.
+   return '回答の要点（抜粋）：'+short(texts.slice(-2).join('／'),88);
+ };
+ const actions={
+ '時期':'購入理由と希望時期を分けて確認。現住居継続も含め、判断の期限・きっかけを整理する。',
+ '予算':'家賃補助・管理費・修繕積立金を含めて月額負担を比較し、無理のない上限を確認する。',
+ 'エリア':'通勤時間・駅距離・生活環境を同じ基準で比較し、検討可能な地域を具体化する。',
+ '商品':'間取り・収納・居室用途を図面や現地で検証し、譲れない条件と調整可能な条件を整理する。'
+ };
+ const label='【営業担当者向け／自動要約】';
+ function build(){
+   const a=firstRows(),b=lastRows(),hasReturn=b.some(x=>clean(x.raw));
+   const name='アンケート番号管理';
+   const number=clean(document.getElementById('recordNumber')?.value||'未設定');
+   const first=(s.visits||[]).find(v=>v.kind==='first');
+   const simpleScore=rows=>Object.fromEntries(['時期','予算','エリア','商品'].map(axis=>{const t=rows.filter(r=>r.axis===axis&&clean(r.raw));return [axis,{clarity:t.length?Math.min(95,25+t.length*12):null}]}));
+   const firstScores=first?.scores||simpleScore(a),lastScores=hasReturn?simpleScore(b):null;
+   const card=axis=>{
+     const x=firstScores[axis]?.clarity,y=lastScores?.[axis]?.clarity;
+     const diff=x!=null&&y!=null?`整理度 ${x}% → ${y}%（${y-x>=0?'+':''}${y-x}pt）`:'整理度の比較：回答不足';
+     return `<div class="pr-card"><h3>${escape(axis)} <span style="font-size:8px;font-weight:normal;color:#62747a">${escape(diff)}</span></h3><div class="pr-row"><span class="pr-label">初回：</span>${escape(summarize(a,axis))}</div><div class="pr-row"><span class="pr-label">再来：</span>${escape(hasReturn?summarize(b,axis):'未実施')}</div><div class="pr-action"><span class="pr-label">対応方針：</span>${escape(actions[axis])}</div></div>`;
+   };
+   const recent=clean((s.returnCoach||[]).filter(x=>clean(x.text)).map(x=>x.text).slice(-3).join('／'));
+   const final=hasReturn?clean(b.filter(x=>clean(x.raw)).slice(-2).map(x=>x.raw).join('／')):'';
+   const latest=short(recent||final||'未記録',200);
+   const next=hasReturn?'再来時の発言と残課題を確認し、次回までに必要な比較資料・確認事項を合意する。':'初回の回答を踏まえて、次回確認する論点と検討の進め方をお客様と相談する。';
+   const now=new Date();
+   return `<div class="pr-header"><div><h1>商談ヒアリング・要約レポート</h1><div class="pr-sub">${label}　初回／再来の変化と対応方針</div></div><div style="text-align:right"><b>${escape(name)}</b><div>アンケート番号：${escape(number)}</div><div>出力：${now.toLocaleDateString('ja-JP')}</div></div></div><h2>4軸のヒアリング要約・対応方針</h2><div class="pr-grid">${['時期','予算','エリア','商品'].map(card).join('')}</div><h2>商談の着地点と次の一手</h2><div class="pr-bottom"><div><b>今回確認できたこと：</b>${escape(latest)}</div><div style="margin-top:5px"><b>次の一手：</b>${escape(next)}</div></div><div class="pr-note">※回答に含まれる語句から作成したルールベースの自動要約です。事実と推測の混同を避けるため、印刷前に原回答と照合してください。整理度は参考値であり、成約確率ではありません。未回答項目は未実施・未記録と表示します。</div><div class="pr-footer">ヒアリングナビ｜社内用・取扱注意</div>`;
+ }
+ function print(){try{document.getElementById('onePagePrintSheet').innerHTML=build();window.print()}catch(e){alert('印刷用レポートの生成に失敗しました：'+e.message);console.error(e)}}
+ btn.addEventListener('click',print);second.addEventListener('click',print);
+})();
+</script>
+</body></html>
