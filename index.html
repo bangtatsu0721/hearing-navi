@@ -335,7 +335,7 @@ makeReport=function(){
 window.addEventListener('beforeprint',()=>{const d=document.getElementById('reportTranscript');if(d){d.dataset.wasOpen=d.open?'1':'0';d.open=true}});
 window.addEventListener('afterprint',()=>{const d=document.getElementById('reportTranscript');if(d&&d.dataset.wasOpen==='0')d.open=false});
 
-$('reportBtn').onclick=makeReport;$('closeReport').onclick=()=>$('report').classList.add('hidden');$('printBtn').onclick=()=>window.print();$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
+$('reportBtn').onclick=makeReport;$('closeReport').onclick=()=>$('report').classList.add('hidden');$('printBtn').onclick=()=>{document.body.classList.add('report-print');const d=document.getElementById('reportTranscript');if(d)d.open=true;window.print()};window.addEventListener('afterprint',()=>document.body.classList.remove('report-print'));$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
 
 // v5: Free, offline, deterministic proposal-slide builder. All data remains on device.
 const SLIDE_CATALOG=[
@@ -870,6 +870,25 @@ if(pending){localStorage.removeItem('housing_interview_v24_demo_open');setTimeou
  #onePagePrintSheet .pr-bottom{border:1px solid #cbdcda;border-radius:5px;padding:7px 9px;overflow-wrap:anywhere}
  #onePagePrintSheet .pr-note{margin-top:9px;color:#63757b;font-size:8px}
  #onePagePrintSheet .pr-footer{margin-top:7px;text-align:right;font-size:8px;color:#65757b}
+}
+</style>
+<style id="reportPrintFix">
+@media print{
+ body.report-print > *:not(.shell){display:none!important}
+ body.report-print #onePagePrintSheet{display:none!important}
+ body.report-print .shell{display:block!important;max-width:none!important;width:auto!important;margin:0!important;padding:0!important}
+ body.report-print .shell > *:not(#report){display:none!important}
+ body.report-print #report{display:block!important;position:static!important;width:100%!important;max-width:none!important;overflow:visible!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;background:white!important;color:#172b33!important}
+ body.report-print #reportBody{display:block!important;overflow:visible!important}
+ body.report-print #report > div:first-child,body.report-print #report > .actions,body.report-print #reportCorrections{display:none!important}
+ body.report-print #reportTranscript{display:block!important}
+ body.report-print #reportTranscript > summary{display:none!important}
+ body.report-print #reportTranscript > div{display:block!important}
+ body.report-print #report table{width:100%!important;table-layout:fixed!important;font-size:9pt!important}
+ body.report-print #report td,body.report-print #report th{overflow-wrap:anywhere!important;padding:6px!important}
+ body.report-print #report h2{font-size:17pt!important}
+ body.report-print #report h3{font-size:12pt!important;break-after:avoid}
+ body.report-print #report p{overflow-wrap:anywhere}
 }
 </style>
 <div id="onePagePrintSheet" aria-hidden="true"></div>
