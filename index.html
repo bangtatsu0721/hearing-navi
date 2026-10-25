@@ -284,6 +284,57 @@ makeReport=function(){
  $('report').scrollIntoView({behavior:'smooth'});
 };
 
+// v28: decision-friction first-visit report, concise and evidence-linked.
+makeReport=function(){
+ const all=s.entries||[], raw=id=>{const e=entry(id);return e?[e.choice,e.text].filter(Boolean).join(' / '):''};
+ const axesNames=['時期','予算','エリア','商品'];
+ const narratives={
+ '時期':{risk:'購入時期を決める理由が整理されていない可能性',talk:'今の住まいを続ける場合と購入する場合で、暮らしにどのような違いを期待されていますか？',verify:'希望入居時期の理由／前倒し可能な条件／購入しない選択肢'},
+ '予算':{risk:'支払額の納得感や資金計画が購入判断の障壁となる可能性',talk:'月々の負担を考えるうえで、今の住居費と将来の支出のどちらが特に気になりますか？',verify:'現在の実質住居費／家賃補助の継続条件／諸費用・維持費／資金計画の確認意思'},
+ 'エリア':{risk:'希望エリアの理由と価格・広さの優先順位が未整理の可能性',talk:'そのエリアを希望する一番の理由は何でしょうか。ほかの条件との優先順位も一緒に確認できますか？',verify:'通勤・生活圏の条件／譲れない理由／比較可能なエリア'},
+ '商品':{risk:'希望する暮らしと具体的な間取り・物件との適合性が未確認の可能性',talk:'実際に生活する場面を想像したとき、この物件で気になる点はどこでしょうか？',verify:'必要な広さ・間取り／新築・中古の比較理由／譲れない設備・条件'}
+ };
+ const risks=[];
+ for(const axis of axesNames){
+  const ev=axisEvidence(axis),t=temperature(axis),body=ev.map(x=>x.raw).join('。').normalize('NFKC');
+  let issue='',talk=narratives[axis].talk,verify=narratives[axis].verify,priority=0;
+  if(axis==='時期'&&/急いでいない|急いでない|まだ.*(?:買わ|購入し)|現居.*満足|今のままで/.test(body)){issue='住み替えを急ぐ必要性が弱い可能性';talk='現居に満足されている中で、購入によって実現したいことはありますか？';priority=4}
+  if(axis==='時期'&&/条件.*合えば|良い物件.*(?:買|購入)/.test(body)){issue='期限は未確定でも条件次第で購入する余地がある';talk='どの条件がそろえば、時期を早めてもよいと感じますか？';priority=2}
+  if(axis==='予算'&&/家賃補助|住宅手当/.test(body)){issue='家賃補助による実質負担との差が判断の障壁になり得る';talk='補助を含めた今の実質負担と購入後の総住居費を比較してみませんか？';priority=5}
+  else if(axis==='予算'&&/高い|厳しい|不安|負担|予算オーバー|払えない/.test(body)){issue='支払いへの不安や予算との乖離がある可能性';priority=4}
+  if(axis==='エリア'&&/なんとなく|勧められ|特に理由.*ない/.test(body)){issue='希望エリアが本人の優先条件として固まっていない可能性';priority=3}
+  if(axis==='商品'&&/狭い|収納.*足り|間取り.*合わ|中古.*迷|新築.*迷|音.*気/.test(body)){issue='間取り・住環境・物件種別への懸念が残っている可能性';priority=4}
+  if(!issue&&t.barrier){issue=narratives[axis].risk;priority=3}
+  if(!issue&&t.value===null){issue='前向きさ・抵抗感を判断する発言が不足';priority=2}
+  if(!issue&&t.value!==null&&t.value<=40){issue=narratives[axis].risk;priority=2}
+  if(!issue)issue='現時点で明確な障壁は特定できない（未確認事項は残る）';
+  const evidence=ev.slice(0,3).map(x=>x.raw.slice(0,95));
+  risks.push({axis,t,issue,talk,verify,priority,evidence});
+ }
+ const ranked=risks.slice().sort((a,b)=>b.priority-a.priority);
+ const lead=ranked[0],hasConcern=lead.priority>0;
+ const summary=hasConcern?'現時点で優先して確認したいのは「'+lead.axis+'」。'+lead.issue+'。ほかの3軸も合わせ、購入判断を妨げる要因を切り分ける。':'4軸の回答から明確な購入障壁は特定できていない。購入の必要性と意思決定条件を改めて確認する。';
+ const axisHTML=risks.map(x=>'<tr><th>'+x.axis+'</th><td><strong>'+(x.t.value==null?'判定保留':x.t.value+'%（参考）')+'</strong><br><small>根拠の充足度 '+x.t.confidence+'%</small></td><td>'+esc(x.issue)+'<br><small>根拠：'+esc(x.evidence[0]||'該当発言なし')+'</small></td></tr>').join('');
+ const actionable=ranked.slice(0,3).map((x,i)=>'<div style="padding:10px 0;border-bottom:1px solid #ddd;break-inside:avoid"><strong>'+(i+1)+'. '+x.axis+'｜'+esc(x.issue)+'</strong><p><b>話すこと・質問：</b>'+esc(x.talk)+'</p><p><b>確認事項：</b>'+esc(x.verify)+'</p><small>判断の根拠：'+esc(x.evidence.join(' ／ ')||'直接の発言なし。次回要確認')+'</small></div>').join('');
+ const overview=[['来場のきっかけ',raw('trigger')],['現居への評価',raw('now')],['意思決定・相談相手',raw('authority')]].map(([k,v])=>'<p><b>'+k+'：</b>'+esc(v||'未確認')+'</p>').join('');
+ const record=all.map((e,i)=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);return '<div style="padding:6px 0;border-bottom:1px solid #eee;break-inside:avoid"><small>'+(i+1)+'. '+esc(q?.q||'追加質問')+'</small><div>'+esc([e.choice,e.text].filter(Boolean).join(' / ')||'未入力')+'</div></div>'}).join('');
+ const correction=axesNames.map(a=>{const o=s.temperatureOverrides?.[a];return '<div style="padding:8px 0"><b>'+a+'</b>　<select data-temp-axis="'+a+'"><option value="">自動判定</option>'+[20,35,50,65,80].map(n=>'<option value="'+n+'">'+n+'%</option>').join('')+'</select> <input data-temp-reason="'+a+'" value="'+esc(o?.reason||'')+'" placeholder="補正の根拠（任意）" style="max-width:340px"></div>'}).join('');
+ $('reportBody').innerHTML='<h2>初回来場｜購入判断・温度感分析</h2><p>アンケート番号：'+esc(s.memo||'未入力')+'　回答 '+all.length+'件</p>'+
+ '<h3>01｜商談総括</h3><p><strong>'+esc(summary)+'</strong></p>'+overview+
+ '<h3>02｜4軸の温度感と懸念</h3><table><thead><tr><th>軸</th><th>温度感</th><th>購入判断への影響・根拠</th></tr></thead><tbody>'+axisHTML+'</tbody></table>'+
+ '<p class="muted">数値は購入確率ではありません。言葉の意味を限定的なルールで推定した参考値です。数値の低さだけで注力順位を決めません。</p>'+
+ '<h3>03｜購入判断を妨げる要因・次回の具体策</h3>'+actionable+
+ '<h3>04｜次回商談の準備</h3><p>時期：購入の必要性を確認／予算：実質住居費と将来負担を比較／エリア：希望理由と比較範囲を整理／商品：間取りと生活の適合性を確認。必要な資料だけを用意する。</p>'+
+ '<details id="reportCorrections"><summary><b>担当者による温度感の補正（任意）</b></summary><p class="muted">接客時の表情・発言等と異なる場合に補正できます。</p>'+correction+'<button class="btn primary" id="tempApply" type="button">補正を保存して更新</button></details>'+
+ '<h3>05｜お客様の発言記録</h3><details id="reportTranscript"><summary>全'+all.length+'件の質問・回答を表示</summary>'+record+'</details>'+
+ '<p class="muted">※発言は記録原文、課題・次回方針は営業支援の仮説です。印刷・PDF保存では発言記録も展開して出力できます。</p>';
+ for(const a of axesNames){const el=document.querySelector('[data-temp-axis="'+a+'"]');if(el)el.value=String(s.temperatureOverrides?.[a]?.value??'')}
+ document.getElementById('tempApply').onclick=()=>{s.temperatureOverrides=s.temperatureOverrides||{};for(const a of axesNames){const v=document.querySelector('[data-temp-axis="'+a+'"]').value,reason=document.querySelector('[data-temp-reason="'+a+'"]').value.trim();if(v)s.temperatureOverrides[a]={value:Number(v),reason};else delete s.temperatureOverrides[a]}saveLocal();render();makeReport()};
+ $('report').classList.remove('hidden');$('report').scrollIntoView({behavior:'smooth'});
+};
+window.addEventListener('beforeprint',()=>{const d=document.getElementById('reportTranscript');if(d){d.dataset.wasOpen=d.open?'1':'0';d.open=true}});
+window.addEventListener('afterprint',()=>{const d=document.getElementById('reportTranscript');if(d&&d.dataset.wasOpen==='0')d.open=false});
+
 $('reportBtn').onclick=makeReport;$('closeReport').onclick=()=>$('report').classList.add('hidden');$('printBtn').onclick=()=>window.print();$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
 
 // v5: Free, offline, deterministic proposal-slide builder. All data remains on device.
