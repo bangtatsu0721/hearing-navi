@@ -566,81 +566,84 @@ const AXIS_STAGE={
  'エリア':[/見学|来場|内覧|物件を見/,/比較|検討|候補|探して|探し始め/,/沿線|駅徒歩|通勤|生活圏|茨木|吹田|伊丹|高槻|徒歩\d+分/],
  '商品':[/見学|来場|内覧|モデルルーム|物件を見/,/比較|検討|候補|新築|中古/,/間取り|広さ|収納|部屋|LDK|㎡|平米|設備|眺望/]
 };
-function temperature(axis){
- const ev=axisEvidence(axis);
- if(!ev.length)return {value:null,confidence:0,reason:'この軸に関する回答がありません',evidence:[],barrier:false};
- const rules=WARMTH_SIGNS[axis],positive=[],negative=[],barriers=[],stages=[];
- for(const item of ev){
-  const t=item.raw.normalize('NFKC');
-  if(rules.positive.some(rx=>rx.test(t)))positive.push(item);
-  if(rules.negative.some(rx=>rx.test(t)))negative.push(item);
-  if(rules.barrier.some(rx=>rx.test(t)))barriers.push(item);
-  if(AXIS_STAGE[axis].some(rx=>rx.test(t)))stages.push(item);
- }
- const count=items=>new Set(items.map(x=>x.id)).size;
- const pos=count(positive),neg=count(negative),bar=count(barriers),stage=count(stages);
- const direct=ev.filter(x=>x.axis===axis).length;
+// v30: Four-axis fit rubric supplied by the sales lead. Percentages are diagnostic stages, not closing odds.
+function evaluateAxis(axis){
+ const ev=axisEvidence(axis), all=(s.entries||[]).map(e=>[e.choice,e.text].filter(Boolean).join(' / ')).filter(Boolean);
+ const t=ev.map(x=>x.raw).join('。').normalize('NFKC'), full=all.join('。').normalize('NFKC');
+ const has=rx=>rx.test(t), any=rx=>rx.test(full);
  const evidence=ev.slice(-3).map(x=>x.raw.slice(0,115));
- const confidence=Math.min(95,Math.round(Math.min(5,ev.length)*10+(pos+neg+bar?25:stage?12:0)+(direct?10:0)));
- let value,reason;
- if(pos||neg||bar){
-  value=Math.max(10,Math.min(90,Math.round((50+Math.min(2,pos)*17-Math.min(2,neg)*22-Math.min(2,bar)*9)/5)*5));
-  reason=pos&&neg?'前向きな発言と慎重な発言が混在しています':pos?'購入・比較を進める意思が確認できます':neg?'検討を進めることに慎重な発言があります':'判断を妨げる要因が確認されています';
- }else if(stage){
-  // Active search and comparison are observable actions, not proof of buying intent.
-  value=Math.min(60,40+Math.min(2,stage)*10);
-  reason=stage>1?'具体的な条件整理・比較行動があります。購入意思の強さは追加確認が必要です':'住まい探しの具体的な行動・条件が確認できます。購入意思は未確認です';
- }else{
-  value=40;
-  reason='希望・関心の発言はありますが、購入を前に進める意思は未確認です';
+ const confidence=Math.min(95,Math.round(Math.min(5,ev.length)*12+(ev.some(x=>x.axis===axis)?15:0)+(ev.length>1?10:0)));
+ if(!ev.length)return {value:null,confidence:0,reason:'この軸に関する発言は未確認です',evidence:[],barrier:true,ask:{'時期':'引っ越す理由と、購入する理由をそれぞれ教えてください。','予算':'安心できる月額総負担と自己資金はいくらですか？','エリア':'南茨木を希望する理由はありますか？','商品':'戸建て・中古・新築マンションのうち、何を選びたいですか？'}[axis]};
+ let value=35,reason='',ask='',barrier=true;
+ if(axis==='時期'){
+  const moving=any(/(?:引っ越|引越|住み替|転居).{0,28}(?:理由|必要|狭|不便|転勤|子供|子ども|学区|更新|家族)|(?:狭い|手狭|騒音|通勤|転勤|出産|結婚|学区).{0,28}(?:引っ越|引越|住み替|転居)/);
+  const buying=any(/(?:購入|買う|持ち家|マイホーム|資産形成).{0,30}(?:理由|ため|必要|したい|メリット|安心|家賃|資産)|(?:家賃がもったいない|資産にしたい|持ち家が欲しい|購入する理由|買う理由)/);
+  const now=any(/(?:今|すぐ|早め|今年|年内|半年以内|3か月以内|三か月以内).{0,20}(?:買|購入|契約|入居)|(?:買|購入|契約|入居).{0,20}(?:今|すぐ|年内|半年以内)/);
+  const later=any(/3年後|３年後|5年後|５年後|数年後|まだ先|急いでいない|急いでない|当面|いずれ|将来|2年後|２年後/);
+  const proactive=any(/(?:具体的|詳しく).{0,15}(?:質問|確認)|(?:ローン|諸費用|引渡|入居|手付金|申込|契約|金利).{0,20}(?:教えて|知りたい|質問|確認)|前向き|購入したい/);
+  const external=any(/(?:親|家族|友人|周り|周囲).{0,15}(?:勧め|言われ)|なんとなく|広告を見て|ネットで見て|とりあえず/);
+  if(moving&&buying&&now&&proactive&&!later){value=95;reason='転居理由・購入理由・今動く意思と主体的な検討がそろっています';ask='購入期限と、その時期に決めたい理由を最終確認できますか？';barrier=false}
+  else if(buying&&now&&!later){value=80;reason='購入理由と今動く意思があります。転居理由・期限の確証を確認';ask=moving?'購入の期限と、今決める根拠は明確ですか？':'引っ越しが必要な理由も、ご本人の言葉で確認できますか？'}
+  else if(buying&&later){value=65;reason='購入理由はありますが、購入想定が数年先です';ask='3〜5年後ではなく今購入すると、どんなメリット・デメリットがありますか？'}
+  else if(moving&&!buying){value=35;reason='転居の必要性はありますが、賃貸ではなく購入する理由が未確認です';ask='引っ越し先を購入にする必要は、どこにありますか？'}
+  else if(buying){value=60;reason='購入理由はありますが、今購入する納得・期限が未確認です';ask='購入を今進める理由は何ですか？'}
+  else if(external){value=20;reason='外部の勧め・情報がきっかけで、ご本人の購入理由が未確認です';ask='ご自身では、今の住まいから何を変えたいと感じていますか？'}
+  else {value=30;reason='引っ越し理由と購入理由を分けて確認できていません';ask='引っ越したい理由と、買いたい理由はそれぞれ何ですか？'}
+ }else if(axis==='予算'){
+  const monthly=has(/月々|毎月|月額|月\s*\d|支払|返済|家賃/);
+  const comfortable=has(/納得|無理なく|安心|許容|問題ない|大丈夫|払える|支払える|予算内|収まる/);
+  const funding=has(/自己資金|頭金|手元資金|貯金|貯蓄|現金|借入|ローン|事前審査|諸費用/);
+  const match=has(/(?:物件価格|販売価格|購入価格|提案住戸|この部屋|当物件).{0,30}(?:予算内|合う|一致|買える|購入できる|収まる)|(?:予算内|合う|一致|買える|購入できる).{0,25}(?:物件価格|販売価格|購入価格|当物件)/);
+  const gap=has(/予算オーバー|予算が合わ|足りない|届かない|厳しい|高すぎ|払えない|支払えない|乖離|大幅|想定より高い/);
+  const f=financialData(), numeric=f.buy!==null&&Number.isFinite(f.buy);
+  if(gap){value=30;reason='希望負担と物件価格・支払い条件に乖離の発言があります';ask='希望月額と実際の総負担の差を、どこまで許容できますか？'}
+  else if(monthly&&comfortable&&funding&&match){value=95;reason='納得できる月額・資金計画・提案住戸価格の適合が確認されています';ask='諸費用と将来の維持費も含めて、無理のない資金計画ですか？';barrier=false}
+  else if(monthly&&comfortable&&funding){value=75;reason='月額への納得と資金条件はありますが、提案住戸価格との照合が未確認です';ask='自己資金と借入額から、提案可能住戸の総額に届きますか？'}
+  else if(monthly&&comfortable){value=60;reason='月額負担への納得はありますが、借入額・自己資金・物件価格との整合が未確認です';ask='希望月額から逆算した借入額と自己資金を確認できますか？'}
+  else if(monthly){value=45;reason='月額の話はありますが、本人の納得額と購入可能価格が未照合です';ask='毎月いくらなら安心して支払えると考えていますか？'}
+  else {value=25;reason='月額負担の納得水準が未確認です';ask='安心して支払える月額総負担はいくらですか？'}
+  if(numeric&&value<90)reason+='（入力済みの住居費比較も要確認）';
+ }else if(axis==='エリア'){
+  const south=has(/南茨木|東奈良/), strong=has(/学区.{0,20}(?:変えたくない|変えない|維持)|転校.{0,10}(?:させたくない|避けたい)|(?:事務所|会社|店舗|職場|自宅).{0,20}南茨木|南茨木.{0,20}(?:事務所|会社|店舗|職場|現住所|住んで|生活圏)/);
+  const why=has(/通勤|便利|駅近|駅徒歩|生活圏|実家|職場|子ども|学校|学区|買い物|アクセス|乗換|住み慣れ/);
+  const shimamoto=has(/島本|水無瀬|三島郡/), ikeda=has(/池田|箕面|豊中|北摂全域|北摂なら|北摂であれば/);
+  const cities=has(/吹田|高槻/)&&has(/茨木/), ibaraki=has(/茨木市|茨木エリア|茨木周辺/);
+  const vague=has(/なんとなく|特に理由はない|どこでも|場所は問わない|安ければ/);
+  if(south&&strong){value=100;reason='学区・生活拠点など南茨木を選ぶ代替しにくい理由があります';ask='南茨木の中で譲れない立地条件はありますか？';barrier=false}
+  else if(shimamoto){value=40;reason='島本町など価格を含む広域比較があり、南茨木の優先度は未確定です';ask='価格差があっても南茨木を選ぶ理由は何ですか？'}
+  else if(ikeda){value=50;reason='生活動線の異なる北摂の広域比較が残っています';ask='通勤・生活圏と価格のどちらを優先しますか？'}
+  else if(cities){value=60;reason='茨木・吹田・高槻が横並びの検討対象です';ask='南茨木が他の候補地より合う条件は何ですか？'}
+  else if(south&&why){value=85;reason='南茨木を選ぶ具体的な生活上の理由が確認できます';ask='その理由は他エリアでも満たせますか？';barrier=false}
+  else if(ibaraki){value=70;reason='茨木市内が希望ですが、南茨木に限定する理由は未確認です';ask='茨木市内でも南茨木を選ぶ決め手は何ですか？'}
+  else if(south){value=60;reason='南茨木への関心はありますが、希望理由は未確認です';ask='南茨木を希望する一番の理由は何ですか？'}
+  else if(vague){value=30;reason='希望地域の選択理由や優先順位が未整理です';ask='住む場所を決める際、最優先する生活条件は何ですか？'}
+  else {value=45;reason='南茨木への具体的な適合理由はまだ確認できていません';ask='南茨木に住むと、どんな生活上のメリットがありますか？'}
+ }else if(axis==='商品'){
+  const house=has(/戸建|一戸建|注文住宅|建売/), used=has(/中古/), newCondo=has(/新築マンション|新築分譲マンション|新築のマンション|マンションの新築/);
+  const settled=has(/新築マンション(?:に決め|で探|がいい|が良い|一択|に絞)|マンション(?:に決め|一択)|戸建ては(?:考えていない|候補外)|中古は(?:考えていない|候補外)/);
+  const room=has(/\d\s*LDK|[１２３４]\s*LDK|部屋数|個室|寝室|子ども部屋|仕事部屋/);
+  const area=has(/\d{2,3}\s*(?:㎡|平米|m2|m²)|広さ|専有面積/);
+  const reason=has(/(?:理由|必要|ため|在宅|仕事|子ども|家族|収納|家具|生活動線|使い方|納得|ベスト|最適)/);
+  const fit=has(/(?:この間取り|この部屋|当物件|提案住戸|イニシア南茨木).{0,30}(?:合う|納得|最適|ベスト|暮らせる|十分)|(?:納得|最適|ベスト).{0,25}(?:この間取り|この部屋|当物件)/);
+  if(house&&!has(/戸建ては(?:候補外|考えていない)|戸建てをやめた|戸建ては選ばない/)){value=10;reason='戸建てが比較候補として残り、マンションを選ぶ土台が未確定です';ask='戸建てとマンションで迷う理由は何ですか？'}
+  else if(used&&!has(/中古は(?:候補外|考えていない)|中古をやめた|中古は選ばない/)){value=30;reason='新築と中古の選択が未確定です';ask='中古も検討する理由は価格・広さ・立地のどれですか？'}
+  else if((newCondo||settled)&&room&&area&&reason&&fit){value=95;reason='新築マンション・部屋数・広さの根拠と提案住戸への納得が確認できます';ask='実際の家具配置や生活動線でも希望を満たせますか？';barrier=false}
+  else if((newCondo||settled)&&room&&area&&reason){value=80;reason='商品種別と部屋数・広さの根拠が整理されています。住戸との適合は未確認です';ask='提案住戸で必要な暮らしが実現できると納得されていますか？'}
+  else if(newCondo||settled){value=60;reason='新築マンションで探す土台はありますが、部屋数・面積の必要性が未確認です';ask='希望する部屋数と広さが必要な理由は何ですか？'}
+  else {value=35;reason='商品種別と必要な間取り・広さの根拠が未整理です';ask='戸建て・中古・新築マンションのどれを選ぶ理由がありますか？'}
  }
- // Keep uncertainty visible; avoid suggesting a 40% chance of purchase.
  if(confidence<35)reason+='（判断根拠は限定的）';
- const override=s.temperatureOverrides?.[axis];
- if(override&&override.value!==''&&Number.isFinite(Number(override.value))){
-  value=Number(override.value);reason='営業担当による補正：'+(override.reason||'面談時の発言・反応を踏まえた評価');
- }
- return {value,confidence,reason,evidence,barrier:bar>0,manual:!!override};
+ return {value,confidence,reason,evidence,barrier,ask};
 }
-// Next-step prompts are axis-specific and conditional on the customer's recorded words.
+function temperature(axis){
+ const t=evaluateAxis(axis);
+ const override=s.temperatureOverrides?.[axis];
+ if(override&&override.value!==''&&Number.isFinite(Number(override.value)))return {...t,value:Number(override.value),reason:'営業担当による補正：'+(override.reason||'面談時の発言・反応を踏まえた評価'),manual:true};
+ return t;
+}
 function nextAxisCheck(axis){
- const rows=axisEvidence(axis),t=rows.map(x=>x.raw).join('。').normalize('NFKC');
- if(!rows.length)return {issue:'判断材料が不足',ask:{
-  '時期':'購入を考え始めた理由と、希望する時期は？',
-  '予算':'安心できる月額負担と、その根拠は？',
-  'エリア':'希望する場所と、その理由は？',
-  '商品':'暮らしの中で譲れない間取り・設備は？'
- }[axis]};
- const map={
- '時期':[
-  [/急いでいない|急いでない|必要性.*ない|不満.*ない|満足/, '購入を急がない理由', '今の住まいを続ける場合と購入する場合で、何が変わると良いですか？'],
-  [/条件.*合えば|良い物件.*(?:買|購入|検討)/,'条件次第の購入意思','どの条件がそろえば、時期を早めてもよいですか？'],
-  [/来年|年内|半年|更新|転勤|出産|進学/,'希望時期の背景','その時期を希望する理由と、前後に動かせる幅は？']
- ],
- '予算':[
-  [/家賃補助|住宅手当|会社.*補助/,'実質住居費との差','補助を含めた現状の負担と、購入後の総住居費を比較できていますか？'],
-  [/高い|厳しい|不安|負担|予算オーバー|払えない/,'支払いへの不安','毎月いくらなら安心でき、何の支出を守りたいですか？'],
-  [/ローン|審査|金利|資金計画/,'資金計画の具体化','諸費用・管理費・修繕積立金まで含めた負担を確認しましたか？']
- ],
- 'エリア':[
-  [/なんとなく|勧められ|親.*言|友人.*言/,'希望理由の主体性','そのエリアで実現したい暮らしは何ですか？'],
-  [/通勤|沿線|駅徒歩|駅近/,'立地条件の優先順位','通勤時間と価格・広さでは、どちらを優先しますか？'],
-  [/比較|広げ|ほかのエリア|他のエリア/,'比較可能な範囲','どの条件が同じなら、別のエリアも候補になりますか？']
- ],
- '商品':[
-  [/狭い|収納|間取り|部屋|在宅|リモート/,'生活との適合性','今の生活で困っていることを、この間取りで解消できますか？'],
-  [/新築|中古/,'物件種別の比較','新築・中古を選ぶうえで、何を最も重視しますか？'],
-  [/眺望|音|日当たり|階数|設備/,'住戸条件への懸念','現地で確認しないと判断できない点は何ですか？']
- ]
- };
- const hit=map[axis].find(([rx])=>rx.test(t));
- if(hit)return {issue:hit[1],ask:hit[2]};
- return {issue:'購入判断とのつながりが未確認',ask:{
- '時期':'良い物件があれば今でも購入を検討しますか？',
- '予算':'今の希望価格と、安心できる毎月の支払額は一致していますか？',
- 'エリア':'このエリアを希望する一番の理由は何ですか？',
- '商品':'物件を比較する際、最終的に何が決め手になりそうですか？'
- }[axis]};
+ const t=temperature(axis);
+ return {issue:t.reason,ask:t.ask};
 }
 function renderTemperatures(){
  const el=document.getElementById('temperatures');if(!el)return;
