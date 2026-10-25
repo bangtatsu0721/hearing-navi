@@ -602,9 +602,49 @@ function temperature(axis){
  }
  return {value,confidence,reason,evidence,barrier:bar>0,manual:!!override};
 }
+// Next-step prompts are axis-specific and conditional on the customer's recorded words.
+function nextAxisCheck(axis){
+ const rows=axisEvidence(axis),t=rows.map(x=>x.raw).join('。').normalize('NFKC');
+ if(!rows.length)return {issue:'判断材料が不足',ask:{
+  '時期':'購入を考え始めた理由と、希望する時期は？',
+  '予算':'安心できる月額負担と、その根拠は？',
+  'エリア':'希望する場所と、その理由は？',
+  '商品':'暮らしの中で譲れない間取り・設備は？'
+ }[axis]};
+ const map={
+ '時期':[
+  [/急いでいない|急いでない|必要性.*ない|不満.*ない|満足/, '購入を急がない理由', '今の住まいを続ける場合と購入する場合で、何が変わると良いですか？'],
+  [/条件.*合えば|良い物件.*(?:買|購入|検討)/,'条件次第の購入意思','どの条件がそろえば、時期を早めてもよいですか？'],
+  [/来年|年内|半年|更新|転勤|出産|進学/,'希望時期の背景','その時期を希望する理由と、前後に動かせる幅は？']
+ ],
+ '予算':[
+  [/家賃補助|住宅手当|会社.*補助/,'実質住居費との差','補助を含めた現状の負担と、購入後の総住居費を比較できていますか？'],
+  [/高い|厳しい|不安|負担|予算オーバー|払えない/,'支払いへの不安','毎月いくらなら安心でき、何の支出を守りたいですか？'],
+  [/ローン|審査|金利|資金計画/,'資金計画の具体化','諸費用・管理費・修繕積立金まで含めた負担を確認しましたか？']
+ ],
+ 'エリア':[
+  [/なんとなく|勧められ|親.*言|友人.*言/,'希望理由の主体性','そのエリアで実現したい暮らしは何ですか？'],
+  [/通勤|沿線|駅徒歩|駅近/,'立地条件の優先順位','通勤時間と価格・広さでは、どちらを優先しますか？'],
+  [/比較|広げ|ほかのエリア|他のエリア/,'比較可能な範囲','どの条件が同じなら、別のエリアも候補になりますか？']
+ ],
+ '商品':[
+  [/狭い|収納|間取り|部屋|在宅|リモート/,'生活との適合性','今の生活で困っていることを、この間取りで解消できますか？'],
+  [/新築|中古/,'物件種別の比較','新築・中古を選ぶうえで、何を最も重視しますか？'],
+  [/眺望|音|日当たり|階数|設備/,'住戸条件への懸念','現地で確認しないと判断できない点は何ですか？']
+ ]
+ };
+ const hit=map[axis].find(([rx])=>rx.test(t));
+ if(hit)return {issue:hit[1],ask:hit[2]};
+ return {issue:'購入判断とのつながりが未確認',ask:{
+ '時期':'良い物件があれば今でも購入を検討しますか？',
+ '予算':'今の希望価格と、安心できる毎月の支払額は一致していますか？',
+ 'エリア':'このエリアを希望する一番の理由は何ですか？',
+ '商品':'物件を比較する際、最終的に何が決め手になりそうですか？'
+ }[axis]};
+}
 function renderTemperatures(){
  const el=document.getElementById('temperatures');if(!el)return;
- el.innerHTML=axes.map(a=>{const t=temperature(a);return `<div class="tempitem"><div class="temphead"><span>${a}</span><strong>${t.value===null?'判定保留':t.value+'%（参考）'}</strong></div><div class="tempbar"><div class="tempfill" style="width:${t.value??0}%"></div></div><div class="tempnote">${esc(t.reason)} <span class="tempflag">根拠の充足度 ${t.confidence}%</span></div></div>`}).join('');
+ el.innerHTML=axes.map(a=>{const t=temperature(a);return `<div class="tempitem"><div class="temphead"><span>${a}</span><strong>${t.value===null?'判定保留':t.value+'%（参考）'}</strong></div><div class="tempbar"><div class="tempfill" style="width:${t.value??0}%"></div></div><div class="tempnote">${esc(t.reason)} <span class="tempflag">根拠の充足度 ${t.confidence}%</span></div><div class="tempnote" style="margin-top:6px;padding:7px 8px;background:#f0f7f5;border-left:3px solid #167c71;border-radius:4px"><strong>次に確認：</strong>${esc(nextAxisCheck(a).ask)}</div></div>`}).join('');
 }
 const v11Render=render;render=function(){v11Render();renderTemperatures()};
 
