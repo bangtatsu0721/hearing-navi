@@ -236,6 +236,54 @@ function goNext(skip=false){let q=questionNow();if(!q)return;const choice=docume
 $('next').onclick=()=>goNext(false);$('skip').onclick=()=>goNext(true);$('back').onclick=()=>{let id=s.visited.pop();if(!id)return;s.entries=s.entries.filter(e=>e.id!==id);s.skipped=s.skipped.filter(x=>x!==id);s.current=id;render()};$('client').oninput=e=>{s.client=e.target.value;saveLocal()};$('memo').oninput=e=>{s.memo=e.target.value;saveLocal()};$('timeline').onclick=e=>{const id=e.target.dataset.edit;if(id){s.current=id;render();const old=entry(id);if(old){$('answer').value=old.text;const radio=[...document.querySelectorAll('input[name="choice"]')].find(x=>x.value===old.choice);if(radio)radio.checked=true}}};$('candidates').onclick=e=>{const id=e.target.dataset.jump;if(id){s.returnTo=null;s.current=id;render()}};
 $('save').onclick=()=>{saveLocal();alert('このブラウザに保存しました。')};$('load').onclick=()=>{try{const v=JSON.parse(localStorage.getItem(STORAGE));if(v){s=v;render();alert('保存内容を読み込みました。')}else alert('保存データがありません。')}catch(e){alert('保存データを読み込めませんでした。')}};$('reset').onclick=()=>{if(confirm('新しい商談を開始しますか？ 現在の記録は消去されます。必要なら先にJSONで保存してください。')){s={client:'',memo:'',entries:[],current:'trigger',skipped:[],manual:[],visited:[],pendingProbes:[],probeHistory:[],returnTo:null};render()}};
 function makeReport(){const missing=axes.map(a=>({a,ids:checks[a].filter(x=>!answered(x))}));let rows=axes.map(a=>`<tr><th>${a}</th><td>${score(a)}%</td><td>${checks[a].filter(answered).map(id=>esc(byId[id].q)).join(' / ')||'未確認'}</td><td>${checks[a].filter(id=>!answered(id)).slice(0,3).map(id=>esc(byId[id].q)).join(' / ')||'基本項目確認済み'}</td></tr>`).join('');$('reportBody').innerHTML=`<p><strong>${esc('アンケート番号管理')}</strong>　${esc(s.memo)}　｜回答 ${s.entries.length}件</p><p class="muted">スコアは質問の回答充足度を20%刻みで表示。購入意思や成約確率を示しません。</p><table><thead><tr><th>軸</th><th>整理度</th><th>確認した質問</th><th>次に確認したい質問</th></tr></thead><tbody>${rows}</tbody></table><h3>会話から考えられる仮説（要検証）</h3>${(suggest().length?suggest():['未確認の軸を優先して深掘りする']).map(x=>`<p>・${esc(x)}</p>`).join('')}<h3>次回の進め方</h3><p>まず「${lowest()}」について判断基準を確認し、本人の言葉で条件が整理できた段階で提案につなげる。提案や次回約束を急がない。</p><h3>発言記録</h3>${s.entries.map(e=>`<p><strong>[${esc((byId[e.id]||probes[e.id.slice(6)]||currentCustomById(e.id)).a)}] ${esc((byId[e.id]||probes[e.id.slice(6)]||currentCustomById(e.id)).q)}</strong><br>${esc(e.choice)} ${esc(e.text)}</p>`).join('')}`;$('report').classList.remove('hidden');$('report').scrollIntoView({behavior:'smooth'})}
+// v27: first-visit analysis report, explicit evidence and human review.
+const oldMakeReport=makeReport;
+makeReport=function(){
+ const all=s.entries||[];
+ const relevant=(axis)=>axisEvidence(axis);
+ const quote=(axis)=>{const rows=relevant(axis);return rows.length?rows.slice(0,4).map(x=>'<li>'+esc(x.raw)+'</li>').join(''):'<li>未確認</li>'};
+ const answer=(id)=>{const e=entry(id);return e?[e.choice,e.text].filter(Boolean).join(' / '):'未確認'};
+ const overview=[
+ ['来場・検討のきっかけ',answer('trigger')],
+ ['現在の住まいへの評価',answer('now')],
+ ['購入時期の考え方',answer('timing')],
+ ['予算・月々の負担',answer('budget')],
+ ['希望エリアと理由',[answer('area'),answer('areawhy')].join(' / ')],
+ ['希望商品・間取り',[answer('product'),answer('layout')].join(' / ')],
+ ['意思決定・相談相手',answer('authority')],
+ ['次の判断に必要なこと',answer('decision')]
+ ];
+ const overviewHTML=overview.map(([k,v])=>'<tr><th style="width:29%">'+esc(k)+'</th><td>'+esc(v)+'</td></tr>').join('');
+ const temperatures=axes.map(a=>{const t=temperature(a);const scoreLabel=t.value==null?'判定保留':t.value+'%（参考）';return '<tr><th>'+a+'</th><td>'+scoreLabel+'</td><td>'+esc(t.reason)+'<br><small>根拠の充足度：'+t.confidence+'%'+(t.manual?'／担当者補正済み':'')+'</small></td><td><ul>'+quote(a)+'</ul></td></tr>'}).join('');
+ const axesLow=axes.map(a=>({a,t:temperature(a)})).filter(x=>x.t.value!==null).sort((a,b)=>a.t.value-b.t.value);
+ const priority=axesLow[0];
+ const priorityText=priority?priority.a+'：'+priority.t.reason:'4軸の温度感を判定する発言が不足しています';
+ const unknown=axes.map(a=>{const ids=checks[a].filter(id=>!answered(id));return '<tr><th>'+a+'</th><td>'+esc(ids.slice(0,3).map(id=>byId[id]?.q||id).join(' / ')||'基本質問は確認済み')+'</td></tr>'}).join('');
+ const bant=[['B｜予算',['budget','budgetwhy','budgetrisk']],['A｜意思決定',['authority','family']],['N｜ニーズ',['trigger','now','layout','areawhy']],['T｜時期',['timing','timingwhy','early']]].map(([k,ids])=>'<tr><th>'+k+'</th><td>'+ids.filter(answered).length+' / '+ids.length+' 項目</td></tr>').join('');
+ const obstacles=axes.flatMap(a=>{const t=temperature(a);return t.barrier?[a+'：'+t.reason]:[]});
+ const options='<option value="">自動判定のまま</option>'+[20,35,50,65,80].map(n=>'<option value="'+n+'">'+n+'%（参考）</option>').join('');
+ const review=axes.map(a=>{const o=s.temperatureOverrides?.[a];return '<div class="card"><strong>'+a+'</strong><label class="field">温度感の補正（任意）</label><select data-temp-axis="'+a+'">'+options+'</select><label class="field">補正理由（発言・接客時の観察）</label><input data-temp-reason="'+a+'" value="'+esc(o?.reason||'')+'" placeholder="例：比較検討に前向きな発言あり"></div>'}).join('');
+ const next=priority?'次回は「'+priority.a+'」の温度感を左右する理由を確認する。特に「'+priority.t.reason+'」について、お客様自身の言葉で条件と懸念を整理する。':'次回は、本人の購入意思と判断を妨げる要因を確認する。';
+ $('reportBody').innerHTML='<p><strong>初回来場｜商談分析レポート</strong>　'+esc(s.memo||'')+'　回答 '+all.length+'件</p>'+
+ '<p class="muted">これはルールに基づく参考評価です。購入意欲・成約確率を示しません。発言の事実と営業上の仮説を区別してください。</p>'+
+ '<h3>01｜商談全体の要約（確認した発言）</h3><table>'+overviewHTML+'</table>'+
+ '<h3>02｜4軸の温度感・判断根拠</h3><table><thead><tr><th>軸</th><th>温度感</th><th>判定理由</th><th>お客様の発言</th></tr></thead><tbody>'+temperatures+'</tbody></table>'+
+ '<h3>03｜BANTの確認状況</h3><table>'+bant+'</table>'+
+ '<h3>04｜購入判断を妨げる可能性のある要因</h3><p>'+esc(obstacles.join(' / ')||'明確な障壁は判定できていません。障壁がないと確定したわけではありません。')+'</p>'+
+ '<h3>05｜営業担当者が次に注力すべきこと</h3><p><strong>'+esc(priorityText)+'</strong></p><p>'+esc(next)+'</p><p class="muted">低い数値だけで注力軸を決めず、判定保留の軸とお客様の優先事項も確認してください。</p>'+
+ '<h3>06｜次回商談の準備・未確認事項</h3><table>'+unknown+'</table><p>準備する資料：予算に懸念があれば資金計画、エリア比較が必要なら物件MAP、商品条件が不明なら間取り・比較表。実際の発言に基づいて選定してください。</p>'+
+ '<h3>07｜担当者による評価確認・補正</h3><p class="muted">自動判定が接客時の反応と異なる場合のみ補正。変更はこの商談記録に保存されます。</p>'+review+'<button class="btn primary" id="tempApply" type="button">補正を保存してレポートを更新</button>'+
+ '<h3>08｜発言記録（原文）</h3>'+all.map(e=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);return '<p><strong>['+esc(q?.a||'その他')+'] '+esc(q?.q||'追加質問')+'</strong><br>'+esc([e.choice,e.text].filter(Boolean).join(' / '))+'</p>'}).join('');
+ for(const a of axes){const el=document.querySelector('[data-temp-axis="'+a+'"]');if(el)el.value=String(s.temperatureOverrides?.[a]?.value??'')}
+ document.getElementById('tempApply').onclick=()=>{
+  s.temperatureOverrides=s.temperatureOverrides||{};
+  for(const a of axes){const v=document.querySelector('[data-temp-axis="'+a+'"]').value;const reason=document.querySelector('[data-temp-reason="'+a+'"]').value.trim();if(v)s.temperatureOverrides[a]={value:Number(v),reason};else delete s.temperatureOverrides[a]}
+  saveLocal();render();makeReport();
+ };
+ $('report').classList.remove('hidden');
+ $('report').scrollIntoView({behavior:'smooth'});
+};
+
 $('reportBtn').onclick=makeReport;$('closeReport').onclick=()=>$('report').classList.add('hidden');$('printBtn').onclick=()=>window.print();$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
 
 // v5: Free, offline, deterministic proposal-slide builder. All data remains on device.
@@ -430,22 +478,46 @@ const TEMP_RULES={
  weak:/まだ考えていない|まだ具体化していない|決められない|判断できない/g,
  concrete:/\d+\s*(?:階|㎡|平米|LDK)|在宅|リモート|間取り|眺望|日当たり|管理|修繕|モデルルーム/g}
 };
+// v27: evidence-based, cross-axis assessment; rule estimates are not purchase probabilities.
+const AXIS_EVIDENCE={
+ '時期':[/購入|買いたい|買わない|住み替え|引っ越|引越|時期|来年|半年|年内|急いで|いつでも|今すぐ|条件が合えば|必要性|賃貸継続|家賃補助|更新/],
+ '予算':[/予算|価格|費用|月々|月額|支払|家賃|補助|手当|ローン|金利|資金|貯蓄|万円|負担|FP|管理費/],
+ 'エリア':[/エリア|地域|沿線|駅|徒歩|通勤|実家|茨木|吹田|高槻|大阪市|北摂|立地|場所|学校|勤務地/],
+ '商品':[/間取り|広さ|収納|階数|眺望|設備|新築|中古|物件|部屋|LDK|㎡|平米|仕事部屋|在宅|モデルルーム|採光/]
+};
+const WARMTH_SIGNS={
+ '時期':{positive:[/今すぐ.*(?:買|購入|契約)/,/早く(?:買|購入|引っ越)/,/条件(?:が|に).*合えば.*(?:買|購入|検討)/,/良い物件.*(?:買|購入|検討)/,/前倒し.*(?:できる|可能)/,/購入したい|買いたい|進めたい/],negative:[/購入する必要性(?:が|は)?(?:ない|感じない)/,/買うつもり(?:は|が)?ない|購入するつもり(?:は|が)?ない/,/今は(?:買わない|購入しない)/,/条件が合っても.*(?:買わない|購入しない)/],barrier:[/資金準備|家族の合意|比較が足りない|時期.*未定|まだ決められない/] },
+ '予算':{positive:[/資金計画.*(?:確認|相談|進め)/,/FP.*(?:相談|受け|予約)/,/支払い.*(?:納得|許容|問題ない)/,/予算.*(?:決めた|明確|確定)/,/ローン.*(?:審査|相談|確認)/],negative:[/支払.*(?:難しい|できない|厳しい)/,/予算.*(?:合わない|超え)/,/負担増.*(?:避けたい|無理)/,/資金.*(?:不安|足りない)/],barrier:[/金利.*不安|将来支出.*不安|家賃補助.*(?:なくなる|終了)/]},
+ 'エリア':{positive:[/このエリア.*(?:住みたい|希望)/,/エリア.*(?:決めた|絞った)/,/通勤.*(?:優先|重視)/,/他(?:の)?エリア.*(?:比較|検討)/,/範囲.*(?:広げ|比較)/],negative:[/このエリア.*(?:住みたくない|嫌)/,/立地.*(?:合わない|難しい)/,/通勤.*(?:無理|厳しい)/],barrier:[/エリア.*(?:未定|決まっていない)/,/希望エリア.*(?:物件がない|高い)/]},
+ '商品':{positive:[/この物件.*(?:良い|気に入|検討したい)/,/間取り.*(?:気に入|合っている)/,/収納.*(?:十分|良い)/,/もう一度.*(?:見たい|確認したい)/,/具体的に.*(?:比較|検討)/],negative:[/この物件.*(?:合わない|嫌|買わない)/,/間取り.*(?:合わない|使いにくい)/,/広さ.*(?:足りない|狭い)/],barrier:[/新築.*中古.*迷|中古.*新築.*迷/,/間取り.*(?:不安|迷)/,/比較.*(?:不足|できていない)/]}
+};
+function axisEvidence(axis){
+ return (s.entries||[]).map(e=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);const raw=[e.choice,e.text].filter(Boolean).join(' / ').trim();return {id:e.id,axis:q?.a||'',raw};}).filter(e=>e.raw&&(e.axis===axis||AXIS_EVIDENCE[axis].some(rx=>rx.test(e.raw))));
+}
 function temperature(axis){
- const relevant=(s.entries||[]).filter(e=>((byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id))?.a===axis));
- if(!relevant.length)return {value:null,confidence:0,reason:'この軸についての回答がありません'};
- const text=relevant.map(e=>(e.choice||'')+' '+(e.text||'')).join('。');
- const r=TEMP_RULES[axis];
- const hits=(rx)=>[...text.matchAll(rx)].length;
- const strong=hits(r.strong),weak=hits(r.weak),concrete=hits(r.concrete);
- const specific=relevant.filter(e=>e.text?.trim().length>=12).length;
- const value=Math.max(5,Math.min(95,Math.round((42+strong*12+concrete*6+specific*5-weak*10)/5)*5));
- const confidence=Math.min(100,Math.round((relevant.length/Math.max(3,checks[axis].length))*75+Math.min(25,(strong+concrete+weak)*5)));
- const reason=strong>0?'重視する条件・具体的な関心が表れています':concrete>0?'具体的な条件や事情が確認されています':weak>0?'まだ検討の具体化が必要です':'回答はありますが関心の強さは未確認です';
- return {value,confidence,reason};
+ const ev=axisEvidence(axis);
+ if(!ev.length)return {value:null,confidence:0,reason:'この軸について判断材料がありません',evidence:[],barrier:false};
+ const rules=WARMTH_SIGNS[axis],positive=[],negative=[],barriers=[];
+ for(const item of ev){const t=item.raw.normalize('NFKC');if(rules.positive.some(rx=>rx.test(t)))positive.push(item);if(rules.negative.some(rx=>rx.test(t)))negative.push(item);if(rules.barrier.some(rx=>rx.test(t)))barriers.push(item)}
+ const distinct=a=>[...new Set(a.map(x=>x.id))].length;
+ const pos=distinct(positive),neg=distinct(negative),bar=distinct(barriers);
+ const evidence=ev.slice(-3).map(x=>x.raw.slice(0,115));
+ // No score based on character count, numbers, or simple geographic specificity.
+ let value=null,reason='希望条件は確認できていますが、前向きさ・抵抗感は未確認です';
+ if(pos||neg||bar){
+  value=Math.max(10,Math.min(90,Math.round((50+Math.min(2,pos)*17-Math.min(2,neg)*22-Math.min(2,bar)*9)/5)*5));
+  reason=pos&&neg?'前向きな発言と消極的な発言が混在しています':pos?'検討を前に進める意思を示す発言があります':neg?'検討に慎重な意思が明示されています':'判断を妨げる要因が示されています';
+ }
+ const confidence=Math.min(95,Math.round((Math.min(5,ev.length)*10)+(pos+neg+bar?20:0)+(ev.some(x=>x.axis!==axis)?5:0)));
+ const override=s.temperatureOverrides?.[axis];
+ if(override&&Number.isFinite(Number(override.value))&&override.value!==''){
+  value=Number(override.value);reason='営業担当による補正：'+(override.reason||'面談時の発言・反応を踏まえた評価');
+ }
+ return {value,confidence,reason,evidence,barrier:bar>0,manual:!!override};
 }
 function renderTemperatures(){
  const el=document.getElementById('temperatures');if(!el)return;
- el.innerHTML=axes.map(a=>{const t=temperature(a);return `<div class="tempitem"><div class="temphead"><span>${a}</span><strong>${t.value===null?'判定保留':t.value+'%'}</strong></div><div class="tempbar"><div class="tempfill" style="width:${t.value??0}%"></div></div><div class="tempnote">${esc(t.reason)} <span class="tempflag">判定材料 ${t.confidence}%</span></div></div>`}).join('');
+ el.innerHTML=axes.map(a=>{const t=temperature(a);return `<div class="tempitem"><div class="temphead"><span>${a}</span><strong>${t.value===null?'判定保留':t.value+'%（参考）'}</strong></div><div class="tempbar"><div class="tempfill" style="width:${t.value??0}%"></div></div><div class="tempnote">${esc(t.reason)} <span class="tempflag">根拠の充足度 ${t.confidence}%</span></div></div>`}).join('');
 }
 const v11Render=render;render=function(){v11Render();renderTemperatures()};
 
