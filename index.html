@@ -559,23 +559,45 @@ const WARMTH_SIGNS={
 function axisEvidence(axis){
  return (s.entries||[]).map(e=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);const raw=[e.choice,e.text].filter(Boolean).join(' / ').trim();return {id:e.id,axis:q?.a||'',raw};}).filter(e=>e.raw&&(e.axis===axis||AXIS_EVIDENCE[axis].some(rx=>rx.test(e.raw))));
 }
+// v29: evidence-weighted temperature; specificity alone does not imply willingness to buy.
+const AXIS_STAGE={
+ '時期':[/見学|来場|内覧|モデルルーム|物件を見/,/比較|検討|探して|探し始め|調べ/,/更新|引越|引っ越|入居|年内|来年|春まで|秋まで|半年以内/],
+ '予算':[/見積|資金計画|ローン|審査|FP|返済/,/比較|検討|高い|安い|価格|金額|相場|予算/,/月々|毎月|月額|万円|家賃|負担|諸費用/],
+ 'エリア':[/見学|来場|内覧|物件を見/,/比較|検討|候補|探して|探し始め/,/沿線|駅徒歩|通勤|生活圏|茨木|吹田|伊丹|高槻|徒歩\d+分/],
+ '商品':[/見学|来場|内覧|モデルルーム|物件を見/,/比較|検討|候補|新築|中古/,/間取り|広さ|収納|部屋|LDK|㎡|平米|設備|眺望/]
+};
 function temperature(axis){
  const ev=axisEvidence(axis);
- if(!ev.length)return {value:null,confidence:0,reason:'この軸について判断材料がありません',evidence:[],barrier:false};
- const rules=WARMTH_SIGNS[axis],positive=[],negative=[],barriers=[];
- for(const item of ev){const t=item.raw.normalize('NFKC');if(rules.positive.some(rx=>rx.test(t)))positive.push(item);if(rules.negative.some(rx=>rx.test(t)))negative.push(item);if(rules.barrier.some(rx=>rx.test(t)))barriers.push(item)}
- const distinct=a=>[...new Set(a.map(x=>x.id))].length;
- const pos=distinct(positive),neg=distinct(negative),bar=distinct(barriers);
+ if(!ev.length)return {value:null,confidence:0,reason:'この軸に関する回答がありません',evidence:[],barrier:false};
+ const rules=WARMTH_SIGNS[axis],positive=[],negative=[],barriers=[],stages=[];
+ for(const item of ev){
+  const t=item.raw.normalize('NFKC');
+  if(rules.positive.some(rx=>rx.test(t)))positive.push(item);
+  if(rules.negative.some(rx=>rx.test(t)))negative.push(item);
+  if(rules.barrier.some(rx=>rx.test(t)))barriers.push(item);
+  if(AXIS_STAGE[axis].some(rx=>rx.test(t)))stages.push(item);
+ }
+ const count=items=>new Set(items.map(x=>x.id)).size;
+ const pos=count(positive),neg=count(negative),bar=count(barriers),stage=count(stages);
+ const direct=ev.filter(x=>x.axis===axis).length;
  const evidence=ev.slice(-3).map(x=>x.raw.slice(0,115));
- // No score based on character count, numbers, or simple geographic specificity.
- let value=null,reason='希望条件は確認できていますが、前向きさ・抵抗感は未確認です';
+ const confidence=Math.min(95,Math.round(Math.min(5,ev.length)*10+(pos+neg+bar?25:stage?12:0)+(direct?10:0)));
+ let value,reason;
  if(pos||neg||bar){
   value=Math.max(10,Math.min(90,Math.round((50+Math.min(2,pos)*17-Math.min(2,neg)*22-Math.min(2,bar)*9)/5)*5));
-  reason=pos&&neg?'前向きな発言と消極的な発言が混在しています':pos?'検討を前に進める意思を示す発言があります':neg?'検討に慎重な意思が明示されています':'判断を妨げる要因が示されています';
+  reason=pos&&neg?'前向きな発言と慎重な発言が混在しています':pos?'購入・比較を進める意思が確認できます':neg?'検討を進めることに慎重な発言があります':'判断を妨げる要因が確認されています';
+ }else if(stage){
+  // Active search and comparison are observable actions, not proof of buying intent.
+  value=Math.min(60,40+Math.min(2,stage)*10);
+  reason=stage>1?'具体的な条件整理・比較行動があります。購入意思の強さは追加確認が必要です':'住まい探しの具体的な行動・条件が確認できます。購入意思は未確認です';
+ }else{
+  value=40;
+  reason='希望・関心の発言はありますが、購入を前に進める意思は未確認です';
  }
- const confidence=Math.min(95,Math.round((Math.min(5,ev.length)*10)+(pos+neg+bar?20:0)+(ev.some(x=>x.axis!==axis)?5:0)));
+ // Keep uncertainty visible; avoid suggesting a 40% chance of purchase.
+ if(confidence<35)reason+='（判断根拠は限定的）';
  const override=s.temperatureOverrides?.[axis];
- if(override&&Number.isFinite(Number(override.value))&&override.value!==''){
+ if(override&&override.value!==''&&Number.isFinite(Number(override.value))){
   value=Number(override.value);reason='営業担当による補正：'+(override.reason||'面談時の発言・反応を踏まえた評価');
  }
  return {value,confidence,reason,evidence,barrier:bar>0,manual:!!override};
