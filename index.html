@@ -335,7 +335,21 @@ makeReport=function(){
 window.addEventListener('beforeprint',()=>{const d=document.getElementById('reportTranscript');if(d){d.dataset.wasOpen=d.open?'1':'0';d.open=true}});
 window.addEventListener('afterprint',()=>{const d=document.getElementById('reportTranscript');if(d&&d.dataset.wasOpen==='0')d.open=false});
 
-$('reportBtn').onclick=makeReport;$('closeReport').onclick=()=>$('report').classList.add('hidden');$('printBtn').onclick=()=>{document.body.classList.add('report-print');const d=document.getElementById('reportTranscript');if(d)d.open=true;window.print()};window.addEventListener('afterprint',()=>document.body.classList.remove('report-print'));$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
+$('reportBtn').onclick=makeReport;$('closeReport').onclick=()=>$('report').classList.add('hidden');// Dedicated isolated print document: existing presentation/one-page print CSS must not affect the analysis report.
+$('printBtn').onclick=()=>{
+ const report=document.getElementById('reportBody');
+ if(!report||!report.innerHTML.trim()){alert('先に分析レポートを表示してください。');return}
+ const win=window.open('','_blank');
+ if(!win){alert('印刷用の画面がブロックされました。ポップアップを許可して再度お試しください。');return}
+ const clone=report.cloneNode(true);
+ const transcript=clone.querySelector('#reportTranscript');if(transcript)transcript.open=true;
+ const corrections=clone.querySelector('#reportCorrections');if(corrections)corrections.remove();
+ clone.querySelectorAll('button,input,select').forEach(el=>el.remove());
+ const html='<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>商談分析レポート</title><style>'+
+ '@page{size:A4 portrait;margin:14mm}*{box-sizing:border-box}body{font-family:"Yu Gothic","Meiryo",sans-serif;color:#1c3038;background:#fff;font-size:10.5pt;line-height:1.55;margin:0}h2{font-size:18pt;border-bottom:2px solid #167c71;padding-bottom:8px}h3{font-size:12pt;background:#edf5f3;padding:6px 9px;margin-top:20px;break-after:avoid}p{margin:8px 0;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9pt}th,td{border:1px solid #cfd9db;padding:7px;vertical-align:top;overflow-wrap:anywhere}th{background:#f1f6f5}small,.muted{color:#586b72;font-size:8.5pt}details{display:block!important}details>summary{display:none!important}details>*{display:block!important}#reportBody>div{break-inside:avoid}button{display:none!important}</style></head><body><main id="reportBody">'+clone.innerHTML+'</main></body></html>';
+ win.document.open();win.document.write(html);win.document.close();
+ win.focus();setTimeout(()=>{try{win.print()}catch(e){console.error(e)}},350);
+};$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
 
 // v5: Free, offline, deterministic proposal-slide builder. All data remains on device.
 const SLIDE_CATALOG=[
