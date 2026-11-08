@@ -1,0 +1,8 @@
+{
+  "name": "hearing-navi",
+  "private": true,
+  "version": "24.0.0",
+  "scripts": { "test": "node tests/audit.cjs && node tests/import.cjs" },
+  "devDependencies": { "jsdom": "31.0.0" },
+  "engines": { "node": ">=22" }
+}
