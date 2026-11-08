@@ -180,7 +180,7 @@ const byId=Object.fromEntries(BANK.map(x=>[x.id,x]));const axes=['時期','エ�
 const $=id=>document.getElementById(id);const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function entry(id){return s.entries.find(e=>e.id===id)}function answered(id){return !!entry(id)}function has(t){return s.entries.some(e=>(e.text+' '+e.choice).includes(t))}function chosen(id,v){return (entry(id)?.choice||'').includes(v)}
 function branch(qid){if(qid==='trigger'&&(chosen('trigger','周囲')||chosen('trigger','なんとなく')))return 'selfmot';if(qid==='trigger')return 'now';if(qid==='now'&&chosen('now','特に不満はない'))return 'rentvalue';if(qid==='now')return 'authority';if(qid==='areawhy'&&(chosen('areawhy','周囲')||chosen('areawhy','特に理由はない')))return 'areatrade';if(qid==='budgetwhy'&&(chosen('budgetwhy','FP')||chosen('budgetwhy','将来')))return 'fp';if(qid==='producttrade'&&(has('階数')||has('眺望'))&&!answered('floor'))return 'floor';if(qid==='early'&&(chosen('early','まだ買えない')||chosen('early','分からない')))return 'barrier';if(qid==='barrier'&&chosen('barrier','家族'))return 'family';if(qid==='decision'&&has('比較')&&!answered('comparison'))return 'comparison';return byId[qid]?.next||null}
-function nextQuestion(from){let id=branch(from),guard=0;while(id&&guard++<40&&(answered(id)||s.skipped.includes(id)))id=branch(id);if(!id){const remaining=BANK.filter(q=>!answered(q.id)&&!s.skipped.includes(q.id));if(!remaining.length)return null;remaining.sort((a,b)=>score(a.a)-score(b.a));return remaining[0].id}return id}
+function nextQuestion(from){let id=branch(from),guard=0;while(id&&guard++<40&&(answered(id)||s.skipped.includes(id)||!shouldAskQuestion(id)))id=branch(id);if(!id){const remaining=BANK.filter(q=>!answered(q.id)&&!s.skipped.includes(q.id)&&shouldAskQuestion(q.id));if(!remaining.length)return null;remaining.sort((a,b)=>score(a.a)-score(b.a));return remaining[0].id}return id}
 
 // v6: オフライン文脈エンジン。発言の事実と推測を区別し、数値/対比/動機から深掘りを作る。
 const probes={
@@ -220,8 +220,52 @@ function detectProbes(e){if(!e)return[];const w=words(e),p=[];const add=(id,why)
  if(any(w,/時期|引っ越し|引越し|来年|半年|1年|いつまで/))add('timing','期限と購入判断の準備を分ける');
  return p;
 }
-function activeProbe(){return s.pendingProbes?.[0]||null}
-function enqueueProbes(e){s.pendingProbes=s.pendingProbes||[];if(s.pendingProbes.length)return;for(const p of detectProbes(e)){if(!s.probeHistory?.includes(p.id)&&!s.pendingProbes.some(x=>x.id===p.id))s.pendingProbes.push(p);if(s.pendingProbes.length>=2)break}}
+
+// v21: 回答の意味に基づく重複・矛盾ガード（保存形式は変更しない）
+const TOPIC_GROUPS=[
+ ['origin'],['trigger'],['now'],['selfmot','probe:outsider'],['authority','family'],
+ ['rentvalue'],['area'],['areawhy','probe:areareason'],['areatrade','probe:areaflex'],
+ ['budget'],['budgetwhy','probe:pricebasis'],['budgettrade','probe:pricetrade'],
+ ['product'],['productwhy','probe:newused'],['layout'],['producttrade'],['timing'],
+ ['timingwhy'],['early','probe:timing'],['barrier'],['decision']
+];
+function responseText(e){return ((e?.choice||'')+' '+(e?.text||'')).normalize('NFKC').replace(/\\s+/g,' ').trim()}
+function subsidyState(){
+ let state='unknown';
+ for(const e of (s.entries||[])){
+  const w=responseText(e);
+  if(/(?:家賃補助|住宅手当|住居手当|会社の補助|補助制度|社宅)/.test(w)){
+   if(/(?:補助|手当|社宅).{0,12}(?:なし|ない|ありません|無し|受けていない|出ない)|(?:補助なし|手当なし|社宅なし)/.test(w))state='none';
+   else if(/(?:補助|手当|社宅).{0,12}(?:あり|ある|あります|受けている|出る|支給)/.test(w))state='yes';
+  }
+ }
+ return state;
+}
+function topicCovered(id){
+ const group=TOPIC_GROUPS.find(g=>g.includes(id));
+ return !!group&&group.some(other=>other!==id&&(s.entries||[]).some(e=>e.id===other));
+}
+function shouldAskQuestion(id){
+ if(!id)return false;
+ if(subsidyState()==='none'&&['probe:subsidy','probe:rentcompare','rentvalue'].includes(id))return false;
+ if(topicCovered(id))return false;
+ return true;
+}
+function probeAllowed(id){
+ const pid='probe:'+id;
+ if(!shouldAskQuestion(pid))return false;
+ if(id==='subsidy')return subsidyState()==='yes';
+ if(id==='rentcompare')return subsidyState()==='yes';
+ if(id==='areareason'&&answered('areawhy'))return false;
+ if(id==='areaflex'&&answered('areatrade'))return false;
+ if(id==='pricebasis'&&answered('budgetwhy'))return false;
+ if(id==='pricetrade'&&answered('budgettrade'))return false;
+ if(id==='newused'&&answered('productwhy'))return false;
+ if(id==='timing'&&answered('early'))return false;
+ return true;
+}
+function activeProbe(){s.pendingProbes=(s.pendingProbes||[]).filter(p=>probeAllowed(p.id));return s.pendingProbes[0]||null}
+function enqueueProbes(e){s.pendingProbes=(s.pendingProbes||[]).filter(p=>probeAllowed(p.id));if(s.pendingProbes.length)return;for(const p of detectProbes(e)){if(probeAllowed(p.id)&&!s.probeHistory?.includes(p.id)&&!s.pendingProbes.some(x=>x.id===p.id))s.pendingProbes.push(p);if(s.pendingProbes.length>=2)break}}
 function nextAdaptive(from){const pending=activeProbe();if(pending)return 'probe:'+pending.id;return nextQuestion(from)}
 function questionNow(){if(s.current?.startsWith('probe:')){const id=s.current.slice(6);return {...probes[id],id:s.current}}return byId[s.current]}
 function probeInsight(){const e=s.entries.at(-1);if(!e)return '';const d=detectProbes(e);const amounts=parseYen(words(e));return `<b>直前の回答から検知</b><div>${d.slice(0,4).map(x=>`<span class="chip">${esc(x.why)}</span>`).join('')||'<span class="note">明確な追加論点は検知されませんでした。別の質問へ進めます。</span>'}</div>${amounts.length?`<div class="note">検知した金額：${amounts.map(x=>esc(x.raw)).join('、')}（家賃・補助などの意味は未確定です）</div>`:''}<div class="note">自動判定は仮説です。お客様の発言と照らして確認してください。</div>`}
