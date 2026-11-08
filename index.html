@@ -943,6 +943,27 @@ document.getElementById('returnPanel')?.scrollIntoView({block:'start'});
 status.textContent='架空サンプルを表示中（初回・再来完了）';
 }catch(err){status.textContent='サンプル読み込み失敗：'+err.message;console.error(err)}
 });
+
+// Independent completed-sample preview: does not rely on record-manager initialization.
+btn.addEventListener('click',function(event){
+ event.preventDefault();event.stopImmediatePropagation();
+ const sample=build();
+ const escapeHTML=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const rows=sample.visits[0].answers;
+ const returns=sample.returnDraft;
+ let panel=document.getElementById('sampleCompletePreview');
+ if(!panel){panel=document.createElement('section');panel.id='sampleCompletePreview';panel.style.cssText='margin:14px 20px;padding:20px;border:2px solid #146f66;border-radius:12px;background:#fff;color:#203642';btn.closest('section').after(panel)}
+ const makeTable=(items)=>'<div style="display:grid;gap:8px">'+items.map(([a,b])=>'<div style="border-bottom:1px solid #dbe7e7;padding:9px 0"><b>'+escapeHTML(a)+'</b><div style="margin-top:5px;white-space:pre-wrap">'+escapeHTML(b)+'</div></div>').join('')+'</div>';
+ const firstData=rows.map((x,i)=>['初回 '+(i+1)+'｜'+x.axis,x.raw]);
+ const returnData=returns.map((x,i)=>['再来 '+(i+1)+'｜'+(['時期','時期','商品','エリア','時期','予算','商品','エリア','予算','時期','商品'][i]||'商談'),x.text]);
+ panel.innerHTML='<h2 style="margin-top:0">架空サンプル｜初回・再来の回答済みレポート</h2><p>これは実在のお客様ではない練習用データです。既存の商談記録は変更しません。</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0"><button type="button" id="samplePrint" style="background:#146f66;color:white;padding:10px;border-radius:7px;border:0">サンプルレポートを印刷</button><button type="button" id="sampleCopilot" style="background:#146f66;color:white;padding:10px;border-radius:7px;border:0">サンプルをCopilot分析用にコピー</button></div><p id="samplePreviewStatus" role="status"></p><details open><summary style="cursor:pointer;font-weight:bold;padding:12px;background:#eef7f4">初回のヒアリング回答（'+firstData.length+'件）</summary>'+makeTable(firstData)+'</details><details open style="margin-top:18px"><summary style="cursor:pointer;font-weight:bold;padding:12px;background:#eef7f4">再来のヒアリング回答（'+returnData.length+'件）</summary>'+makeTable(returnData)+'</details><h3>商談の分析・次の確認事項</h3><p>時期：今すぐ購入する理由は未確定。賃貸継続と購入の比較が必要。</p><p>予算：実質家賃5.5万円、購入後の総住居費15万円以内を希望。管理費・修繕費を含む資金計画が必要。</p><p>エリア：吹田・茨木を比較。通勤時間と広さの優先順位を確認。</p><p>商品：70㎡前後、仕事部屋・収納を重視。具体的な住戸で適合性を確認。</p>';
+ const instructions='以下は新築分譲マンションの架空の商談記録です。お客様の発言事実と仮説を分け、4軸（時期・予算・エリア・商品）の購入障壁TOP3、次に聞く質問TOP3、必要な資料と営業トークを具体的に提案してください。温度感を成約確率として扱わず、不明点は未確認としてください。\n\n【初回】\n'+firstData.map(x=>x.join('：')).join('\n')+'\n\n【再来】\n'+returnData.map(x=>x.join('：')).join('\n');
+ panel.querySelector('#sampleCopilot').onclick=async()=>{try{await navigator.clipboard.writeText(instructions);panel.querySelector('#samplePreviewStatus').textContent='Copilot分析用テキストをコピーしました'}catch(e){const ta=document.createElement('textarea');ta.style.cssText='width:100%;height:160px';ta.value=instructions;panel.querySelector('#samplePreviewStatus').after(ta);ta.focus();ta.select();panel.querySelector('#samplePreviewStatus').textContent='コピーできない場合は下の文章を選択してコピーしてください'}};
+ panel.querySelector('#samplePrint').onclick=()=>{const w=window.open('','_blank');if(!w){alert('ポップアップを許可してください');return}const doc='<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>架空サンプル商談レポート</title><style>body{font-family:Meiryo,sans-serif;margin:25mm;color:#203642}h1{font-size:20px}details{display:block!important}summary{font-weight:bold}button{display:none!important}@page{size:A4;margin:15mm}</style></head><body><h1>架空サンプル商談レポート</h1>'+panel.innerHTML+'</body></html>';w.document.open();w.document.write(doc);w.document.close();w.focus();setTimeout(()=>w.print(),250)};
+ panel.scrollIntoView({behavior:'smooth',block:'start'});
+ status.textContent='架空サンプルの初回・再来レポートを表示中（実データは変更していません）';
+},true);
+
 // Clear the old reload-based sample handoff flag; sample opening is now immediate.
 try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.warn(e)}
 })();
