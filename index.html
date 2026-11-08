@@ -127,7 +127,7 @@
 @media(max-width:800px){.visit-compare{grid-template-columns:1fr}#returnPanel .visit-question{font-size:19px}}
 @media print{.visit-switch,#returnPanel button,#returnPanel textarea{display:none!important}#returnPanel{display:block!important;border:none}.visit-compare{grid-template-columns:repeat(2,1fr)}}
 </style></head><body><div style="margin:10px auto;max-width:1450px;padding:10px 18px;border:1px solid #c4dcd7;border-radius:10px;background:#f3faf7;color:#24534b;font-size:13px">【チーム利用版】アンケート番号のみで管理します。氏名・連絡先・住所・勤務先など、個人を特定できる情報は自由記述欄にも入力しないでください。記録は各ブラウザ内に保存され、メンバー間では共有されません。</div><header><div><h1>住まいのヒアリングナビ <span style="font-weight:400">v20</span></h1><small>対話を深める適応型ナビゲーション｜無料・オフライン・API不要</small></div><span class="tag">ローカル動作</span></header>
-<section class="records" aria-label="アンケート番号別の商談記録管理"><h2>アンケート番号別の商談記録</h2><div class="records-grid"><label>アンケートナンバー<input id="recordNumber" autocomplete="off" placeholder="例：A-1025"></label><input id="recordName" type="hidden" value=""><label>保存済みの記録<select id="recordList"><option value="">保存したお客様を選択</option></select></label></div><div class="records-actions"><button id="recordSave" class="primary" type="button">この番号で保存</button><button id="recordOpen" type="button">選択した記録を呼び出す</button><button id="recordNew" type="button">新しい記録</button><button id="recordDelete" class="danger" type="button">選択した記録を削除</button><button id="recordBackup" type="button">全件バックアップ（JSON）</button><label class="records-upload" style="display:inline-block">バックアップを復元<input type="file" id="recordRestore" accept=".json,application/json" style="display:none"></label><span id="recordStatus" class="records-status" role="status">準備中…</span></div><div class="records-note">保存先はこのブラウザ内です。保存後はアンケート番号ごとに回答・メモ・質問の進行状況・住居費の入力を呼び出せます。ブラウザのデータ消去や端末変更に備え、定期的に全件バックアップしてください。氏名・連絡先・勤務先・住所などの個人情報は入力しないでください。自由記述にも注意してください。</div></section>
+<section class="records" aria-label="アンケート番号別の商談記録管理"><h2>アンケート番号別の商談記録</h2><div class="records-grid"><label>アンケートナンバー<input id="recordNumber" autocomplete="off" placeholder="例：A-1025"></label><input id="recordName" type="hidden" value=""><label>保存済みの記録<select id="recordList"><option value="">保存したお客様を選択</option></select></label></div><div class="records-actions"><button id="recordSave" class="primary" type="button">この番号で保存</button><button id="recordOpen" type="button">選択した記録を呼び出す</button><button id="recordNew" type="button">新しい記録</button><button id="recordDelete" class="danger" type="button">選択した記録を削除</button><button id="recordBackup" type="button">全件バックアップ（JSON）</button><button id="copilotCopy" type="button" style="background:#146f66;color:white;border:0;border-radius:8px;padding:10px 14px;font-weight:700">Copilot分析用レポートをコピー</button><span id="copilotCopyStatus" role="status" style="font-size:13px"></span><label class="records-upload" style="display:inline-block">バックアップを復元<input type="file" id="recordRestore" accept=".json,application/json" style="display:none"></label><span id="recordStatus" class="records-status" role="status">準備中…</span></div><div class="records-note">保存先はこのブラウザ内です。保存後はアンケート番号ごとに回答・メモ・質問の進行状況・住居費の入力を呼び出せます。ブラウザのデータ消去や端末変更に備え、定期的に全件バックアップしてください。氏名・連絡先・勤務先・住所などの個人情報は入力しないでください。自由記述にも注意してください。</div></section>
 <section style="margin:12px 20px;padding:16px;border:2px dashed #b2c9c5;border-radius:14px;background:#f4faf8"><strong>動作確認用・完成済みサンプル（復旧診断版 2026-10-25）</strong><p style="margin:8px 0">初回・再来のヒアリングを完了した架空のお客様を、ワンクリックで呼び出せます。実際のお客様データは変更しません。</p><button type="button" id="demoLoad" class="primary">サンプル商談を開く（比較グラフ表示）</button><span id="demoStatus" style="margin-left:12px;font-size:13px"></span></section><div id="appError" role="alert" style="display:none;margin:12px 18px;padding:12px;background:#fff0ee;border:1px solid #c77;border-radius:8px;color:#a22"></div><section class="visit-switch" aria-label="来場回数切り替え"><strong>商談モード</strong><button id="modeFirst" class="selected" type="button">初回来場</button><button id="modeReturn" type="button">再来場・3回目以降</button><span id="visitCurrent" class="tag">初回来場</span><div class="visit-hint">同じお客様のアンケート番号で記録を保存・呼び出しできます。初回の結果を確定してから再来場へ進みます。</div></section>
 <section id="returnPanel" aria-label="再来場ヒアリング"><div class="visit-title" id="returnHeading">再来場ヒアリング</div><p class="muted" id="returnSub">前回からの変化を中心に確認します。</p><div id="returnQuestionArea"><div class="visit-card"><div id="returnProgress" class="muted"></div><div id="returnQuestion" class="visit-question"></div><div id="returnAim" class="muted"></div><label class="field" for="returnAnswer">お客様の発言（Enterで記録／Shift＋Enterで改行）</label><textarea id="returnAnswer" placeholder="お客様の言葉をそのまま記録"></textarea></div><div><button id="returnNext" class="main-action" type="button">回答を記録して次へ →</button><button id="returnSkip" type="button">スキップ</button><button id="returnBack" type="button">一つ戻す</button></div></div><div id="returnReport" style="display:none"><h3>初回・再来の4軸比較レポート</h3><p class="muted">整理度と温度感は独立した参考指標です。購入意欲や成約確率を示しません。未回答の軸は判定保留です。</p><div class="visit-compare" id="returnCharts"></div><div class="visit-actions" id="returnGuidance"></div><h3>再来場後の次の一手</h3><div class="visit-card" id="returnCoaching"></div><label class="field" for="returnCoachAnswer">このテーマで話した内容（Enterで完了／Shift＋Enterで改行）</label><textarea id="returnCoachAnswer"></textarea><div><button class="main-action" id="returnCoachDone" type="button">この話題を完了 → 次の一手</button><button id="returnCoachSkip" type="button">今回は見送る</button></div><div id="returnCoachHistory"></div><div style="margin-top:12px"><button id="returnPrint" type="button">比較レポートを印刷</button><button id="returnRestart" type="button">次回来場のヒアリングを開始</button></div></div></section><section class="command" aria-label="商談進行ガイド"><div class="command-top"><div><div class="command-kicker">LIVE SALES NAVIGATOR</div><h2>今、この商談をどう進めるか</h2></div><span id="commandPhase" class="command-phase">ヒアリング開始</span></div><div class="command-grid"><div class="command-main"><span class="command-label">① いま確認すべき論点</span><h3 id="commandIssue">お客様の来場目的を確認</h3><p id="commandEvidence">回答を記録すると、根拠となる発言がここに表示されます。</p></div><div class="command-main action"><span class="command-label">② 次の一手・質問</span><h3 id="commandQuestion">何をきっかけに住まい探しを始められましたか？</h3><p id="commandReason">質問の狙い：購入を考えた本人の動機を把握する</p><button type="button" id="commandAsk" class="command-button">この質問を使う ↓</button></div><div class="command-main finish"><span class="command-label">③ 目指す着地点</span><h3 id="commandGoal">購入の必要性を整理</h3><p id="commandNext">今日決めるべきことを一緒に確認します。</p></div></div><div id="coachWorkspace" class="coach-workspace" aria-live="polite">
  <div class="coach-topline"><strong>ヒアリング後の商談進行</strong><span id="coachProgress" class="coach-progress">STEP 1</span></div>
@@ -346,7 +346,74 @@ $('printBtn').onclick=()=>{
  const corrections=clone.querySelector('#reportCorrections');if(corrections)corrections.remove();
  clone.querySelectorAll('button,input,select').forEach(el=>el.remove());
  const html='<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>商談分析レポート</title><style>'+
- '@page{size:A4 portrait;margin:14mm}*{box-sizing:border-box}body{font-family:"Yu Gothic","Meiryo",sans-serif;color:#1c3038;background:#fff;font-size:10.5pt;line-height:1.55;margin:0}h2{font-size:18pt;border-bottom:2px solid #167c71;padding-bottom:8px}h3{font-size:12pt;background:#edf5f3;padding:6px 9px;margin-top:20px;break-after:avoid}p{margin:8px 0;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9pt}th,td{border:1px solid #cfd9db;padding:7px;vertical-align:top;overflow-wrap:anywhere}th{background:#f1f6f5}small,.muted{color:#586b72;font-size:8.5pt}details{display:block!important}details>summary{display:none!important}details>*{display:block!important}#reportBody>div{break-inside:avoid}button{display:none!important}</style></head><body><main id="reportBody">'+clone.innerHTML+'</main></body></html>';
+ '@page{size:A4 portrait;margin:14mm}*{box-sizing:border-box}body{font-family:"Yu Gothic","Meiryo",sans-serif;color:#1c3038;background:#fff;font-size:10.5pt;line-height:1.55;margin:0}h2{font-size:18pt;border-bottom:2px solid #167c71;padding-bottom:8px}h3{font-size:12pt;background:#edf5f3;padding:6px 9px;margin-top:20px;break-after:avoid}p{margin:8px 0;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9pt}th,td{border:1px solid #cfd9db;padding:7px;vertical-align:top;overflow-wrap:anywhere}th{background:#f1f6f5}small,.muted{color:#586b72;font-size:8.5pt}details{display:block!important}details>summary{display:none!important}details>*{display:block!important}#reportBody>div{break-inside:avoid}button{display:none!important}</style></head><body><main id="reportBody">'+clone.innerHTML+'</main>
+<script>
+// Copilot handoff: text only; no external API, no automatic transmission, no changes to saved records.
+(function(){
+ const btn=document.getElementById('copilotCopy'),status=document.getElementById('copilotCopyStatus');
+ if(!btn)return;
+ const safe=v=>String(v??'').trim();
+ const scrub=v=>safe(v)
+  .replace(/[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/g,'[メールアドレス省略]')
+  .replace(/(?:\+81[-\s]?)?0\d{1,4}[-ー\s]?\d{1,4}[-ー\s]?\d{3,4}/g,'[電話番号省略]');
+ function build(){
+  const number=safe(document.getElementById('recordNumber')?.value)||'未設定';
+  const entries=Array.isArray(s.entries)?s.entries:[];
+  const qs=entries.map((e,i)=>{
+   const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);
+   return (i+1)+'. 【'+safe(q?.a||'分類未設定')+'】'+scrub(q?.q||'質問')+'\n   回答：'+scrub([e.choice,e.text].filter(Boolean).join('／')||'未回答');
+  });
+  const axisLines=['時期','予算','エリア','商品'].map(a=>{
+   try{const t=temperature(a),next=nextAxisCheck(a);return '【'+a+'】参考温度感：'+(t.value==null?'未判定':t.value+'%')+'／根拠：'+scrub(t.reason)+'／次に確認：'+scrub(next.ask)}
+   catch(err){return '【'+a+'】判定を取得できません（発言原文を優先して分析してください）'}
+  });
+  const finances=[
+   ['現在の家賃','finRent'],['家賃補助','finSubsidy'],['購入後ローン返済','finLoan'],['管理費・修繕積立金','finMaint'],['その他維持費','finOther']
+  ].map(([label,id])=>{const v=document.getElementById(id)?.value;return label+'：'+(v==null||v===''?'未入力':scrub(v)+'円／月')});
+  const returns=(Array.isArray(s.returnDraft)?s.returnDraft:[]).map((x,i)=>'再来回答'+(i+1)+'：'+scrub(x.text||'未記録'));
+  const coaching=(Array.isArray(s.coachLog)?s.coachLog:[]).map(x=>scrub(x.title)+'：'+scrub(x.text||'未記録'));
+  return [
+   '【社内Copilot分析依頼｜新築分譲マンション商談】',
+   'アンケート番号：'+scrub(number),
+   '※氏名・連絡先・住所などの個人情報は入力しないでください。貼り付け前に全文を確認してください。',
+   '※自動判定の温度感は成約確率ではありません。顧客発言を優先し、推測は仮説と明示してください。',
+   '',
+   '■ 顧客の発言原文（初回）',qs.length?qs.join('\n'):'記録なし',
+   '',
+   '■ 4軸の参考判定（ルールベース）',axisLines.join('\n'),
+   '',
+   '■ 月額住居費の入力値（参考。購入可能額の確定値ではない）',finances.join('\n'),
+   '',
+   '■ 再来場・商談進行の記録',returns.concat(coaching).join('\n')||'記録なし',
+   '',
+   '■ 営業担当メモ',scrub(s.memo||'未記録'),
+   '',
+   '■ Copilotへの依頼',
+   '1. 顧客の発言事実・営業上の仮説・未確認事項を明確に分けてください。',
+   '2. 時期（今買う納得）・予算（納得月額と購入可能価格、提案住戸の整合）・エリア（南茨木を選ぶ理由）・商品（戸建て／中古／新築、間取り・面積の必要性）の4軸で診断してください。',
+   '3. 購入判断を妨げる可能性のある要因を重要度順に3つ示し、必ず発言根拠を添えてください。',
+   '4. 次に聞くべき質問を優先順位順に3つ、質問の狙いとともに提案してください。',
+   '5. 必要な比較資料、検証すべき数値、営業トークを具体的に提案してください。',
+   '6. 物件価格、借入可能額、諸費用などが未入力なら推定で断定せず、追加で必要な情報を列挙してください。',
+   '7. 押し売りを避け、購入しない選択肢も尊重してください。'
+  ].join('\n');
+ }
+ btn.addEventListener('click',async()=>{
+  const report=build();
+  try{
+   if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(report)}
+   else{const ta=document.createElement('textarea');ta.value=report;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();if(!document.execCommand('copy'))throw Error('コピーに失敗');ta.remove()}
+   status.textContent='コピーしました。社内Copilotに貼り付けてください。';
+  }catch(err){
+   status.textContent='自動コピーできません。下のテキストを選択してコピーしてください。';
+   let box=document.getElementById('copilotFallback');
+   if(!box){box=document.createElement('textarea');box.id='copilotFallback';box.rows=12;box.style.cssText='display:block;width:100%;margin-top:12px';btn.parentElement.after(box)}
+   box.value=report;box.focus();box.select();
+  }
+ });
+})();
+</script>
+</body></html>';
  win.document.open();win.document.write(html);win.document.close();
  win.focus();setTimeout(()=>{try{win.print()}catch(e){console.error(e)}},350);
 };$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
