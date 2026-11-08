@@ -1186,17 +1186,10 @@ try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.
   return Object.keys(records).length;
  }
  function reset(){
-  const no=$('recordNumber')?.value.trim();
-  if(!confirm('新しい商談を開始しますか？ 現在の入力内容は、必要に応じて先に保存してください。'))return;
-  if(typeof s==='undefined')return msg('画面を初期化できません');
-  s={client:'',memo:'',entries:[],current:'trigger',skipped:[],manual:[],visited:[],pendingProbes:[],probeHistory:[],returnTo:null,visitMode:'first',returnDraft:[],returnCoach:[],visits:[],coachLog:[]};
-  if($('recordNumber'))$('recordNumber').value='';
-  if($('recordName'))$('recordName').value='';
-  for(const id of ['finRent','finSubsidy','finLoan','finMaint','finOther','finKeep'])if($(id))$(id).value='';
-  const sample=$('sampleCompletePreview');if(sample)sample.remove();
-  try{render()}catch(e){msg('画面更新エラー：'+e.message)}
-  if($('recordNumber'))$('recordNumber').focus();
-  msg('新しい商談を開始しました。既存の保存記録は変更していません。');
+  if(!confirm('新しい商談を開始しますか？ 保存していない入力内容は失われます。保存済みの記録は削除しません。'))return;
+  // A clean reload clears the isolated demo preview and resets the failed legacy UI
+  // without modifying any saved record or browser storage.
+  window.location.reload();
  }
  function open(){
   const k=$('recordList')?.value,records=read(),r=records[k];
