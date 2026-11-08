@@ -994,8 +994,16 @@ const records=JSON.parse(localStorage.getItem(KEY)||'{}');
 let number='DEMO-2026-001',i=2;
 while(Object.prototype.hasOwnProperty.call(records,number)&&records[number]?.sample!==true)number='DEMO-2026-'+String(i++).padStart(3,'0');
 records[number]={number,name:'',state:build(),finance:{},updated:new Date().toISOString(),sample:true};
-if(typeof window.hearingNaviOpenSample!=='function')throw Error('記録管理機能を読み込めませんでした。Ctrl+F5で更新してください');
-window.hearingNaviOpenSample(number,records[number]);
+// Always show the sample immediately, even when the optional record manager failed to initialize.
+s=build();
+s.client='';
+document.getElementById('recordNumber').value=number;
+document.getElementById('memo').value=s.memo;
+try{render()}catch(renderError){console.warn('サンプル描画の一部で問題',renderError)}
+if(typeof window.hearingNaviOpenSample==='function'){
+ try{window.hearingNaviOpenSample(number,records[number])}
+ catch(openError){console.warn('記録管理への反映を省略',openError)}
+}
 document.getElementById('returnPanel')?.scrollIntoView({block:'start'});
 status.textContent='架空サンプルを表示中（初回・再来完了）';
 }catch(err){status.textContent='サンプル読み込み失敗：'+err.message;console.error(err)}
