@@ -688,8 +688,22 @@ function salesCommand(){
  document.querySelectorAll('.command-steps span').forEach((e,i)=>e.classList.toggle('on',i===Math.min(3,rows.length===0?0:priority<=2?1:priority<=3?2:3)));
  const btn=document.getElementById('commandAsk');btn.onclick=()=>{const candidates=[...document.querySelectorAll('[data-context]')];const found=candidates.find(b=>{const r=INSIGHT_RULES.find(x=>x.id===b.dataset.context);return r?.question===ask});if(found){found.click()}else{const q=questionNow();if(q?.q!==ask){$('answer').focus();$('answer').placeholder='提案質問：'+ask+'\n回答を記録してください';}else{$('answer').focus()}}document.querySelector('.center')?.scrollIntoView({behavior:'smooth',block:'start'})};
 }
-const salesOldRender=render;render=function(){salesOldRender();salesCommand()};
-render();
+const salesOldRender=render;
+render=function(){
+ try{salesOldRender()}catch(err){console.error('基本画面・分析描画エラー',err)}
+ try{salesCommand()}catch(err){console.error('営業ナビ描画エラー',err)}
+ // Essential question display must not depend on any optional sidebar calculation.
+ try{
+  const q=questionNow();
+  $('question').textContent=q?.q||'基本質問は完了しました。レポートを確認できます。';
+  $('axisTag').textContent=q?.a||'完了';
+  $('why').textContent=q?'質問の狙い：'+(q.why||''):'';
+  $('commandQuestion').textContent=q?.q||'基本質問は完了しました。';
+  $('commandReason').textContent=q?'質問の狙い：'+(q.why||''):'';
+  $('next').disabled=!q;$('skip').disabled=!q;
+ }catch(err){console.error('質問表示エラー',err)}
+};
+try{render()}catch(err){console.error('初期描画エラー',err)};
 
 // v14: correct previously saved mistaken simulator URL without overriding a custom URL.
 (function(){const old='https://lifestyle-time-simulator.banghirayama.chatgpt.site/';const correct='https://bangtatsu0721.github.io/home-purchase-simulator/';const key='nav7_url_sim';let saved=null;try{saved=localStorage.getItem(key)}catch(e){}if(!saved||saved===old){const input=document.getElementById('simUrl');if(input){input.value=correct;updateToolLinks()}}})();
