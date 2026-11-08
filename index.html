@@ -1210,12 +1210,18 @@ try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.
   if($('recordList'))$('recordList').value='';
   for(const id of ['finRent','finSubsidy','finLoan','finMaint','finOther','finKeep'])if($(id))$(id).value='';
   const sample=$('sampleCompletePreview');if(sample)sample.remove();
+  // The mode button can restore a completed visit state; set the first question AFTER mode setup.
   try{if($('modeFirst'))$('modeFirst').click()}catch(err){console.warn(err)}
+  s.entries=[];s.skipped=[];s.visited=[];s.current='trigger';s.pendingProbes=[];s.returnTo=null;
   try{render()}catch(err){console.error('新規画面の描画エラー',err)}
-  const q=typeof questionNow==='function'?questionNow():null;
+  s.current='trigger';
+  const q=(typeof byId!=='undefined'&&byId.trigger)||{q:'今回、住まい探しを始めたきっかけは何でしたか？',a:'時期'};
   const label=q?.q||'何をきっかけに住まい探しを始められましたか？';
   for(const id of ['question','answerQuestionPrompt','commandQuestion'])if($(id))$(id).textContent=label;
   if($('axisTag'))$('axisTag').textContent=q?.a||'時期';
+  if($('next'))$('next').disabled=false;
+  if($('skip'))$('skip').disabled=false;
+  if($('choices'))$('choices').innerHTML=(q.c||[]).map(v=>'<label class="choice"><input type="radio" name="choice" value="'+String(v).replace(/"/g,'&quot;')+'">'+v+'</label>').join('');
   msg('新しい商談を開始しました。保存済み記録は変更していません。');
   $('answer')?.focus();
  }
