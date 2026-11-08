@@ -346,9 +346,7 @@ $('printBtn').onclick=()=>{
  const corrections=clone.querySelector('#reportCorrections');if(corrections)corrections.remove();
  clone.querySelectorAll('button,input,select').forEach(el=>el.remove());
  const html='<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>商談分析レポート</title><style>'+
- '@page{size:A4 portrait;margin:14mm}*{box-sizing:border-box}body{font-family:"Yu Gothic","Meiryo",sans-serif;color:#1c3038;background:#fff;font-size:10.5pt;line-height:1.55;margin:0}h2{font-size:18pt;border-bottom:2px solid #167c71;padding-bottom:8px}h3{font-size:12pt;background:#edf5f3;padding:6px 9px;margin-top:20px;break-after:avoid}p{margin:8px 0;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9pt}th,td{border:1px solid #cfd9db;padding:7px;vertical-align:top;overflow-wrap:anywhere}th{background:#f1f6f5}small,.muted{color:#586b72;font-size:8.5pt}details{display:block!important}details>summary{display:none!important}details>*{display:block!important}#reportBody>div{break-inside:avoid}button{display:none!important}</style></head><body><main id="reportBody">'+clone.innerHTML+'</main>
-
-</body></html>';
+ '@page{size:A4 portrait;margin:14mm}*{box-sizing:border-box}body{font-family:"Yu Gothic","Meiryo",sans-serif;color:#1c3038;background:#fff;font-size:10.5pt;line-height:1.55;margin:0}h2{font-size:18pt;border-bottom:2px solid #167c71;padding-bottom:8px}h3{font-size:12pt;background:#edf5f3;padding:6px 9px;margin-top:20px;break-after:avoid}p{margin:8px 0;overflow-wrap:anywhere}table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:9pt}th,td{border:1px solid #cfd9db;padding:7px;vertical-align:top;overflow-wrap:anywhere}th{background:#f1f6f5}small,.muted{color:#586b72;font-size:8.5pt}details{display:block!important}details>summary{display:none!important}details>*{display:block!important}#reportBody>div{break-inside:avoid}button{display:none!important}</style></head><body><main id="reportBody">'+clone.innerHTML+'</main></body></html>';
  win.document.open();win.document.write(html);win.document.close();
  win.focus();setTimeout(()=>{try{win.print()}catch(e){console.error(e)}},350);
 };$('export').onclick=()=>{const blob=new Blob([JSON.stringify(s,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='hearing_'+new Date().toISOString().slice(0,10)+'.json';a.click();URL.revokeObjectURL(a.href)};
@@ -1343,4 +1341,5 @@ try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.
  update();
 })();
 </script>
+<style id="singleQuestionPrompt">#question{display:none!important}#answerQuestionPrompt{display:block}</style>
 </body></html>
