@@ -803,6 +803,15 @@ function saveCase(quiet=false){const r=snapshot();if(!validNumber(r.number)){if(
  const previous=records[r.number];r.state.client='';records[r.number]=r;if(!persist()){if(previous)records[r.number]=previous;else delete records[r.number];return false}/* Keep the previous record when saving under a new survey number; never silently delete it. */active=r.number;refreshList();status(`保存済み：${r.number}`);return true}
 function autoSave(){if(loading||!active||!records[active])return;const n=clean(by('recordNumber').value);if(n!==active){status('番号の変更を保存してください');return}saveCase(true)}
 function openCase(key){if(!records[key])return;const r=records[key];loading=true;active=key;s=Object.assign(empty(),clone(r.state||{}));s.client='';by('recordNumber').value=r.number||key;by('recordName').value=r.name||'';setFin(r.finance);render();loading=false;refreshList();status(`呼び出し済み：${r.number||key}`)}
+// Open a generated fictitious case without reloading or touching other saved cases.
+window.hearingNaviOpenSample=function(number,record){
+ if(!number||!record||records[number]&&!records[number].sample)throw Error('既存のお客様の番号と重複しています');
+ records[number]=record;
+ if(!persist())throw Error('ブラウザに保存できませんでした');
+ refreshList();
+ openCase(number);
+ return true;
+};
 function newCase(){if(!confirm('新しい記録の記録を開始しますか？ 現在の記録は、アンケートナンバーが入力済みなら保存します。'))return;
  if(active)saveCase(true);loading=true;active=null;s=empty();by('recordNumber').value='';by('recordName').value='';setFin({});render();loading=false;refreshList();status('新規入力（未保存）');by('recordNumber').focus()}
 by('recordSave').addEventListener('click',()=>{try{saveCase()}catch(e){status('保存エラー：'+e.message);alert('保存できませんでした：'+e.message)}});
@@ -985,13 +994,14 @@ const records=JSON.parse(localStorage.getItem(KEY)||'{}');
 let number='DEMO-2026-001',i=2;
 while(Object.prototype.hasOwnProperty.call(records,number)&&records[number]?.sample!==true)number='DEMO-2026-'+String(i++).padStart(3,'0');
 records[number]={number,name:'',state:build(),finance:{},updated:new Date().toISOString(),sample:true};
-localStorage.setItem(KEY,JSON.stringify(records));
-localStorage.setItem('housing_interview_v24_demo_open',number);
-location.reload();
+if(typeof window.hearingNaviOpenSample!=='function')throw Error('記録管理機能を読み込めませんでした。Ctrl+F5で更新してください');
+window.hearingNaviOpenSample(number,records[number]);
+document.getElementById('returnPanel')?.scrollIntoView({block:'start'});
+status.textContent='架空サンプルを表示中（初回・再来完了）';
 }catch(err){status.textContent='サンプル読み込み失敗：'+err.message;console.error(err)}
 });
-const pending=localStorage.getItem('housing_interview_v24_demo_open');
-if(pending){localStorage.removeItem('housing_interview_v24_demo_open');setTimeout(()=>{const sel=document.getElementById('recordList');sel.value=pending;if(sel.value===pending){document.getElementById('recordOpen').click();document.getElementById('returnPanel').scrollIntoView({block:'start'});status.textContent='架空サンプルを表示中（初回・再来完了）';}else status.textContent='サンプルを開けませんでした';},50)}
+// Clear the old reload-based sample handoff flag; sample opening is now immediate.
+try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.warn(e)}
 })();
 </script>
 <style id="onePagePrintStyle">
