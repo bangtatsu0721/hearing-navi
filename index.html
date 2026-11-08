@@ -1244,4 +1244,41 @@ try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.
  msg(count?'保存済みの記録を選択できます':'保存済みの記録が見つかりません。必要に応じて安全コピーを検索してください。');
 })();
 </script>
+
+<script>
+// UI resilience: keep the visible question and "use this question" action operational
+// even when an optional analytics/render extension fails.
+(function(){
+ const get=id=>document.getElementById(id);
+ function sync(){
+  try{
+   if(typeof questionNow!=='function')return;
+   const q=questionNow();
+   const title=get('question'),why=get('why'),tag=get('axisTag'),ask=get('commandQuestion'),reason=get('commandReason');
+   if(title)title.textContent=q?.q||'基本質問は完了しました。レポートを確認できます。';
+   if(why)why.textContent=q?'質問の狙い：'+(q.why||'お客様の希望を確認する'):'';
+   if(tag)tag.textContent=q?.a||'完了';
+   if(ask)ask.textContent=q?.q||'基本質問は完了しました。';
+   if(reason)reason.textContent=q?'質問の狙い：'+(q.why||'お客様の希望を確認する'):'';
+   const btn=get('commandAsk');if(btn)btn.disabled=!q;
+  }catch(e){console.warn('質問表示の復旧処理',e)}
+ }
+ function refresh(){
+  try{if(typeof render==='function')render()}catch(e){console.warn('一部の分析画面を描画できませんでした',e)}
+  sync();
+ }
+ const btn=get('commandAsk');
+ if(btn)btn.addEventListener('click',e=>{
+  e.preventDefault();e.stopImmediatePropagation();
+  sync();
+  const answer=get('answer');if(answer){answer.focus();answer.scrollIntoView({behavior:'smooth',block:'center'})}
+ },true);
+ const next=get('next'),skip=get('skip'),back=get('back');
+ for(const b of [next,skip,back])b?.addEventListener('click',()=>setTimeout(sync,0));
+ get('recordNew')?.addEventListener('click',()=>setTimeout(sync,50));
+ get('recordOpen')?.addEventListener('click',()=>setTimeout(sync,50));
+ window.addEventListener('pageshow',()=>setTimeout(sync,0));
+ sync();
+})();
+</script>
 </body></html>
