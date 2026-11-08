@@ -1418,4 +1418,79 @@ try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.
 })();
 </script>
 <style id="singleQuestionPrompt">#question{display:none!important}#answerQuestionPrompt{display:block}</style>
+
+<section id="inventoryModule" class="panel" style="max-width:1560px;margin:18px auto;padding:20px">
+ <h2 style="font-size:19px">販売住戸マスター・予算照合（試験運用）</h2>
+ <p class="muted">販売中の住戸を登録し、月額予算から購入価格を逆算します。住戸情報はこのブラウザに保存されます。別端末・別担当者とは自動同期しません。実際の販売状況・金利・諸費用は必ず確認してください。</p>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px">
+ <label>物件名<input id="invProject" value="イニシア南茨木"></label>
+ <label>部屋番号<input id="invUnit" placeholder="例：1004"></label>
+ <label>間取り<input id="invLayout" placeholder="例：1LDK＋DEN"></label>
+ <label>専有面積（㎡）<input id="invArea" type="number" step="0.01" min="0"></label>
+ <label>価格（万円）<input id="invPrice" type="number" min="0"></label>
+ <label>管理費（月額・円）<input id="invMaint" type="number" min="0"></label>
+ <label>修繕積立金（月額・円）<input id="invRepair" type="number" min="0"></label>
+ <label>その他月額費用（円）<input id="invOther" type="number" min="0" value="0"></label>
+ <label>販売状況<select id="invStatus"><option value="販売中">販売中</option><option value="商談中">商談中</option><option value="販売終了">販売終了</option></select></label>
+ </div>
+ <div class="actions"><button type="button" class="btn primary" id="invSave">住戸を登録・更新</button><button type="button" class="btn" id="invExport">住戸データを書き出す</button><label class="btn" style="cursor:pointer">住戸データを読み込む<input type="file" id="invImport" accept=".json" style="display:none"></label></div>
+ <div id="invMessage" role="status" class="muted"></div>
+ <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr><th>物件・部屋</th><th>間取り / ㎡</th><th>価格</th><th>月額固定費</th><th>状況</th><th>操作</th></tr></thead><tbody id="invRows"></tbody></table></div>
+ <h3 style="margin-top:22px">お客様の月額予算と照合</h3>
+ <p class="muted">月額予算にはローン返済・管理費・修繕積立金・その他月額費用を含めてください。購入時諸費用は別途。頭金を入力する場合は現金で用意できる金額を入力してください。</p>
+ <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px">
+ <label>月額予算（円）<input id="invBudget" type="number" min="0" placeholder="例：150000"></label>
+ <label>試算金利（年％）<input id="invRate" type="number" min="0" step="0.01" value="1.0"></label>
+ <label>返済年数<input id="invYears" type="number" min="1" max="50" value="40"></label>
+ <label>頭金（万円）<input id="invDown" type="number" min="0" value="0"></label>
+ </div>
+ <div class="actions"><button type="button" class="btn primary" id="invCheck">登録住戸と照合する</button></div>
+ <div id="invResults" aria-live="polite"></div>
+</section>
+<script>
+(function(){
+ 'use strict';
+ const KEY='hearing_navi_inventory_v1', $=id=>document.getElementById(id);
+ const fields=['Project','Unit','Layout','Area','Price','Maint','Repair','Other','Status'];
+ const safe=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;'}[c]));
+ const num=x=>Number(x)||0;
+ let units=[];
+ try{const v=JSON.parse(localStorage.getItem(KEY)||'[]');if(Array.isArray(v))units=v}catch(e){$('invMessage').textContent='保存済み住戸データを読み取れませんでした。'}
+ const money=n=>Math.round(n).toLocaleString('ja-JP')+'円';
+ function persist(){try{localStorage.setItem(KEY,JSON.stringify(units));return true}catch(e){$('invMessage').textContent='保存に失敗しました。バックアップを確認してください。';return false}}
+ function render(){
+  $('invRows').innerHTML=units.map((u,i)=>'<tr style="border-top:1px solid #ddd"><td>'+safe(u.project)+' / '+safe(u.unit)+'</td><td>'+safe(u.layout)+' / '+safe(u.area)+'</td><td>'+safe(u.price)+'万円</td><td>'+money(num(u.maint)+num(u.repair)+num(u.other))+'</td><td>'+safe(u.status)+'</td><td><button type="button" class="btn" data-edit="'+i+'">編集</button> <button type="button" class="btn" data-remove="'+i+'">削除</button></td></tr>').join('')||'<tr><td colspan="6">まだ住戸が登録されていません。</td></tr>';
+ }
+ function clear(){for(const f of fields){const el=$('inv'+f);el.value=f==='Project'?'イニシア南茨木':f==='Status'?'販売中':f==='Other'?'0':'';}delete $('invSave').dataset.edit}
+ $('invSave').onclick=()=>{
+  const o={};for(const f of fields)o[f.toLowerCase()]=$('inv'+f).value.trim();
+  if(!o.project||!o.unit||!(num(o.price)>0)||!(num(o.area)>0)){ $('invMessage').textContent='物件名・部屋番号・面積・価格は必須です。';return}
+  if(['maint','repair','other'].some(k=>o[k]===''||num(o[k])<0)){ $('invMessage').textContent='月額費用を入力してください（不明な場合は確認後に登録）。';return}
+  const edit=$('invSave').dataset.edit;
+  const duplicate=units.findIndex((u,i)=>u.project===o.project&&u.unit===o.unit&&String(i)!==edit);
+  if(duplicate>=0){$('invMessage').textContent='同じ物件・部屋番号が登録済みです。編集ボタンから更新してください。';return}
+  if(edit!==undefined)units[Number(edit)]=o;else units.push(o);
+  if(persist()){clear();render();$('invMessage').textContent='住戸情報を保存しました。'}
+ };
+ $('invRows').onclick=e=>{
+  const edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-remove]');
+  if(edit){const i=Number(edit.dataset.edit),u=units[i];for(const f of fields)$('inv'+f).value=u[f.toLowerCase()]??'';$('invSave').dataset.edit=i;$('invMessage').textContent='編集中：'+u.project+' '+u.unit;return}
+  if(del){const i=Number(del.dataset.remove);if(!confirm(units[i].project+' '+units[i].unit+'を削除しますか？'))return;units.splice(i,1);if(persist())render()}
+ };
+ function factor(rate,years){const n=years*12,r=rate/1200;return r===0?1/n:r/(1-Math.pow(1+r,-n))}
+ $('invCheck').onclick=()=>{
+  const budget=num($('invBudget').value),rate=Number($('invRate').value),years=Number($('invYears').value),down=num($('invDown').value)*10000;
+  if(!(budget>0)||!Number.isFinite(rate)||rate<0||!(years>=1&&years<=50)||down<0){$('invResults').textContent='月額予算・金利・返済年数・頭金を確認してください。';return}
+  const k=factor(rate,years);
+  const available=units.filter(u=>u.status==='販売中');
+  const rows=available.map(u=>{const fixed=num(u.maint)+num(u.repair)+num(u.other),loan=Math.max(0,num(u.price)*10000-down),monthly=loan*k+fixed,maxPrice=Math.max(0,(budget-fixed)/k+down)/10000;return {u,monthly,maxPrice,delta:budget-monthly}}).sort((a,b)=>b.delta-a.delta);
+  const fmt=r=>'<tr style="border-top:1px solid #ddd"><td>'+safe(r.u.project)+' '+safe(r.u.unit)+'</td><td>'+safe(r.u.layout)+'</td><td>'+safe(r.u.price)+'万円</td><td>'+money(r.monthly)+'</td><td>'+money(r.delta)+'</td><td>'+(r.delta>=0?'月額予算内':'月額予算超過')+'</td></tr>';
+  const affordable=rows.filter(r=>r.delta>=0).length;
+  $('invResults').innerHTML='<p><strong>照合結果：'+(affordable?affordable+'戸が月額予算内':available.length?'登録中の販売住戸に月額予算内の部屋はありません':'販売中の登録住戸がありません')+'</strong></p><p class="muted">試算条件：年'+rate+'％・'+years+'年・頭金'+(down/10000)+'万円。元利均等返済・ボーナス返済なし。購入諸費用・固定資産税等は「その他月額費用」に入力した額以外は含みません。登録住戸の販売状況は自動更新されません。</p><div style="overflow-x:auto"><table style="width:100%;font-size:13px"><thead><tr><th>住戸</th><th>間取り</th><th>価格</th><th>推定月額</th><th>予算との差</th><th>判定</th></tr></thead><tbody>'+rows.map(fmt).join('')+'</tbody></table></div>';
+ };
+ $('invExport').onclick=()=>{const blob=new Blob([JSON.stringify(units,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='hearing-navi-inventory.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ $('invImport').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const v=JSON.parse(await file.text());if(!Array.isArray(v)||!v.every(u=>u&&typeof u.project==='string'&&typeof u.unit==='string'&&Number(u.price)>0&&Number(u.area)>0))throw Error('形式が違います');if(!confirm('現在の住戸マスターを読み込んだ内容で置き換えますか？'))return;units=v;if(persist())render()}catch(err){$('invMessage').textContent='読み込みに失敗しました：'+err.message}e.target.value=''};
+ render();
+})();
+</script>
 </body></html>
