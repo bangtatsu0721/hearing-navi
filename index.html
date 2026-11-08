@@ -960,7 +960,34 @@ btn.addEventListener('click',function(event){
  const instructions='以下は新築分譲マンションの架空の商談記録です。お客様の発言事実と仮説を分け、4軸（時期・予算・エリア・商品）の購入障壁TOP3、次に聞く質問TOP3、必要な資料と営業トークを具体的に提案してください。温度感を成約確率として扱わず、不明点は未確認としてください。\n\n【初回】\n'+firstData.map(x=>x.join('：')).join('\n')+'\n\n【再来】\n'+returnData.map(x=>x.join('：')).join('\n');
  panel.querySelector('#sampleCopilot').onclick=async()=>{try{await navigator.clipboard.writeText(instructions);panel.querySelector('#samplePreviewStatus').textContent='Copilot分析用テキストをコピーしました'}catch(e){const ta=document.createElement('textarea');ta.style.cssText='width:100%;height:160px';ta.value=instructions;panel.querySelector('#samplePreviewStatus').after(ta);ta.focus();ta.select();panel.querySelector('#samplePreviewStatus').textContent='コピーできない場合は下の文章を選択してコピーしてください'}};
  panel.querySelector('#samplePrint').onclick=()=>{const w=window.open('','_blank');if(!w){alert('ポップアップを許可してください');return}const doc='<!doctype html><html lang="ja"><head><meta charset="utf-8"><title>架空サンプル商談レポート</title><style>body{font-family:Meiryo,sans-serif;margin:25mm;color:#203642}h1{font-size:20px}details{display:block!important}summary{font-weight:bold}button{display:none!important}@page{size:A4;margin:15mm}</style></head><body><h1>架空サンプル商談レポート</h1>'+panel.innerHTML+'</body></html>';w.document.open();w.document.write(doc);w.document.close();w.focus();setTimeout(()=>w.print(),250)};
- panel.scrollIntoView({behavior:'smooth',block:'start'});
+ 
+// Populate the original left-hand indicators directly from the sample, even if legacy render wrappers fail.
+const allSample=sample.entries||[];
+const axisMap={'時期':['origin','now','trigger','timing'],'予算':['budget','budgetwhy'],'エリア':['area','areawhy'],'商品':['product','layout','decision']};
+const axisNotes={
+ '時期':{value:35,reason:'住み替えのきっかけはあるが、今購入する必要性は未確定',ask:'賃貸を続ける場合と購入する場合、何が変われば購入に納得できますか？'},
+ '予算':{value:45,reason:'希望価格と月15万円の総支払条件の整合が未確認',ask:'管理費・修繕費込みで月15万円以内となる購入価格を確認してもよいですか？'},
+ 'エリア':{value:55,reason:'吹田・茨木を比較。通勤と広さの優先順位は検討中',ask:'通勤時間と広さのどちらを優先しますか？'},
+ '商品':{value:60,reason:'70㎡・仕事部屋・収納の理由は具体的。住戸との適合は未確認',ask:'実際の間取りで仕事部屋と収納が足りるか確認しましょうか？'}
+};
+const sampleAxes=['時期','予算','エリア','商品'];
+const escSample=escapeHTML;
+const completion=sampleAxes.map(a=>{const ids=axisMap[a],n=ids.filter(id=>allSample.some(e=>e.id===id)).length;return {axis:a,n,total:ids.length,pct:Math.round(n/ids.length*100)}});
+const axesEl=document.getElementById('axes');
+if(axesEl)axesEl.innerHTML=completion.map(x=>'<div class="axis"><div class="axishead"><span>'+x.axis+'</span><strong>'+x.pct+'%</strong></div><div class="bar"><div class="fill" style="width:'+x.pct+'%"></div></div></div>').join('');
+const warmthEl=document.getElementById('temperatures');
+if(warmthEl)warmthEl.innerHTML=sampleAxes.map(a=>{const t=axisNotes[a];return '<div class="tempitem"><div class="temphead"><span>'+a+'</span><strong>'+t.value+'%（参考）</strong></div><div class="tempbar"><div class="tempfill" style="width:'+t.value+'%"></div></div><div class="tempnote">'+escSample(t.reason)+'</div><div class="tempnote" style="margin-top:6px;padding:7px 8px;background:#f0f7f5;border-left:3px solid #167c71;border-radius:4px"><strong>次に確認：</strong>'+escSample(t.ask)+'</div></div>'}).join('');
+const bantEl=document.getElementById('bantStatus');
+if(bantEl)bantEl.innerHTML=completion.map(x=>'<div style="margin:8px 0"><strong>'+x.axis+'</strong><div class="muted">'+x.n+' / '+x.total+' 項目を確認</div><div class="bar"><div class="fill" style="width:'+x.pct+'%"></div></div></div>').join('');
+const priorityEl=document.getElementById('priority');
+if(priorityEl)priorityEl.innerHTML='<strong>時期</strong><div class="muted">購入する必要性・購入時期の納得を優先して確認</div>';
+const timelineEl=document.getElementById('timeline');
+if(timelineEl)timelineEl.innerHTML=allSample.map((e,i)=>'<div class="event"><span class="muted">'+(i+1)+'｜'+escSample(axes[e.id]||'商談')+'</span><p>'+escSample(e.text)+'</p></div>').join('');
+const insightEl=document.getElementById('insight');
+if(insightEl)insightEl.innerHTML='<p>・現住居への満足度が高い。今購入する理由を確認する。</p><p>・家賃補助終了を含めた実質負担と購入後の総額を比較する。</p><p>・通勤と広さの優先順位を整理する。</p>';
+const countEl=document.getElementById('count');
+if(countEl)countEl.textContent='架空サンプル：初回 '+allSample.length+' 件／再来 '+sample.returnDraft.length+' 件';
+panel.scrollIntoView({behavior:'smooth',block:'start'});
  status.textContent='架空サンプルの初回・再来レポートを表示中（実データは変更していません）';
 },true);
 
