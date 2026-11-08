@@ -365,7 +365,7 @@ makeReport=function(){
  '<h3>05｜営業担当者が次に注力すべきこと</h3><p><strong>'+esc(priorityText)+'</strong></p><p>'+esc(next)+'</p><p class="muted">低い数値だけで注力軸を決めず、判定保留の軸とお客様の優先事項も確認してください。</p>'+
  '<h3>06｜次回商談の準備・未確認事項</h3><table>'+unknown+'</table><p>準備する資料：予算に懸念があれば資金計画、エリア比較が必要なら物件MAP、商品条件が不明なら間取り・比較表。実際の発言に基づいて選定してください。</p>'+
  '<h3>07｜担当者による評価確認・補正</h3><p class="muted">自動判定が接客時の反応と異なる場合のみ補正。変更はこの商談記録に保存されます。</p>'+review+'<button class="btn primary" id="tempApply" type="button">補正を保存してレポートを更新</button>'+
- '<h3>08｜発言記録（原文）</h3>'+all.map(e=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);return '<p><strong>['+esc(q?.a||'その他')+'] '+esc(q?.q||'追加質問')+'</strong><br>'+esc([e.choice,e.text].filter(Boolean).join(' / '))+'</p>'}).join('');
+ '<h3>08｜発言記録（原文）</h3>'+all.map(e=>{const q=byId[e.id]||(e.id?.startsWith('depth:')?depthQuestion(e.id.slice(6)):null)||probes[e.id?.slice(6)]||currentCustomById(e.id);return '<p><strong>['+esc(q?.a||'その他')+'] '+esc(q?.q||'追加質問')+'</strong><br>'+esc([e.choice,e.text].filter(Boolean).join(' / '))+'</p>'}).join('');
  for(const a of axes){const el=document.querySelector('[data-temp-axis="'+a+'"]');if(el)el.value=String(s.temperatureOverrides?.[a]?.value??'')}
  document.getElementById('tempApply').onclick=()=>{
   s.temperatureOverrides=s.temperatureOverrides||{};
@@ -390,9 +390,10 @@ makeReport=function(){
  for(const axis of axesNames){
   const ev=axisEvidence(axis),t=temperature(axis),body=ev.map(x=>x.raw).join('。').normalize('NFKC');
   let issue='',talk=narratives[axis].talk,verify=narratives[axis].verify,priority=0;
+  if(axis==='予算'&&subsidyState()==='none')verify='現在の住居費／諸費用・維持費／資金計画の確認意思';
   if(axis==='時期'&&/急いでいない|急いでない|まだ.*(?:買わ|購入し)|現居.*満足|今のままで/.test(body)){issue='住み替えを急ぐ必要性が弱い可能性';talk='現居に満足されている中で、購入によって実現したいことはありますか？';priority=4}
   if(axis==='時期'&&/条件.*合えば|良い物件.*(?:買|購入)/.test(body)){issue='期限は未確定でも条件次第で購入する余地がある';talk='どの条件がそろえば、時期を早めてもよいと感じますか？';priority=2}
-  if(axis==='予算'&&/家賃補助|住宅手当/.test(body)){issue='家賃補助による実質負担との差が判断の障壁になり得る';talk='補助を含めた今の実質負担と購入後の総住居費を比較してみませんか？';priority=5}
+  if(axis==='予算'&&subsidyState()==='yes'&&/家賃補助|住宅手当/.test(body)){issue='家賃補助による実質負担との差が判断の障壁になり得る';talk='補助を含めた今の実質負担と購入後の総住居費を比較してみませんか？';priority=5}
   else if(axis==='予算'&&/高い|厳しい|不安|負担|予算オーバー|払えない/.test(body)){issue='支払いへの不安や予算との乖離がある可能性';priority=4}
   if(axis==='エリア'&&/なんとなく|勧められ|特に理由.*ない/.test(body)){issue='希望エリアが本人の優先条件として固まっていない可能性';priority=3}
   if(axis==='商品'&&/狭い|収納.*足り|間取り.*合わ|中古.*迷|新築.*迷|音.*気/.test(body)){issue='間取り・住環境・物件種別への懸念が残っている可能性';priority=4}
@@ -409,9 +410,9 @@ makeReport=function(){
  const axisHTML=risks.map(x=>'<tr><th>'+x.axis+'</th><td><strong>'+(x.t.value==null?'判定保留':x.t.value+'%（参考）')+'</strong><br><small>根拠の充足度 '+x.t.confidence+'%</small></td><td>'+esc(x.issue)+'<br><small>根拠：'+esc(x.evidence[0]||'該当発言なし')+'</small></td></tr>').join('');
  const actionable=ranked.slice(0,3).map((x,i)=>'<div style="padding:10px 0;border-bottom:1px solid #ddd;break-inside:avoid"><strong>'+(i+1)+'. '+x.axis+'｜'+esc(x.issue)+'</strong><p><b>話すこと・質問：</b>'+esc(x.talk)+'</p><p><b>確認事項：</b>'+esc(x.verify)+'</p><small>判断の根拠：'+esc(x.evidence.join(' ／ ')||'直接の発言なし。次回要確認')+'</small></div>').join('');
  const overview=[['来場のきっかけ',raw('trigger')],['現居への評価',raw('now')],['意思決定・相談相手',raw('authority')]].map(([k,v])=>'<p><b>'+k+'：</b>'+esc(v||'未確認')+'</p>').join('');
- const record=all.map((e,i)=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);return '<div style="padding:6px 0;border-bottom:1px solid #eee;break-inside:avoid"><small>'+(i+1)+'. '+esc(q?.q||'追加質問')+'</small><div>'+esc([e.choice,e.text].filter(Boolean).join(' / ')||'未入力')+'</div></div>'}).join('');
+ const record=all.map((e,i)=>{const q=byId[e.id]||(e.id?.startsWith('depth:')?depthQuestion(e.id.slice(6)):null)||probes[e.id?.slice(6)]||currentCustomById(e.id);return '<div style="padding:6px 0;border-bottom:1px solid #eee;break-inside:avoid"><small>'+(i+1)+'. '+esc(q?.q||'追加質問')+'</small><div>'+esc([e.choice,e.text].filter(Boolean).join(' / ')||'未入力')+'</div></div>'}).join('');
  const correction=axesNames.map(a=>{const o=s.temperatureOverrides?.[a];return '<div style="padding:8px 0"><b>'+a+'</b>　<select data-temp-axis="'+a+'"><option value="">自動判定</option>'+[20,35,50,65,80].map(n=>'<option value="'+n+'">'+n+'%</option>').join('')+'</select> <input data-temp-reason="'+a+'" value="'+esc(o?.reason||'')+'" placeholder="補正の根拠（任意）" style="max-width:340px"></div>'}).join('');
- $('reportBody').innerHTML='<h2>初回来場｜購入判断・温度感分析</h2><p>アンケート番号：'+esc(s.memo||'未入力')+'　回答 '+all.length+'件</p>'+
+ $('reportBody').innerHTML='<h2>初回来場｜購入判断・温度感分析</h2><p>アンケート番号：'+esc($('recordNumber')?.value.trim()||'未入力')+'　回答 '+all.length+'件</p>'+
  '<h3>01｜商談総括</h3><p><strong>'+esc(summary)+'</strong></p>'+overview+
  '<h3>02｜4軸の温度感と懸念</h3><table><thead><tr><th>軸</th><th>温度感</th><th>購入判断への影響・根拠</th></tr></thead><tbody>'+axisHTML+'</tbody></table>'+
  '<p class="muted">数値は購入確率ではありません。言葉の意味を限定的なルールで推定した参考値です。数値の低さだけで注力順位を決めません。</p>'+
@@ -465,7 +466,7 @@ function recommendSlides(){const pick=new Set(['decision','realcost','benefits',
 function selectSlides(){const rec=recommendSlides();$('slideChoices').innerHTML='<p class="axisnote">自動選定した資料にチェックを入れています。必要に応じて変更できます。</p>'+SLIDE_CATALOG.map(x=>`<div class="slidechoice"><label><input class="check" type="checkbox" value="${x.id}" ${rec.includes(x.id)?'checked':''}>${esc(x.title)}</label><small>${esc(x.desc)}</small></div>`).join('')+'<p class="muted">各スライドの文字は直接クリックして修正できます。印刷時は「背景のグラフィック」を有効にすると見た目を維持できます。</p>'}
 function financialData(){const v=id=>{const x=document.getElementById(id)?.value;return x===''||x==null?null:Number(x)};const rent=v('finRent'),sub=v('finSubsidy'),loan=v('finLoan'),maint=v('finMaint'),other=v('finOther'),keep=document.getElementById('finKeep')?.value||'unknown';const current=rent!==null&&sub!==null?rent-sub:null;const buy=loan!==null&&maint!==null&&other!==null?loan+maint+other:null;const diff=current!==null&&buy!==null&&keep!=='unknown'?buy-current-(keep==='yes'?sub:0):null;return {rent,sub,loan,maint,other,keep,current,buy,diff}}
 function yen(n){return n===null?'未確認':Math.round(n).toLocaleString('ja-JP')+'円'}
-function customerContext(){const w=allSpeech();return {satisfied:/不満.{0,5}ない|満足|困っていない|特に問題ない/.test(w),subsidy:/家賃補助|住宅手当|社宅|補助/.test(w),remote:/在宅|テレワーク|仕事部屋|書斎/.test(w),family:/子ども|出産|育児|家族|学区/.test(w),external:/親|友人|周囲|勧められ/.test(w),price:/高い|予算|価格|支払い|負担/.test(w)}}
+function customerContext(){const w=allSpeech();return {satisfied:/不満.{0,5}ない|満足|困っていない|特に問題ない/.test(w),subsidy:subsidyState()==='yes',remote:/在宅|テレワーク|仕事部屋|書斎/.test(w),family:/子ども|出産|育児|家族|学区/.test(w),external:/親|友人|周囲|勧められ/.test(w),price:/高い|予算|価格|支払い|負担/.test(w)}}
 function specialSlide(id){const f=financialData(),c=customerContext(),a=txt('trigger');if(id==='realcost'){const delta=f.diff===null?'未算出（補助の継続条件と購入後の全費用が必要）':(f.diff>=0?'+':'')+yen(f.diff);return {lead:'住宅購入の前に、家賃補助を含めた実質負担の変化を確かめます。',tiles:[['現在の実質住居費','家賃：'+yen(f.rent)+'\n補助：'+yen(f.sub)+'\n実質負担：'+yen(f.current)],['購入後の住居費','ローン：'+yen(f.loan)+'\n管理費・修繕積立金等：'+yen(f.maint)+'\nその他維持費：'+yen(f.other)+'\n合計：'+yen(f.buy)],['毎月の負担差',delta+'\n購入後の家賃補助：'+({yes:'継続',no:'終了',unknown:'未確認'}[f.keep])+'\n※初期費用・将来の修繕費変動・税制・売却価値等は含みません。'],['お客様への問い','この負担差があるとして、今の住まいでは得られない何が実現すれば、購入に意味を感じられますか？']],foot:'入力値による単純な月額比較。購入と賃貸の総費用比較ではありません。'}}if(id==='benefits'){const reasons=[];if(c.remote)reasons.push('在宅勤務のための独立した空間');if(c.family)reasons.push('家族構成の変化に備えた住まい');if(!reasons.length)reasons.push('今の住まいで解決できない課題（未確認）');const caution=[];if(c.satisfied)caution.push('現居に大きな不満がないため、購入の生活改善効果は未確認');if(c.subsidy)caution.push('家賃補助の喪失による負担増を検証');if(c.external)caution.push('購入動機が周囲の助言に偏っていないか確認');if(!caution.length)caution.push('購入によって失う柔軟性・諸費用を確認');return {lead:'一般論の「持ち家のメリット」ではなく、このご家族が得られる変化を検証します。',tiles:[['生活面で得られる可能性',reasons.join('\n')+'\n※必要性と間取り適合は要確認'],['資産形成の可能性','返済により住宅ローン残高は減少しますが、住宅の価値が維持される保証はありません。\n売却費用・残債・価格変動も比較が必要です。'],['購入による制約',caution.join('\n')+'\n転居の自由度や維持費負担も比較'],['この資料で確認する質問','もし今の賃貸を続けた場合、5年後・10年後に困ることは何でしょうか？\n購入でしか解決できないことはありますか？']],foot:'効果は仮説。購入の優位性や資産価値を保証しません。'}}if(id==='decision'){let status='判断保留：購入の便益と費用を確認する必要があります。';if(c.satisfied&&(f.diff===null||f.diff>0))status='賃貸継続も有力：現居に満足しており、購入の追加便益がまだ明確ではありません。';return {lead:'購入を前提とせず、賃貸継続・購入・検討保留の3案を同じ基準で比較します。',tiles:[['現時点の暫定判断',status+'\n購入のきっかけ：'+a],['賃貸を続ける理由',(c.satisfied?'現居に満足している。\n':'')+(c.subsidy?'家賃補助がある。\n':'')+'資金や住み替え時期の自由度を保てる。'],['購入を検討する理由',(c.remote?'仕事部屋など住空間の改善。\n':'')+(c.family?'将来の家族構成への対応。\n':'')+'長期的な居住安定や住宅資産の形成（条件次第）。'],['判断のための次の一手','① 家賃補助の終了条件を確認\n② 必要な部屋数・暮らしの変化を確認\n③ 購入安心度シミュレーターで将来収支を検証\n④ 新築マンションMAPで条件を満たす選択肢を比較']],foot:'暫定整理であり購入・賃貸の推奨を確定するものではありません。'}}return null}
 function slideData(id){const special=specialSlide(id);if(special)return special;switch(id){
 case 'summary':return {lead:'今までのお話を、購入判断の4つの観点で整理しました。',tiles:[['時期｜'+score('時期')+'%','探し始めたきっかけ：'+txt('trigger')+'\n希望時期：'+txt('timing')],['エリア｜'+score('エリア')+'%','希望：'+txt('area')+'\n希望理由：'+txt('areawhy')],['予算｜'+score('予算')+'%','安心できる月額：'+txt('budget')+'\n予算の根拠：'+txt('budgetwhy')],['商品｜'+score('商品')+'%','新築・中古：'+txt('product')+'\n優先条件：'+txt('producttrade')]],foot:'％は質問回答の充足度です。購入意欲・成約可能性を示すものではありません。'};
@@ -504,7 +505,7 @@ const INSIGHT_RULES=[
  {id:'remote',axis:'商品',rx:/在宅|リモート|仕事部屋|書斎|デスク/,question:'仕事部屋を独立させることと、リビングや子ども部屋の広さでは、どちらを優先したいですか？',reason:'実生活に基づく間取りの優先順位',tool:'map'}
 ];
 function allSpeech(){return s.entries.map(e=>[e.choice,e.text].filter(Boolean).join(' ')).join('。')}
-function detectDecisions(){const speech=allSpeech();const current=(s.entries.at(-1)?.text||'')+' '+(s.entries.at(-1)?.choice||'');return INSIGHT_RULES.filter(r=>r.rx.test(speech)).map(r=>({...r,recent:r.rx.test(current)})).sort((a,b)=>Number(b.recent)-Number(a.recent))}
+function detectDecisions(){const speech=allSpeech();const current=(s.entries.at(-1)?.text||'')+' '+(s.entries.at(-1)?.choice||'');return INSIGHT_RULES.filter(r=>r.rx.test(speech)&&(r.id!=='subsidy'||subsidyState()==='yes')).map(r=>({...r,recent:r.rx.test(current)})).sort((a,b)=>Number(b.recent)-Number(a.recent))}
 function meaningfulQuestionCandidates(){const found=detectDecisions();const done=s.probeHistory||[];return found.filter(r=>!done.includes('context_'+r.id)).slice(0,3)}
 function renderDecisions(){const p=document.getElementById('decisionPanel');if(!p)return;const matches=meaningfulQuestionCandidates();p.innerHTML='<b>会話内容から選んだ深掘り候補</b><div class="mini">以下は事前設計したルールに基づく質問候補。お客様の本心を断定しません。</div>'+(matches.length?matches.map(r=>`<div style="margin-top:9px"><span class="tag">${esc(r.axis)}</span> <b>${esc(r.question)}</b><div class="mini">狙い：${esc(r.reason)}</div><button class="smallbtn" data-context="${r.id}">この質問に切り替える</button><button class="smallbtn" data-contextdone="${r.id}">確認済みにする</button></div>`).join(''):'<p class="mini">現時点では新しい深掘り候補はありません。通常の質問を続けてください。</p>');p.querySelectorAll('[data-context]').forEach(b=>b.onclick=()=>{const r=INSIGHT_RULES.find(x=>x.id===b.dataset.context);s.returnTo=s.current;s.current='custom:'+r.id;render()});p.querySelectorAll('[data-contextdone]').forEach(b=>b.onclick=()=>{s.probeHistory=s.probeHistory||[];s.probeHistory.push('context_'+b.dataset.contextdone);render()})}
 function currentCustom(){if(!s.current?.startsWith('custom:'))return null;const r=INSIGHT_RULES.find(x=>x.id===s.current.slice(7));return r?{id:s.current,a:r.axis,q:r.question,why:r.reason,c:['はい・可能','いいえ・難しい','条件による','まだ分からない']}:null}
@@ -649,7 +650,7 @@ const WARMTH_SIGNS={
  '商品':{positive:[/この物件.*(?:良い|気に入|検討したい)/,/間取り.*(?:気に入|合っている)/,/収納.*(?:十分|良い)/,/もう一度.*(?:見たい|確認したい)/,/具体的に.*(?:比較|検討)/],negative:[/この物件.*(?:合わない|嫌|買わない)/,/間取り.*(?:合わない|使いにくい)/,/広さ.*(?:足りない|狭い)/],barrier:[/新築.*中古.*迷|中古.*新築.*迷/,/間取り.*(?:不安|迷)/,/比較.*(?:不足|できていない)/]}
 };
 function axisEvidence(axis){
- return (s.entries||[]).map(e=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);const raw=[e.choice,e.text].filter(Boolean).join(' / ').trim();return {id:e.id,axis:q?.a||'',raw};}).filter(e=>e.raw&&(e.axis===axis||AXIS_EVIDENCE[axis].some(rx=>rx.test(e.raw))));
+ return (s.entries||[]).map(e=>{const q=byId[e.id]||(e.id?.startsWith('depth:')?depthQuestion(e.id.slice(6)):null)||probes[e.id?.slice(6)]||currentCustomById(e.id);const raw=[e.choice,e.text].filter(Boolean).join(' / ').trim();return {id:e.id,axis:q?.a||'',raw};}).filter(e=>e.raw&&(e.axis===axis||AXIS_EVIDENCE[axis].some(rx=>rx.test(e.raw))));
 }
 // v29: evidence-weighted temperature; specificity alone does not imply willingness to buy.
 const AXIS_STAGE={
@@ -725,7 +726,7 @@ function nextAxisCheck(axis){
   [/眺望|音|日当たり|階数|設備/,'住戸条件への懸念','現地で確認しないと判断できない点は何ですか？']
  ]
  };
- const hit=map[axis].find(([rx])=>rx.test(t));
+ const hit=map[axis].find(([rx],i)=>rx.test(t)&&!(axis==='予算'&&i===0&&subsidyState()!=='yes'));
  if(hit)return {issue:hit[1],ask:hit[2]};
  return {issue:'購入判断とのつながりが未確認',ask:{
  '時期':'良い物件があれば今でも購入を検討しますか？',
@@ -753,7 +754,7 @@ function salesCommand(){
  if(rows.length){phase='理由・条件の整理';issue='今の発言を深掘り';ask=questionNow()?.q||'ここまでの条件で、特に譲れないことは何でしょうか？';reason=questionNow()?.why||'次の判断条件を確認';goal='4軸の判断基準を具体化';next=`未整理の軸：${low}。希望の理由と優先順位を確認`;priority=1}
  if(pick('rent_satisfied',/不満(?:は|が)?ない|満足して|今のままでも|家賃補助|住宅手当/)){
  phase='購入理由の確認';issue='現居を続ける選択肢が強い';ask='今のお住まいを続ける場合と比べて、購入すると何が良くなると感じますか？';reason='購入を勧める前に、お客様本人が期待する変化を確認';goal='買う理由があるかを合意';next='理由が見つからなければ賃貸継続・時期見直しも提示';caution='現居に満足していることは購入意欲の低さと同義ではありません。';tools='ツール：比較の目的が定まってから使用';priority=2}
- if(pick('subsidy',/家賃補助|住宅手当|会社.*補助/)){
+ if(subsidyState()==='yes'&&pick('subsidy',/家賃補助|住宅手当|会社.*補助/)){
  phase='住居費の条件整理';issue='家賃補助が購入判断に影響';ask='その補助は購入後も続きますか？ 終了する場合、今の実質負担との差をどのようにお考えですか？';reason='現在の実質住居費と購入後の負担を同じ条件で比較';goal='負担増に見合う購入メリットを確認';next='補助条件を確認→住居費比較→購入安心度シミュレーター';caution='補助の継続可否は会社規程で確認。家賃とローン返済だけの比較は避ける。';tools='推奨：購入安心度シミュレーター';priority=3}
  if(pick('area_external',/友人.*北摂|親.*北摂|勧められ.*エリア|なんとなく北摂/)){
  phase='希望の根拠を確認';issue='エリア希望が本人の優先条件か未確認';ask='北摂がよいと感じるのは、具体的にどんな暮らしを期待されているからでしょうか？';reason='周囲の勧めと本人の希望を分けて整理';goal='エリアの選択理由を言語化';next='理由を確認→比較する条件を合意→MAPで実物件を比較';caution='エリアを変えるよう誘導せず、希望の背景を確認します。';tools='推奨：新築マンションMAP';priority=4}
@@ -963,7 +964,7 @@ const RUBRIC={
  'エリア':[/駅|エリア|地域|沿線|場所|立地|通勤/,/徒歩|分|範囲|近く|距離|路線/,/実家|職場|学校|環境|生活|比較/],
  '商品':[/間取り|広さ|新築|中古|物件|階数|設備/,/\d+\s*(㎡|平米|LDK|階)|部屋|収納/,/管理|修繕|仕事部屋|子ども部屋|比較|条件/]
 };
-function normalizeAnswers(entries){return (entries||[]).map(e=>{const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);return {axis:q?.a||'',text:[q?.q,e.choice,e.text].filter(Boolean).join(' '),raw:[e.choice,e.text].filter(Boolean).join(' ')};});}
+function normalizeAnswers(entries){return (entries||[]).map(e=>{const q=byId[e.id]||(e.id?.startsWith('depth:')?depthQuestion(e.id.slice(6)):null)||probes[e.id?.slice(6)]||currentCustomById(e.id);return {axis:q?.a||'',text:[q?.q,e.choice,e.text].filter(Boolean).join(' '),raw:[e.choice,e.text].filter(Boolean).join(' ')};});}
 function evaluate(rows){const result={};for(const axis of AX){const selected=rows.filter(x=>x.axis===axis&&x.raw?.trim());const all=selected.map(x=>x.raw).join('。');if(!selected.length){result[axis]={clarity:null,warmth:null,evidence:'この軸の回答がありません'};continue}const patterns=RUBRIC[axis];const found=patterns.filter(re=>re.test(all)).length;const detailed=selected.filter(x=>x.raw.length>=15).length;const clarity=Math.min(95,Math.round((25+found*15+Math.min(3,detailed)*8)/5)*5);const warmth=Math.min(95,Math.max(10,Math.round((25+found*12+Math.min(3,detailed)*10)/5)*5));result[axis]={clarity,warmth,evidence:selected.slice(-2).map(x=>x.raw.slice(0,85)).join(' / ')};}return result}
 function firstSnapshot(){const st=state();if(st.visits.some(v=>v.kind==='first'))return;const answers=normalizeAnswers(st.entries);st.visits.push({kind:'first',date:new Date().toISOString(),answers,scores:evaluate(answers),entryCount:st.entries.length});}
 function activeVisit(){const st=state();return st.visits.filter(v=>v.kind==='return').length+2;}
@@ -1217,7 +1218,7 @@ try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.
   const number=safe(document.getElementById('recordNumber')?.value)||'未設定';
   const entries=Array.isArray(s.entries)?s.entries:[];
   const qs=entries.map((e,i)=>{
-   const q=byId[e.id]||probes[e.id?.slice(6)]||currentCustomById(e.id);
+   const q=byId[e.id]||(e.id?.startsWith('depth:')?depthQuestion(e.id.slice(6)):null)||probes[e.id?.slice(6)]||currentCustomById(e.id);
    return (i+1)+'. 【'+safe(q?.a||'分類未設定')+'】'+scrub(q?.q||'質問')+'\n   回答：'+scrub([e.choice,e.text].filter(Boolean).join('／')||'未回答');
   });
   const axisLines=['時期','予算','エリア','商品'].map(a=>{

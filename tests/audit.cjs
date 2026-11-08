@@ -38,6 +38,12 @@ test('full route terminates without duplicate IDs or subsidy continuation',()=>{
  assert.ok(n<100);assert.equal(state().current,null);
 });
 test('report opens and includes interview responses',()=>{$('reportBtn').click();assert.ok(!$('report').classList.contains('hidden'));assert.match($('reportBody').textContent,/家賃/)});
+test('no-subsidy analysis and displayed record number agree with answers',()=>{
+ set('recordNumber','QA-REPORT');set('memo','internal note');$('reportBtn').click();
+ assert.match($('reportBody').textContent,/アンケート番号：QA-REPORT/);
+ assert.ok(!$('reportBody').textContent.includes('家賃補助による実質負担との差が判断の障壁'));
+ assert.ok(!w.eval('detectDecisions().some(r=>r.id==="subsidy")'));
+});
 test('reload preserves unnamed draft without changing customer records',()=>{
  const draft=JSON.parse(w.localStorage.getItem('housing_interview_public_anonymous_v1_state'));
  const B=app({'housing_interview_public_anonymous_v1_state':draft});assert.equal(B.w.eval('s.entries.length'),draft.entries.length);assert.equal(B.w.localStorage.getItem(records),null);B.dom.window.close();
