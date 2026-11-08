@@ -179,7 +179,7 @@ const BANK=[
 const byId=Object.fromEntries(BANK.map(x=>[x.id,x]));const axes=['時期','エリア','予算','商品'];const STORAGE='housing_interview_public_anonymous_v1_state';let s={client:'',memo:'',entries:[],current:'trigger',skipped:[],manual:[],visited:[],pendingProbes:[],probeHistory:[],returnTo:null};
 const $=id=>document.getElementById(id);const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function entry(id){return s.entries.find(e=>e.id===id)}function answered(id){return !!entry(id)}function has(t){return s.entries.some(e=>(e.text+' '+e.choice).includes(t))}function chosen(id,v){return (entry(id)?.choice||'').includes(v)}
-function branch(qid){if(qid==='trigger'&&(chosen('trigger','周囲')||chosen('trigger','なんとなく')))return 'selfmot';if(qid==='trigger')return 'now';if(qid==='now')return 'authority';if(qid==='now'&&chosen('now','特に不満はない'))return 'rentvalue';if(qid==='areawhy'&&(chosen('areawhy','周囲')||chosen('areawhy','特に理由はない')))return 'areatrade';if(qid==='budgetwhy'&&(chosen('budgetwhy','FP')||chosen('budgetwhy','将来')))return 'fp';if(qid==='producttrade'&&(has('階数')||has('眺望'))&&!answered('floor'))return 'floor';if(qid==='early'&&(chosen('early','まだ買えない')||chosen('early','分からない')))return 'barrier';if(qid==='barrier'&&chosen('barrier','家族'))return 'family';if(qid==='decision'&&has('比較')&&!answered('comparison'))return 'comparison';return byId[qid]?.next||null}
+function branch(qid){if(qid==='trigger'&&(chosen('trigger','周囲')||chosen('trigger','なんとなく')))return 'selfmot';if(qid==='trigger')return 'now';if(qid==='now'&&chosen('now','特に不満はない'))return 'rentvalue';if(qid==='now')return 'authority';if(qid==='areawhy'&&(chosen('areawhy','周囲')||chosen('areawhy','特に理由はない')))return 'areatrade';if(qid==='budgetwhy'&&(chosen('budgetwhy','FP')||chosen('budgetwhy','将来')))return 'fp';if(qid==='producttrade'&&(has('階数')||has('眺望'))&&!answered('floor'))return 'floor';if(qid==='early'&&(chosen('early','まだ買えない')||chosen('early','分からない')))return 'barrier';if(qid==='barrier'&&chosen('barrier','家族'))return 'family';if(qid==='decision'&&has('比較')&&!answered('comparison'))return 'comparison';return byId[qid]?.next||null}
 function nextQuestion(from){let id=branch(from),guard=0;while(id&&guard++<40&&(answered(id)||s.skipped.includes(id)))id=branch(id);if(!id){const remaining=BANK.filter(q=>!answered(q.id)&&!s.skipped.includes(q.id));if(!remaining.length)return null;remaining.sort((a,b)=>score(a.a)-score(b.a));return remaining[0].id}return id}
 
 // v6: オフライン文脈エンジン。発言の事実と推測を区別し、数値/対比/動機から深掘りを作る。
@@ -1270,7 +1270,7 @@ try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.
  }
  // Capture click before any legacy listeners. A failed legacy initializer cannot disable these controls.
  const actions={recordNew:reset,recordOpen:open,recordSave:save,recordBackup:backup};
- for(const [id,fn] of Object.entries(actions))$(id)?.addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();try{fn()}catch(err){msg(id+'：'+err.message);console.error(err)}},true);
+ for(const [id,fn] of Object.entries(actions))$(id)?.addEventListener('click',e=>{if(typeof window.hearingNaviOpenSample==='function')return; e.preventDefault();e.stopImmediatePropagation();try{fn()}catch(err){msg(id+'：'+err.message);console.error(err)}},true);
  const count=list();
  const info=$('recordRecoveryInfo');if(info)info.textContent='保存記録：'+count+'件（安全コピーを含む復元機能）';
  msg(count?'保存済みの記録を選択できます':'保存済みの記録が見つかりません。必要に応じて安全コピーを検索してください。');
