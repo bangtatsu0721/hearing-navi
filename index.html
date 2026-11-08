@@ -934,10 +934,10 @@ s=build();
 s.client='';
 document.getElementById('recordNumber').value=number;
 document.getElementById('memo').value=s.memo;
-try{render()}catch(renderError){console.warn('サンプル描画の一部で問題',renderError)}
+try{render()}catch(renderError){console.error('サンプル描画エラー',renderError);status.textContent='サンプル描画エラー：'+renderError.message+' ／ '+(renderError.stack||'');status.style.whiteSpace='pre-wrap';status.style.color='#a40000';}
 if(typeof window.hearingNaviOpenSample==='function'){
  try{window.hearingNaviOpenSample(number,records[number])}
- catch(openError){console.warn('記録管理への反映を省略',openError)}
+ catch(openError){console.error('記録管理エラー',openError);status.textContent+=' ／ 記録管理：'+openError.message+' '+(openError.stack||'')}
 }
 document.getElementById('returnPanel')?.scrollIntoView({block:'start'});
 status.textContent='架空サンプルを表示中（初回・再来完了）';
