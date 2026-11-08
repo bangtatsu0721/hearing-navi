@@ -1201,9 +1201,23 @@ try{localStorage.removeItem('housing_interview_v24_demo_open')}catch(e){console.
  }
  function reset(){
   if(!confirm('新しい商談を開始しますか？ 保存していない入力内容は失われます。保存済みの記録は削除しません。'))return;
-  // A clean reload clears the isolated demo preview and resets the failed legacy UI
-  // without modifying any saved record or browser storage.
-  window.location.reload();
+  // Reset the actual live questionnaire state, not merely the page display.
+  // Do not modify the per-customer records or safety copies.
+  const fresh={client:'',memo:'',entries:[],current:'trigger',skipped:[],manual:[],visited:[],pendingProbes:[],probeHistory:[],returnTo:null,visitMode:'first',returnDraft:[],returnCoach:[],visits:[],coachLog:[]};
+  s=fresh;
+  try{localStorage.setItem('housing_interview_public_anonymous_v1_state',JSON.stringify(fresh))}catch(err){console.warn('新規状態の保存に失敗',err)}
+  for(const id of ['recordNumber','recordName','memo','client','answer','coachAnswer'])if($(id))$(id).value='';
+  if($('recordList'))$('recordList').value='';
+  for(const id of ['finRent','finSubsidy','finLoan','finMaint','finOther','finKeep'])if($(id))$(id).value='';
+  const sample=$('sampleCompletePreview');if(sample)sample.remove();
+  try{if($('modeFirst'))$('modeFirst').click()}catch(err){console.warn(err)}
+  try{render()}catch(err){console.error('新規画面の描画エラー',err)}
+  const q=typeof questionNow==='function'?questionNow():null;
+  const label=q?.q||'何をきっかけに住まい探しを始められましたか？';
+  for(const id of ['question','answerQuestionPrompt','commandQuestion'])if($(id))$(id).textContent=label;
+  if($('axisTag'))$('axisTag').textContent=q?.a||'時期';
+  msg('新しい商談を開始しました。保存済み記録は変更していません。');
+  $('answer')?.focus();
  }
  function open(){
   const k=$('recordList')?.value,records=read(),r=records[k];
